@@ -396,6 +396,33 @@ footer{border-top:1px solid var(--line);padding-block:40px;color:var(--mut);font
     </div>
   </dialog>
 
+  <section id="kto" style="padding-top:0">
+    <div class="wrap">
+      <div class="head"><div><span class="eyebrow">Kto môže získať financovanie</span><h2>Financovanie pre každého, kto má stabilný príjem</h2></div></div>
+      <div class="who">
+        <div class="who-i"><span class="svc-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="7.5" r="3.5"/><path d="M5 21c1-4 3.8-6 7-6s6 2 7 6"/></svg></span><div><b>Zamestnanec</b><small>Pravidelný príjem zo zamestnania na dobu určitú aj neurčitú.</small></div></div>
+        <div class="who-i"><span class="svc-ic"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="10" height="18" rx="1"/><path d="M14 9h6v12h-6M7 7h4M7 11h4M7 15h4"/></svg></span><div><b>Živnostník a firma</b><small>Financovanie aj leasing pre SZČO a s.r.o.</small></div></div>
+        <div class="who-i"><span class="svc-ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="5" r="2.5"/><path d="M11 8v6l-3 7M11 14l3 7M8 11h6l2 3M18 13v8"/></svg></span><div><b>Dôchodca</b><small>Starobný, výsluhový alebo invalidný dôchodok.</small></div></div>
+        <div class="who-i"><span class="svc-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg></span><div><b>Cudzinec s pobytom v SR</b><small>Platné povolenie na pobyt a príjem na Slovensku.</small></div></div>
+      </div>
+      <div class="why3">
+        <div class="why3-i"><span class="svc-ic"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><b>Chcem auto rýchlo</b><p>Vyberte si z našej ponuky alebo nám pošlite odkaz na auto od akéhokoľvek predajcu. Laura vám splátku vypočíta hneď.</p></div>
+        <div class="why3-i"><span class="svc-ic"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><b>Chcem ho na splátky</b><p>Spolu nastavíme akontáciu, výšku splátky aj dobu splácania tak, aby vám sedeli do rozpočtu.</p></div>
+        <div class="why3-i"><span class="svc-ic"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><b>Chcem to bez starostí</b><p>Pripravíme ponuku na mieru a po vašom súhlase vybavíme schválenie u financujúcej spoločnosti. Vy už len podpíšete.</p></div>
+      </div>
+    </div>
+  </section>
+<style>
+.who{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.why3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:14px}
+@media (max-width:900px){.who{grid-template-columns:1fr 1fr}.why3{grid-template-columns:1fr}}
+@media (max-width:520px){.who{grid-template-columns:1fr}}
+.who-i{display:flex;gap:14px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px 20px}
+.who-i b,.why3-i b{display:block;font-size:16px}.who-i small{display:block;color:var(--mut);font-size:13.5px;margin-top:3px;line-height:1.45}
+.why3-i{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px 22px;display:grid;gap:10px;align-content:start}
+.why3-i p{margin:0;color:var(--mut);font-size:14.5px;line-height:1.55}
+</style>
+
   <section id="postup" style="padding-top:0">
     <div class="wrap">
       <div class="head">
@@ -871,7 +898,7 @@ dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-f
   // ---------- kontakt / lead ----------
   // ---------- predbežné posúdenie ----------
   const Q = [
-    ['typ', 'Aby sme vám pripravili presnú ponuku, mám pár krátkych otázok 🙂\n\n<b>1/6</b> Na koho bude financovanie?', ['Zamestnanec','SZČO (živnosť)','Firma (s.r.o.)']],
+    ['typ', 'Aby sme vám pripravili presnú ponuku, mám pár krátkych otázok 🙂\n\n<b>1/6</b> Na koho bude financovanie?', ['Zamestnanec','SZČO (živnosť)','Firma (s.r.o.)','Dôchodca','Cudzinec s pobytom v SR']],
     ['prijem', '', []],
     ['exekucie', '<b>3/6</b> Máte momentálne nejaké exekúcie alebo nesplácané úvery?', ['Nie','Áno','Neviem']],
     ['registre', '<b>4/6</b> Splácate úvery načas (čisté úverové registre)?', ['Áno, registre mám čisté','V minulosti som mal omeškanie','Neviem']],
@@ -889,7 +916,11 @@ dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-f
   let akontNext = 0, prijemNext = 0;
   async function prijemFlow(i){ prijemNext = i + 1;
     if (lead.typ === 'Firma (s.r.o.)' || lead.typ === 'SZČO (živnosť)'){ lead.prijem = lead.typ === 'Firma (s.r.o.)' ? 'Firma' : 'Živnosť'; return askIco(); }
-    await bot('<b>2/6</b> Aký máte pracovný pomer?');
+    if (lead.typ === 'Dôchodca'){ await bot('<b>2/6</b> Aký dôchodok poberáte?');
+      return chips(['Starobný','Výsluhový','Invalidný'].map(o => [o, () => { lead.prijem = o + ' dôchodok'; qualify(prijemNext); }])); }
+    if (lead.typ === 'Cudzinec s pobytom v SR' && !lead.pobyt){ await bot('<b>2/6</b> Aký typ pobytu na Slovensku máte?');
+      return chips(['Trvalý pobyt','Prechodný pobyt'].map(o => [o, () => { lead.pobyt = o; prijemFlow(prijemNext - 1); }])); }
+    await bot(lead.typ === 'Cudzinec s pobytom v SR' ? 'Aký máte pracovný pomer na Slovensku?' : '<b>2/6</b> Aký máte pracovný pomer?');
     chips([['Zmluva na dobu neurčitú', () => askOdkedy('Zmluva na dobu neurčitú')], ['Zmluva na dobu určitú', () => askOdkedy('Zmluva na dobu určitú')]]); }
   const isFirma = () => lead.typ === 'Firma (s.r.o.)';
   async function askIco(retry){ step = 'ico'; await bot(retry ? 'Napíšte prosím správne IČO (8 číslic).' : (isFirma() ? '<b>2/6</b> Aké je IČO vašej firmy?' : '<b>2/6</b> Aké je IČO vašej živnosti?'));
@@ -921,7 +952,7 @@ dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-f
   async function askName2(){ step = 'name'; await bot(lead.name ? 'Potvrďte prosím vaše meno:' : 'Ďakujem! Ako sa voláte?'); input.focus(); }
   async function askPhone(){ step = 'phone'; await bot(`Ďakujem, ${esc(lead.name.split(' ')[0])}. Na aké telefónne číslo vám môžeme zavolať?`); input.setAttribute('inputmode','tel'); input.focus(); }
   async function finish(){ step = null; input.removeAttribute('inputmode');
-    const extra = [['Ročník',lead.rok],['Typ',lead.typ],['Príjem',lead.prijem],['Odkedy',lead.odkedy],['IČO',lead.ico],['Firma',lead.firma],['Firma v registri',/^\d{8}$/.test(lead.ico||'') ? 'https://www.finstat.sk/' + lead.ico : ''],['Poznámka',lead.pozn],['Exekúcie',lead.exekucie],['Registre',lead.registre],['Akontácia',lead.akontacia],['Doba',lead.doba]].filter(x=>x[1]).map(([a,b])=>`\n${a}: ${b}`).join('');
+    const extra = [['Ročník',lead.rok],['Typ',lead.typ],['Pobyt',lead.pobyt],['Príjem',lead.prijem],['Odkedy',lead.odkedy],['IČO',lead.ico],['Firma',lead.firma],['Firma v registri',/^\d{8}$/.test(lead.ico||'') ? 'https://www.finstat.sk/' + lead.ico : ''],['Poznámka',lead.pozn],['Exekúcie',lead.exekucie],['Registre',lead.registre],['Akontácia',lead.akontacia],['Doba',lead.doba]].filter(x=>x[1]).map(([a,b])=>`\n${a}: ${b}`).join('');
     const links = curCar ? `\nOdkaz: https://splatkuj.sk/#auto-${SK.slug(curCar)}` + (curCar.url ? `\nInzerát: ${curCar.url}` : '') : '';
     const src = lead.zdroj ? `\nZdroj: ${lead.zdroj}` : '';
     const intro = lead.zaujem === 'predaj' ? 'Dobrý deň, chcem predať vozidlo.' : lead.zaujem === 'poistenie' ? `Dobrý deň, mám záujem o poistenie vozidla (${lead.poistenie || ''}).` : 'Dobrý deň, mám záujem o financovanie auta.';
