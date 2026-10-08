@@ -467,11 +467,71 @@ footer{border-top:1px solid var(--line);padding-block:40px;color:var(--mut);font
   <div class="wrap">
     <div class="foot">
       <a class="logo" href="#top"><svg><use href="#mark"/></svg><span class="wm">splatkuj<i>.sk</i></span></a>
-      <span>© 2026 Splatkuj.sk (predtým Autá za babku) · Financovanie vozidiel po celom Slovensku · <a href="https://claude.ai/artifact/GB5mSp21vwPdeAS9FFWL4S" target="_blank" rel="noopener" style="color:var(--mut)">Administrácia</a> · <a href="https://claude.ai/artifact/RzxFmQwtobW7QqqKjhsZSy" target="_blank" rel="noopener" style="color:var(--mut)">Reklamy</a></span>
+      <span>© 2026 Splatkuj.sk (predtým Autá za babku) · Financovanie vozidiel po celom Slovensku · <a href="#" data-legal="privacy" style="color:var(--mut)">Ochrana osobných údajov</a> · <a href="#" data-legal="cookies" style="color:var(--mut)">Zásady cookies</a> · <a href="#" data-cookie-settings style="color:var(--mut)">Nastavenia cookies</a></span>
     </div>
     <p class="legal">Všetky výpočty na tejto stránke sú orientačné a nepredstavujú záväznú ponuku. Reprezentatívny príklad a RPMN uvádzame pri konkrétnej ponuke. Spoločnosť pôsobí ako sprostredkovateľ financovania.</p>
+    <p class="legal" id="firmInfo">Prevádzkovateľ: <b>LPFinance s.r.o.</b>, IČO: 56022352<!--FIRMA--></p>
   </div>
 </footer>
+<style>
+.ck{position:fixed;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:70;max-width:760px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px 20px;box-shadow:0 20px 50px rgb(0 0 0/.5);display:grid;gap:12px;font-size:14px}
+.ck b{font-size:15px}.ck p{margin:0;color:var(--mut);line-height:1.5}.ck p a{color:var(--brand2)}
+.ck .row{display:flex;gap:8px;flex-wrap:wrap}.ck button{font:700 14px var(--body);padding:11px 16px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);color:var(--fg);cursor:pointer}
+.ck button.pri{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
+.ck label{display:flex;gap:10px;align-items:flex-start;color:var(--fg)}.ck label span{color:var(--mut);display:block;font-size:13px}
+.ck input{accent-color:var(--brand);margin-top:3px}
+dialog.lg{border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:20px;padding:24px;width:min(720px,calc(100vw - 24px));max-height:calc(100vh - 40px);overflow:auto;font-size:15px;line-height:1.6}
+dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-family:var(--display)}dialog.lg h3{margin:18px 0 6px;font-size:16px}dialog.lg p,dialog.lg li{color:var(--mut)}dialog.lg table{width:100%;border-collapse:collapse;font-size:14px}dialog.lg td,dialog.lg th{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left;vertical-align:top}
+</style>
+<div class="ck" id="ck" hidden role="dialog" aria-label="Súhlas s cookies">
+  <b>Používame cookies 🍪</b>
+  <p>Nevyhnutné súbory zabezpečujú fungovanie webu a kalkulačky. S vaším súhlasom použijeme aj analytické (koľko ľudí prišlo a z ktorej reklamy) a marketingové cookies. <a href="#" data-legal="cookies">Zásady cookies</a></p>
+  <div id="ckOpts" hidden style="display:grid;gap:10px">
+    <label><input type="checkbox" checked disabled> <div>Nevyhnutné<span>Fungovanie webu, uloženie vašej voľby. Vždy zapnuté.</span></div></label>
+    <label><input type="checkbox" id="ckA"> <div>Analytické<span>Anonymná štatistika návštevnosti a kliknutí z reklám.</span></div></label>
+    <label><input type="checkbox" id="ckM"> <div>Marketingové<span>Meranie reklám na Facebooku, Instagrame a TikToku.</span></div></label>
+  </div>
+  <div class="row"><button class="pri" type="button" data-ck="all">Prijať všetky</button><button type="button" data-ck="min">Len nevyhnutné</button><button type="button" data-ck="set" id="ckSet">Nastavenia</button></div>
+</div>
+<dialog class="lg" id="lg" aria-label="Právne informácie"></dialog>
+<script>
+(() => {
+  const KEY = 'skCookies', $ = id => document.getElementById(id);
+  const get = () => { try { return JSON.parse(localStorage.getItem(KEY) || 'null'); } catch { return null; } };
+  const save = v => { try { localStorage.setItem(KEY, JSON.stringify({...v, at: new Date().toISOString(), v: 1})); } catch {} window.SKconsent = v; $('ck').hidden = true; document.dispatchEvent(new CustomEvent('sk-consent', {detail: v})); };
+  window.SKconsent = get();
+  const open = (opts) => { const c = get() || {}; $('ckA').checked = !!c.analytics; $('ckM').checked = !!c.marketing; $('ckOpts').hidden = !opts; $('ckSet').textContent = opts ? 'Uložiť výber' : 'Nastavenia'; $('ck').hidden = false; };
+  if (!window.SKconsent) setTimeout(() => open(false), 900);
+  $('ck').addEventListener('click', e => { const b = e.target.closest('[data-ck]'); if (!b) return;
+    if (b.dataset.ck === 'all') save({necessary: true, analytics: true, marketing: true});
+    else if (b.dataset.ck === 'min') save({necessary: true, analytics: false, marketing: false});
+    else if ($('ckOpts').hidden) open(true);
+    else save({necessary: true, analytics: $('ckA').checked, marketing: $('ckM').checked}); });
+  const FIRMA = () => document.getElementById('firmInfo')?.innerHTML.replace(/^Prevádzkovateľ:\s*/, '') || 'LPFinance s.r.o.';
+  const DOCS = {
+    cookies: () => `<h2>Zásady cookies</h2><p>Prevádzkovateľ webu splatkuj.sk: ${FIRMA()}.</p>
+      <p>Cookies a podobné technológie (napr. lokálne úložisko prehliadača) sú malé súbory, ktoré si web ukladá vo vašom zariadení.</p>
+      <table><tr><th>Kategória</th><th>Účel</th><th>Doba</th></tr>
+      <tr><td>Nevyhnutné</td><td>Fungovanie webu, kalkulačky a uloženie vašej voľby cookies (skCookies).</td><td>12 mesiacov</td></tr>
+      <tr><td>Analytické</td><td>Anonymná štatistika návštevnosti a toho, z ktorej reklamy ste prišli. Používame len s vaším súhlasom.</td><td>do 13 mesiacov</td></tr>
+      <tr><td>Marketingové</td><td>Meranie úspešnosti reklám na Facebooku, Instagrame a TikToku. Používame len s vaším súhlasom.</td><td>do 13 mesiacov</td></tr></table>
+      <p>Súhlas môžete kedykoľvek zmeniť alebo odvolať cez odkaz <b>Nastavenia cookies</b> v päte stránky. Podrobnosti o spracúvaní osobných údajov nájdete v časti Ochrana osobných údajov.</p>`,
+    privacy: () => `<h2>Ochrana osobných údajov</h2><p>Prevádzkovateľ: ${FIRMA()}. Kontakt: info@splatkuj.sk, 0903 427 088.</p>
+      <h3>Aké údaje spracúvame</h3><p>Údaje, ktoré nám sami pošlete cez formulár, chat Laura, WhatsApp, SMS alebo telefonicky: meno, telefón, e-mail, vybrané vozidlo a údaje potrebné na posúdenie financovania (typ príjmu, IČO, informácie o úveroch a exekúciách).</p>
+      <h3>Prečo</h3><p>Aby sme vás mohli kontaktovať a pripraviť ponuku financovania (opatrenia pred uzavretím zmluvy na vašu žiadosť), a na plnenie zákonných povinností sprostredkovateľa financovania.</p>
+      <h3>Komu ich poskytujeme</h3><p>Len financujúcim spoločnostiam (banky, leasingové spoločnosti), ktorým ponuku na vašu žiadosť predkladáme, a dodávateľom technických služieb (hosting, e-mail, komunikačné aplikácie).</p>
+      <h3>Ako dlho</h3><p>Po dobu potrebnú na vybavenie žiadosti, najdlhšie 12 mesiacov od posledného kontaktu, ak zákon nevyžaduje dlhšiu dobu.</p>
+      <h3>Vaše práva</h3><p>Máte právo na prístup k údajom, opravu, vymazanie, obmedzenie spracúvania, prenosnosť a námietku, ako aj právo podať sťažnosť na Úrad na ochranu osobných údajov SR. Žiadosti posielajte na info@splatkuj.sk.</p>`
+  };
+  const lg = $('lg');
+  document.addEventListener('click', e => {
+    const s = e.target.closest('[data-cookie-settings]'); if (s){ e.preventDefault(); open(true); return; }
+    const l = e.target.closest('[data-legal]'); if (l){ e.preventDefault(); lg.innerHTML = DOCS[l.dataset.legal]() + '<p style="margin-top:18px"><button type="button" data-close style="font:700 14px var(--body);padding:10px 18px;border-radius:999px;border:0;background:var(--brand);color:var(--on-brand);cursor:pointer">Zavrieť</button></p>'; lg.showModal(); }
+  });
+  lg.addEventListener('click', e => { if (e.target.closest('[data-close]') || e.target === lg) lg.close(); });
+})();
+</script>
+
 
 <script>
 (() => {
