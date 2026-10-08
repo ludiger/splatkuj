@@ -145,6 +145,11 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 /* detail */
 dialog.det{border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:24px;padding:0;width:min(980px,calc(100vw - 24px));max-height:calc(100vh - 24px);overflow:auto}
 dialog.det::backdrop{background:rgb(0 0 0/.7);backdrop-filter:blur(4px)}
+#dGal{position:relative}.wmk{position:absolute;right:14px;bottom:14px;display:flex;align-items:center;gap:7px;background:#16B57F;color:#0B0F0D;font:800 15px/1 'Unbounded',var(--display);letter-spacing:-.04em;padding:6px 14px 6px 6px;border-radius:999px;pointer-events:none}.wmk svg{width:24px;height:24px}.wmk i{font-style:normal;opacity:.55}
+.pcount{position:absolute;left:14px;bottom:14px;background:rgb(0 0 0/.6);color:#fff;font:600 13px var(--body);padding:5px 10px;border-radius:999px;pointer-events:none}
+.dh{margin:22px 0 10px;font:800 17px var(--display)}.dtech{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;margin:0;font-size:14.5px}.dtech dt{color:var(--mut)}.dtech dd{margin:0;font-weight:600;overflow-wrap:anywhere}
+.deq{border-top:1px solid var(--line);padding:10px 0}.deq summary{cursor:pointer;font-weight:700;font-size:15px}.deq summary small{color:var(--mut);font-weight:600;margin-left:6px}
+.deq ul{margin:8px 0 0;padding-left:18px;columns:2 220px;font-size:14px;color:var(--mut)}.deq li{break-inside:avoid;margin:2px 0}.dpop p{color:var(--mut);font-size:14px;line-height:1.6;margin:8px 0 0}
 .det .gal{position:relative;aspect-ratio:4/3;max-height:62vh;width:100%;background:#000 center/contain no-repeat}
 .det .nav{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:46px;border-radius:50%;border:0;background:color-mix(in srgb,var(--ink) 75%,transparent);color:var(--fg);font-size:22px;cursor:pointer}
 .det .prev{left:12px}.det .next{right:12px}
@@ -383,10 +388,10 @@ footer{border-top:1px solid var(--line);padding-block:40px;color:var(--mut);font
   </section>
 
   <dialog class="det" id="det" aria-label="Detail vozidla">
-    <div class="gal" id="dGal"><button class="nav prev" id="dPrev" type="button" aria-label="Predchádzajúca fotka">‹</button><button class="nav next" id="dNext" type="button" aria-label="Ďalšia fotka">›</button><button class="close" id="dClose" type="button" aria-label="Zavrieť">×</button></div>
+    <div class="gal" id="dGal"><button class="nav prev" id="dPrev" type="button" aria-label="Predchádzajúca fotka">‹</button><button class="nav next" id="dNext" type="button" aria-label="Ďalšia fotka">›</button><button class="close" id="dClose" type="button" aria-label="Zavrieť">×</button><span class="wmk" id="dWmk" hidden><svg viewBox="0 0 64 64"><rect width="64" height="64" rx="18" fill="#0B0F0D"/><g transform="translate(8.5 9) scale(.72)"><path d="M14 52 H38 A10 10 0 0 0 38 32 H26 A10 10 0 0 1 26 12 H44" fill="none" stroke="#16B57F" stroke-width="12" stroke-linejoin="round" stroke-linecap="round"/><path d="M45 3.5 L60 12 L45 20.5 Z" fill="#16B57F" stroke="#16B57F" stroke-width="4" stroke-linejoin="round"/></g></svg>splatkuj<i>.sk</i></span><span class="pcount" id="dCount"></span></div>
     <div class="thumbs" id="dThumbs"></div>
     <div class="body">
-      <div><h3 id="dTitle"></h3><p class="mut" id="dSub"></p><p class="desc" id="dDesc"></p><ul id="dEq"></ul></div>
+      <div><h3 id="dTitle"></h3><p class="mut" id="dSub"></p><p class="desc" id="dDesc"></p><ul id="dEq"></ul><div id="dMore"></div></div>
       <div class="side">
         <div class="paybox"><small>Splátka orientačne od</small><b class="num" id="dPay"></b><p>Bez akontácie (0 %), 96 mesiacov, 9,9 % p.a. Presnú ponuku pripravíme na mieru.</p></div>
         <dl class="num" id="dSpecs"></dl>
@@ -635,7 +640,12 @@ dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-f
   const PN=[1,2,3,4,8];
   const HIDE=new Set([]);
   for (let i = CARS.length-1; i >= 0; i--){ if (HIDE.has(CARS[i].id) || HIDE.has(BID[CARS[i].id])) { CARS.splice(i,1); continue; } CARS[i].photos = Math.min(CARS[i].photos||5, 5); }
-  const photo = (c,i) => `img/p/${BID[c.id]||c.id}-${PN[(i-1)%5]}.jpg`;
+  const BZ = {"195907815":["alpina-xd3-biturbo.php","SUV"],"195959717":["volkswagen-touareg-30-v6-tdi-bmt-4xmotion-vzduch.php","SUV"],"195584743":["seat-ateca-16-tdi.php","SUV"],"194983324":["seat-tarraco-20-tdi.php","SUV"],"196283221":["mercedes-benz-s-trieda-sedan-400d-4matic-amg-long.php","Sedan / liftback"],"195642620":["volkswagen-touareg-30-v6-tdi-scr-286k-r-line-4motion-tiptro.php","SUV"],"195044448":["hyundai-santafe-4x4-16pluginhybrid-2022-7miest-71tkm.php","SUV"],"195190999":["skoda-kamiq-15-tsi-dsg-monte-carlo-plna-vybava.php","SUV"],"196164501":["audi-a4-avant-35-20-tdi-s-tronic-facelift-sport-panorama.php","Kombi"],"195625102":["volkswagen-transporter-t6-kombi-20-tdi.php","Van / MPV"],"195240817":["audi-q2-sport-14-tsi.php","SUV"],"195315827":["seat-tarraco-20-tdi-4drive-dsg-xcellence-panorama-alcan.php","SUV"],"194864407":["vw-tiguan-15-tsi-dsg-highlinesport-panorama-360-kamer.php","SUV"],"194599121":["vw-tiguan-model-202551000kmkamera-mrtvy-uhol-virtual.php","SUV"],"194548935":["ford-galaxy-20-tdci.php","Van / MPV"],"196292410":["skoda-superb-20-tdi-sportline-4x4-dsg.php","Kombi"],"196225340":["cupra-formentro-20-tdi-dsg-4x4.php","SUV"],"194659086":["audi-a3-sportback-20-tfsi-dsg-quattro-sline.php","Hatchback"],"196225341":["skoda-superb-iii-scout-20-tdi-dsg-4x4.php","Kombi"],"195396727":["volkswagen-multivan-t7-20-tdi-dsg.php","Van / MPV"],"194938398":["audi-a4-avant-b9-35-20-tdi.php","Kombi"],"194958849":["skoda-superb-combi-20-tdi-dsg-4x4-laurin-klement.php","Kombi"],"196135489":["volkswagen-touareg-30-v6-tdi-scr-r-line-4motion-tiptronic.php","SUV"],"196194945":["skoda-kodiaq-15-tsi-110kw-dsg-model-2022-facelift-panorama.php","SUV"],"195646879":["volkswagen-arteon-sb-20-tdi-dsg-rline.php","Kombi"],"194784862":["peugeot-3008-gt-line-15-bluehdi-96-kw-102021-113-000-k.php","SUV"],"194659092":["volkswagen-id4-pro-performance.php","SUV"],"194623552":["skoda-kodiaq-style-20-tdi-dsg.php","SUV"],"196196663":["skoda-superb-20-tdi-sportline-4x4-dsg.php","Kombi"],"196254307":["cupra-formentor-15tsi-110kw-2023-dsg-virtualpolokoza.php","SUV"],"196075239":["skoda-octavia-combi-18-tsi-dsg.php","Kombi"],"194416141":["renault-megane-rs-line-13-tce-edc.php","Hatchback"],"195164915":["skoda-octavia-combi-20-tdi-rs-plus-4x4-dsg-panorama.php","Kombi"],"195019062":["volkswagen-id-4.php","SUV"],"195907819":["porsche-boxster-981-27-pdk.php","Kupé / kabriolet"],"195817373":["skoda-superb-sportline-147kw-webasto-360-full-led-matrix.php","Kombi"],"194992166":["skoda-octavia-iv-20-tdi.php","Kombi"],"196225342":["mini-cooper-s-jcw-gp-2.php","Hatchback"],"195132366":["volkswagen-t6-multivan-20-bitdi-4motion-highline-7-miest-we.php","Van / MPV"],"195389178":["vw-touran-16-tdi-highline-7-miestene.php","Van / MPV"],"195249240":["skoda-superb-combi-20-tdi-style-premium.php","Kombi"],"196130215":["skoda-kodiaq-facelift-15-tsi-dsg-110kw-2022-tka-tazne.php","SUV"],"194938380":["skoda-kodiaq-sportline-20-tdi-dsg-4x4.php","SUV"],"195240828":["vw-tiguan-14-tsi-highline.php","SUV"],"196303058":["skoda-enyaq-iv-80-150-kw-2022-soh-93.php","SUV"],"196196654":["skoda-octavia-12-tsi.php","Hatchback"],"194938386":["skoda-octavia-iv-combi-20-tdi-dsg.php","Kombi"],"194773224":["skoda-superb-36-fsi-4x4-dsg.php","Kombi"],"194999017":["skoda-kodiaq-sportline-20-tdi-dsg.php","SUV"],"194559178":["skoda-kodiaq-rs-20-tsi-195-kw-7-stup-automat-4x4-2026.php","SUV"],"196010070":["volkswagen-tiguan-20-tdi-dsg-4motion-rline.php","SUV"],"195456870":["seat-ateca-fr-20-tdi-dsg-facelift.php","SUV"],"194992123":["cupra-formentor-vz-veloz-20-tsi-dsg-4drive.php","SUV"],"196042539":["cupra-formentor-15-tsi.php","SUV"],"195389183":["vw-touran-16-tdi-highline-dsg-7-miestene.php","Van / MPV"],"194863472":["skoda-kodiaq-sportline-20-tdi-dsg.php","SUV"],"195713930":["seat-leon-fr-15-tsi.php","Hatchback"],"196039389":["audi-a4-avant-35-20-tfsi-110kw-facelift-s-tronic-sport.php","Kombi"],"195785520":["skoda-octavia-15-tsi-style-dsg.php","Kombi"],"195430470":["mercedes-benz-e300de-amg.php","Sedan / liftback"],"196133105":["skoda-karoq-20-tdi-evo-scr-style-4x4-dsg-virtual.php","SUV"],"195822153":["volkswagen-tiguan-allspace-20-tdi-dsg-4motion-rline.php","SUV"],"194960238":["audi-a6-allroad-50-30-tdi-quattro-tiptronic210kwb8-s-line.php","Kombi"],"194623555":["volkswagen-id4-pro-performance.php","SUV"],"195378384":["audi-rs5-42fsi-v8.php","Kupé / kabriolet"],"194773562":["volkswagen-taigo-10-tsi-dsg-rline.php","SUV"],"195179225":["volkswagen-tiguan-facelift-r-line-20-tdi-147kw.php","SUV"],"196277103":["skoda-octavia-iii-facelift-14-tsi-style.php","Hatchback"],"195885606":["volkswagen-touareg-30-tdi-tiptronic-4motion.php","SUV"],"195686812":["volkswagen-golf-alltrack-20-tdi-dsg-4motion.php","Kombi"],"195922384":["tesla-model-3-standard-range-2021-239kw-tepelko.php","Sedan / liftback"],"196075242":["bmw-330d-xdrive-lci-touring-f31-m-packet.php","Kombi"],"196212627":["seat-ateca-fr-4drive-20-tdi-webasto.php","SUV"],"195898559":["skoda-superb-sportline-4x4-20tdi-140kw-dsg-2019-canton.php","Kombi"],"194903907":["bmw-540d-xdrive-lci-touring-g31-mpacket.php","Kombi"],"195506516":["skoda-octavia-combi-20-tdi-style-dsg-virtual-odpocet-dph.php","Kombi"],"195240812":["alfa-romeo-giulietta-sport-16-jtd.php","Hatchback"],"195276686":["volkswagen-golf-gti-20-tsi-169kw-facelift-led-kessy.php","Hatchback"],"194805529":["seat-tarraco-fr-20-tdi-dsg-4drive.php","SUV"],"195396721":["peugeot-2008-gt-line-15hdi.php","SUV"],"195959727":["skoda-kodiaq-20tdi-200ps-dsg-4x4-clever-edition-matrix-360.php","SUV"],"194764716":["volkswagen-sharan-20-tdi-higline.php","Van / MPV"],"195617840":["volkswagen-passat-b8-14-tsi-nehavarovane.php","Sedan / liftback"],"195151891":["volkswagen-golf-5.php","Kombi"],"196042551":["audi-a6-avant-c8-40tdi.php","Kombi"],"195148842":["volkswagen-golf-r-20-tfsi-dsg.php","Hatchback"],"195707737":["audi-q5-55-tfsie-quattro-sline.php","SUV"],"195457046":["seat-tarraco-20-tdi-dsg-4x4.php","SUV"]};
+  const LIVE = /^https?:$/.test(location.protocol) && /splatkuj\.sk$|pages\.dev$/.test(location.hostname);
+  const bzId = c => BID[c.id]||c.id;
+  const bzSlug = c => (BZ[bzId(c)]||[])[0] || ((c.url||'').match(/inzerat\/\d+\/([^/?#]+)/)||[])[1] || '';
+  const XN = {};
+  const photo = (c,i) => i <= 5 ? `img/p/${bzId(c)}-${PN[(i-1)%5]}.jpg` : `/api/foto/${bzId(c)}/${(XN[bzId(c)]||[])[i-6]}`;
   function paint(el,c,i,fit){ el.style.backgroundImage=`url(${photo(c,i)})`; el.style.backgroundSize=fit; el.style.backgroundPosition='center'; }
   const fmt = n => new Intl.NumberFormat('sk-SK').format(n) + ' €';
   const BR = c => { const m=c.title.match(/^(Alfa Romeo|Mercedes-Benz)/i); const w=m?m[1]:c.title.split(' ')[0]; return w.toUpperCase()==='SEAT'?'Seat':w.toUpperCase()==='BMW'?'BMW':w; };
@@ -666,7 +676,7 @@ dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-f
     </button>`;
   list();
   const det = $('det'); let cur = null, pi = 1;
-  function showPhoto(){ paint($('dGal'),cur,pi,'contain');
+  function showPhoto(){ paint($('dGal'),cur,pi,'contain'); $('dWmk').hidden = pi <= 5; $('dCount').textContent = pi + ' / ' + cur.photos;
     [...$('dThumbs').children].forEach((t,i)=>t.setAttribute('aria-current', String(i+1===pi))); }
   const slug = c => (c.title + ' ' + String(c.year).split('/').pop()).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') + '-' + (BID[c.id]||c.id);
   function openCar(c){
@@ -677,7 +687,47 @@ dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-f
     $('dSpecs').innerHTML = [['Cena',fmt(c.price)],['Rok výroby',c.year],['Najazdené',c.km],['Výkon',c.power],['Palivo',c.fuel],['Prevodovka',c.gear],['Pohon',c.drive]].concat(c.loc?[['Lokalita',c.loc]]:[]).map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join('');
     $('dThumbs').innerHTML = Array.from({length:c.photos},(_,i)=>`<button type="button" data-p="${i+1}" aria-label="Fotka ${i+1}"></button>`).join('');
     [...$('dThumbs').children].forEach((b,i)=>paint(b,c,i+1,'cover'));
-    showPhoto(); det.showModal();
+    $('dMore').innerHTML = ''; showPhoto(); det.showModal(); loadMore(c);
+  }
+  const esc2 = t => String(t).replace(/[&<>"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
+  const EQG = [['Bezpečnosť a asistenti',/asist|abs|esp|airbag|senzor|kamer|mŕtv|mrtv|tempomat|acc|lane|jazdn|brzd|isofix|parkov|front|únav|unav|tpms|stráž|straz/i],
+    ['Multimédiá a navigácia',/navig|virtual|cockpit|carplay|android|rádio|radio|canton|beats|harman|bose|bluetooth|usb|displej|dab|sound|reprod|columbus|mib|head.?up/i],
+    ['Komfort',/klim|vyhrievan|vyhrie|sedad|kož|koz|alcantar|webasto|panor|strešn|stresn|kessy|bezkľ|bezkl|masáž|masaz|ventil|el\.|elektr|5\.? dver|kufr|výklop|vyklop|keyless|pamä|pama|zatmav|roleta|ambient/i],
+    ['Exteriér a svetlá',/led|matrix|xen|svetl|disk|kolies|r1\d|r2\d|alu|tónov|tonov|spojl|ťažn|tazn|strešné nosiče|ráf|raf/i]];
+  function parseInfo(c, t){
+    const g = (re, f) => { const m = t.match(re); return m ? (f ? f(m) : m[1]) : ''; };
+    const lt = t.toLowerCase();
+    const COL = ['biela','čierna','cierna','šedá','seda','sivá','siva','strieborná','strieborna','modrá','modra','červená','cervena','zelená','zelena','hnedá','hneda','béžová','bezova','oranžová','oranzova','žltá','zlta','fialová','zlatá'];
+    const col = COL.find(x => lt.includes(x)); const met = /metal/i.test(t);
+    const ccm = g(/(\d{3,4})\s?(?:cm3|cm³|ccm|cm 3)/i) || g(/\b([1-6][.,]\d)\s?(?:tdi|tsi|tfsi|tdci|hdi|bluehdi|tce|jtd|fsi|crdi|d|i|l)\b/i, m => m[1].replace('.',','));
+    const rows = [
+      ['Karoséria', (BZ[bzId(c)]||[])[1] || ''],
+      ['Objem motora', ccm ? (ccm.includes(',') ? ccm + ' l' : ccm + ' cm³') : ''],
+      ['Farba', col ? col.charAt(0).toUpperCase() + col.slice(1) + (met ? ' metalíza' : '') : ''],
+      ['Počet miest', g(/(\d)\s?-?\s?miest/i)],
+      ['Dvere', g(/(\d)\s?-?\s?dver/i)],
+      ['STK / EK do', g(/(?:stk|ek)[^\n\d]{0,20}(\d{1,2}[./]\d{2,4})/i)],
+      ['VIN', g(/\b([A-HJ-NPR-Z0-9]{17})\b/)],
+    ].filter(r => r[1]);
+    const items = [];
+    t.split('\n').forEach(l => { const m = l.match(/^\s*(?:[*•▪◦·✅✔✓➡️➡►\-–]|\d+\.)\s*(.{3,80})$/u); if (m) items.push(m[1].replace(/[;,.]$/, '').trim()); });
+    const vm = t.match(/výbava[^\n]*:\s*([^\n]{20,})/i); if (vm && items.length < 4) vm[1].split(/[,;]/).forEach(x => { x = x.trim(); if (x.length > 2 && x.length < 60) items.push(x); });
+    const groups = {}; [...new Set(items)].slice(0, 60).forEach(it => { const k = (EQG.find(([,re]) => re.test(it)) || ['Ďalšia výbava'])[0]; (groups[k] = groups[k] || []).push(it); });
+    return {rows, groups};
+  }
+  async function loadMore(c){
+    if (!LIVE || !bzSlug(c)) return;
+    let d; try { const r = await fetch(`/api/inzerat/${bzId(c)}?p=${encodeURIComponent(bzSlug(c))}`); d = await r.json(); } catch { return; }
+    if (cur !== c || !d || !d.ok) return;
+    if (d.n > 5){ XN[bzId(c)] = Array.from({length: d.n}, (_, i) => i + 1).filter(n => !PN.includes(n)); c.photos = 5 + XN[bzId(c)].length;
+      $('dThumbs').innerHTML = Array.from({length:c.photos},(_,i)=>`<button type="button" data-p="${i+1}" aria-label="Fotka ${i+1}"></button>`).join('');
+      [...$('dThumbs').children].forEach((b,i)=>{ if (i < 5) paint(b,c,i+1,'cover'); else { b.style.backgroundImage = `url(/api/foto/${bzId(c)}/${XN[bzId(c)][i-5]}/t)`; b.style.backgroundSize='cover'; b.style.backgroundPosition='center'; } }); showPhoto(); }
+    const {rows, groups} = parseInfo(c, d.popis || '');
+    let h = '';
+    if (rows.length) h += `<h4 class="dh">Ďalšie údaje</h4><dl class="dtech">${rows.map(([k,v]) => `<dt>${esc2(k)}</dt><dd>${esc2(v)}</dd>`).join('')}</dl>`;
+    const gk = Object.keys(groups); if (gk.length) h += `<h4 class="dh">Výbava</h4>` + gk.map(k => `<details class="deq" open><summary>${esc2(k)} <small>${groups[k].length}</small></summary><ul>${groups[k].map(x => `<li>${esc2(x)}</li>`).join('')}</ul></details>`).join('');
+    if (d.popis) h += `<details class="deq dpop"><summary>Popis od predajcu</summary><p>${esc2(d.popis).replace(/\n/g,'<br>')}</p></details>`;
+    $('dMore').innerHTML = h;
   }
   $('cars').addEventListener('click', e => { const b = e.target.closest('[data-ix]'); if (b) openCar(CARS[+b.dataset.ix]); });
   $('dThumbs').addEventListener('click', e => { const b = e.target.closest('[data-p]'); if (b){ pi = +b.dataset.p; showPhoto(); } });
