@@ -1,0 +1,910 @@
+<!doctype html><html lang="sk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style><title>Splatkuj.sk</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2218%22%20fill%3D%22%2316B57F%22/%3E%3Cg%20transform%3D%22translate%288.5%209%29%20scale%28.72%29%22%3E%3Cpath%20d%3D%22M14%2052%20H38%20A10%2010%200%200%200%2038%2032%20H26%20A10%2010%200%200%201%2026%2012%20H44%22%20fill%3D%22none%22%20stroke%3D%22%230d0f13%22%20stroke-width%3D%2212%22%20stroke-linejoin%3D%22round%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20d%3D%22M45%203.5%20L60%2012%20L45%2020.5%20Z%22%20fill%3D%22%230d0f13%22%20stroke%3D%22%230d0f13%22%20stroke-width%3D%224%22%20stroke-linejoin%3D%22round%22/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..900&family=Unbounded:wght@800&family=Figtree:wght@400;500;600;700&display=swap">
+</head><body><style>
+/* Layout: dark showroom night — emerald as the only brand accent (#0A9B6C, lighter tint on dark), the installment number is always the hero of every block */
+:root{
+  --ink:#0d0e11; --panel:#16181d; --panel2:#1d2027; --line:#2a2e37;
+  --fg:#f3f4f6; --mut:#9ca2ad; --brand-core:#0A9B6C; --brand:#14B47E; --brand2:#45D99B; --on-brand:#03140D;
+  --display:'Archivo','Arial Narrow',system-ui,sans-serif;
+  --body:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --r:22px; --max:1180px;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{background:var(--ink);color:var(--fg);font:16px/1.6 var(--body);margin:0}
+a{color:inherit}
+.wrap{max-width:var(--max);margin:0 auto;padding-inline:clamp(16px,4vw,40px)}
+h1,h2,h3{font-family:var(--display);font-stretch:118%;line-height:1.02;margin:0;text-wrap:balance;letter-spacing:-.01em}
+h2{font-size:clamp(32px,4.6vw,56px);font-weight:800}
+h3{font-size:22px;font-weight:700;font-stretch:110%}
+p{margin:0}
+.eyebrow{font:600 13px/1 var(--body);letter-spacing:.16em;text-transform:uppercase;color:var(--brand)}
+.mut{color:var(--mut)}
+.num{font-variant-numeric:tabular-nums}
+.btn{display:inline-flex;align-items:center;gap:10px;font:700 16px/1 var(--body);padding:17px 26px;border-radius:999px;text-decoration:none;border:0;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.btn-brand{background:linear-gradient(135deg,var(--brand),var(--brand2));color:var(--on-brand);box-shadow:0 14px 34px -14px var(--brand)}
+.btn-brand:hover{transform:translateY(-2px);box-shadow:0 20px 40px -14px var(--brand)}
+.btn-ghost{background:transparent;color:var(--fg);border:1.5px solid var(--line)}
+.btn-ghost:hover{border-color:var(--brand)}
+:focus-visible{outline:2px solid var(--brand2);outline-offset:3px}
+section{padding-block:clamp(64px,9vw,112px)}
+
+/* header */
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--ink) 86%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:20px;height:76px}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none}
+.logo svg{width:42px;height:42px;flex:none}
+.logo .wm{font:800 25px/1 'Unbounded',var(--display);letter-spacing:-.04em;color:var(--fg);white-space:nowrap}
+.logo .wm i{font-style:normal;color:#16B57F}
+.logo b{font:800 22px/1 var(--display);font-stretch:125%;letter-spacing:.02em;display:block}
+.logo small{font:600 9.5px/1 var(--body);letter-spacing:.2em;color:var(--mut);display:block;margin-top:5px}
+.links{display:flex;gap:28px;font-weight:600;font-size:15px}
+.links a{text-decoration:none;color:var(--mut)} .links a:hover{color:var(--fg)}
+.nav .btn{padding:13px 20px;font-size:14px}
+@media (max-width:900px){.links{display:none}}
+@media (max-width:480px){.nav .btn{display:none}}
+
+/* hero */
+.hero{padding-block:clamp(40px,6vw,80px) clamp(56px,7vw,96px);position:relative;overflow:hidden}
+.hero:before{content:'';position:absolute;right:-20%;top:-30%;width:70%;aspect-ratio:1;background:radial-gradient(circle,color-mix(in srgb,var(--brand) 22%,transparent),transparent 65%);pointer-events:none}
+.hero-grid{display:grid;grid-template-columns:1.05fr 1fr;gap:clamp(28px,5vw,64px);align-items:center;position:relative}
+.hero h1{font-size:clamp(44px,7vw,92px);font-weight:900;margin-top:18px}
+.hero h1 em{font-style:normal;color:var(--brand)}
+.hero .lead{font-size:clamp(17px,1.6vw,20px);color:var(--mut);margin-top:22px;max-width:34em}
+.hero .ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px}
+.ticks{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:30px;font-size:14px;font-weight:600;color:var(--mut)}
+.ticks span:before{content:'✓';color:var(--brand);margin-right:8px;font-weight:800}
+.shot{position:relative;min-width:0}
+.shot .ph{aspect-ratio:4/3.3;border-radius:28px;background:url(img/hero.jpg) 50% 60%/cover;box-shadow:0 40px 80px -30px #000;max-width:100%}
+.shot .ph{position:relative}.shot .ph:after{content:'';position:absolute;inset:0;border-radius:28px;background:linear-gradient(180deg,transparent 70%,color-mix(in srgb,var(--ink) 55%,transparent))}
+.float{position:relative;margin:-34px 0 0 -22px;width:max-content;max-width:calc(100% + 22px);z-index:2;display:flex;align-items:stretch;border-radius:20px;overflow:hidden;box-shadow:0 24px 50px -18px #000}
+.float .a{background:linear-gradient(135deg,var(--brand),var(--brand2));color:var(--on-brand);padding:14px 20px}
+.float .a small{font:700 11px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;display:block}
+.float .a b{font:900 40px/1.05 var(--display);letter-spacing:-.02em}
+.float .a b span{font-size:16px;font-weight:700}
+.float .b{background:#0b0c0f;padding:14px 20px;display:flex;flex-direction:column;justify-content:center}
+.float .b small{font-size:12px;color:var(--mut)} .float .b b{font:700 17px/1.2 var(--body)}
+.chip-top{position:absolute;right:18px;top:18px;z-index:2;background:color-mix(in srgb,var(--ink) 80%,transparent);backdrop-filter:blur(8px);border:1px solid var(--line);padding:9px 14px;border-radius:999px;font-size:13px;font-weight:600}
+@media (max-width:900px){.hero-grid{grid-template-columns:1fr}.float{margin-left:12px}}
+@media (max-width:640px){.shot .ph{aspect-ratio:4/3}.shot .ph:after{display:none}.float{margin:-26px 14px 0;max-width:none;width:auto;box-shadow:0 18px 40px -16px #000}.float .a b{font-size:32px}.float .a,.float .b{padding:12px 16px}.chip-top{top:12px;right:12px;font-size:12px;padding:7px 11px}}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:var(--r);background:var(--panel)}
+.stat{padding:28px 26px;border-left:1px solid var(--line)}
+.stat:first-child{border-left:0}
+.stat b{display:block;font:900 clamp(34px,4vw,48px)/1 var(--display);font-stretch:112%;color:var(--brand)}
+.stat span{display:block;margin-top:10px;font-weight:600}
+.stat small{display:block;color:var(--mut);font-size:14px;margin-top:2px}
+@media (max-width:860px){.stats{grid-template-columns:1fr 1fr}.stat:nth-child(3){border-left:0}.stat:nth-child(n+3){border-top:1px solid var(--line)}}
+@media (max-width:420px){.stats{grid-template-columns:1fr}.stat{border-left:0!important}.stat+.stat{border-top:1px solid var(--line)}}
+
+/* section heads */
+.head{display:flex;justify-content:space-between;align-items:end;gap:24px;flex-wrap:wrap;margin-bottom:44px}
+.head p{max-width:30em;color:var(--mut)}
+.head .eyebrow{margin-bottom:14px;display:block}
+
+/* calculator */
+.calc{display:grid;grid-template-columns:1.2fr 1fr;border-radius:28px;overflow:hidden;border:1px solid var(--line)}
+.calc .in{background:var(--panel);padding:clamp(24px,4vw,44px);display:grid;gap:30px}
+.field{display:grid;gap:12px}
+.field .row{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.field label{font-weight:600}
+.field output{font:800 22px/1 var(--display);font-stretch:110%}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:6px;background:linear-gradient(90deg,var(--brand) var(--p,50%),var(--line) var(--p,50%));outline-offset:6px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:var(--fg);border:6px solid var(--brand);cursor:pointer}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--fg);border:6px solid var(--brand);cursor:pointer}
+.scale{display:flex;justify-content:space-between;font-size:12px;color:var(--mut)}
+.rate{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--mut)}
+.rate input{width:80px;background:var(--panel2);border:1px solid var(--line);color:var(--fg);border-radius:10px;padding:8px 10px;font:600 15px var(--body)}
+.calc .out{background:linear-gradient(150deg,var(--brand),var(--brand2));color:var(--on-brand);padding:clamp(24px,4vw,44px);display:flex;flex-direction:column;gap:22px}
+.out .k{font:700 13px/1 var(--body);letter-spacing:.14em;text-transform:uppercase}
+.out .v{font:900 clamp(64px,9vw,112px)/.9 var(--display);font-stretch:108%;letter-spacing:-.03em}
+.out .v span{font-size:.3em;letter-spacing:0;font-weight:700}
+.out dl{display:grid;grid-template-columns:1fr auto;gap:10px 16px;margin:0;padding-top:20px;border-top:1.5px solid color-mix(in srgb,var(--on-brand) 25%,transparent);font-size:15px}
+.out dt{opacity:.75} .out dd{margin:0;font-weight:700;text-align:right}
+.out .btn{background:var(--on-brand);color:var(--fg);align-self:flex-start;margin-top:auto}
+.out .note{font-size:12px;opacity:.7;line-height:1.45}
+@media (max-width:860px){.calc{grid-template-columns:1fr}}
+
+/* offer */
+.cars{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,440px),1fr));gap:20px}
+.car{background:var(--panel);border:1px solid var(--line);border-radius:24px;overflow:hidden;display:flex;flex-direction:column;min-width:0;cursor:pointer;transition:transform .2s,border-color .2s;text-align:left;color:var(--fg);font:inherit;padding:0}
+.car:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--brand) 60%,var(--line))}
+.car .ph{position:relative;aspect-ratio:4/3;background:var(--panel2) center/cover}
+.car .ph .cnt{position:absolute;right:12px;top:12px;background:color-mix(in srgb,var(--ink) 80%,transparent);font-size:12px;font-weight:600;padding:5px 10px;border-radius:999px}
+.car .ph .pay{position:absolute;left:12px;bottom:12px;background:linear-gradient(135deg,var(--brand),var(--brand2));color:var(--on-brand);border-radius:14px;padding:8px 12px;line-height:1.05}
+.car .ph .pay small{display:block;font:700 10px/1 var(--body);letter-spacing:.1em;text-transform:uppercase}
+.car .ph .pay b{font:900 26px/1.1 var(--display)} .car .ph .pay b span{font-size:13px}
+.car .info{padding:20px;display:flex;flex-direction:column;gap:14px;flex:1}
+.car h3{font-size:22px}
+.car .sub{color:var(--mut);font-size:14px;margin-top:4px}
+.specs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.specs div{background:var(--panel2);border-radius:10px;padding:8px 9px;min-width:0}
+.specs b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .specs small{color:var(--mut);font-size:11px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tags span{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:4px 10px;color:var(--mut)}
+.car .foot2{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-top:14px;border-top:1px solid var(--line);margin-top:auto}
+.car .foot2 b{font:800 24px/1 var(--display);font-stretch:110%}
+.car .foot2 span{font-size:14px;font-weight:700;color:var(--brand2)}
+.hunt{border:1.5px dashed var(--line);border-radius:24px;padding:28px;display:flex;flex-direction:column;gap:14px;justify-content:center}
+.hunt .ico{width:56px;height:56px;border-radius:16px;background:var(--panel2);display:grid;place-items:center;color:var(--brand)}
+.hunt p{color:var(--mut)}
+@media (max-width:420px){.specs{grid-template-columns:1fr 1fr}}
+/* filters */
+.filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;margin:0 auto 22px}
+.filters input,.filters select{background:var(--panel);border:1px solid var(--line);color:var(--fg);border-radius:12px;padding:12px 14px;font:15px var(--body);min-width:0}
+.filters input{flex:0 1 380px}
+@media (max-width:640px){.filters input{flex:1 1 100%}}
+.filters input:focus,.filters select:focus{border-color:var(--brand);outline:none}
+#fCount{margin-left:auto;font-size:14px}
+/* detail */
+dialog.det{border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:24px;padding:0;width:min(980px,calc(100vw - 24px));max-height:calc(100vh - 24px);overflow:auto}
+dialog.det::backdrop{background:rgb(0 0 0/.7);backdrop-filter:blur(4px)}
+.det .gal{position:relative;aspect-ratio:4/3;max-height:62vh;width:100%;background:#000 center/contain no-repeat}
+.det .nav{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:46px;border-radius:50%;border:0;background:color-mix(in srgb,var(--ink) 75%,transparent);color:var(--fg);font-size:22px;cursor:pointer}
+.det .prev{left:12px}.det .next{right:12px}
+.det .close{position:absolute;top:12px;right:12px;width:42px;height:42px;border-radius:50%;border:0;background:color-mix(in srgb,var(--ink) 75%,transparent);color:var(--fg);font-size:22px;cursor:pointer}
+.det .thumbs{display:flex;gap:8px;padding:10px 20px 0;overflow-x:auto}
+.det .thumbs button{flex:none;width:84px;aspect-ratio:4/3;border-radius:10px;border:2px solid transparent;background:center/cover;cursor:pointer;padding:0}
+.det .thumbs button[aria-current="true"]{border-color:var(--brand)}
+.det .body{display:grid;grid-template-columns:1.4fr 1fr;gap:28px;padding:24px}
+.det h3{font-size:clamp(24px,3vw,32px)}
+.det .desc{color:var(--mut);margin-top:14px;white-space:pre-line;font-size:15px}
+.det ul{margin:14px 0 0;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;font-size:14px}
+.det li:before{content:'✓';color:var(--brand);font-weight:800;margin-right:8px}
+.det .side{display:flex;flex-direction:column;gap:14px}
+.det .paybox{background:linear-gradient(150deg,var(--brand),var(--brand2));color:var(--on-brand);border-radius:18px;padding:18px 20px}
+.det .paybox small{font:700 11px/1 var(--body);letter-spacing:.12em;text-transform:uppercase}
+.det .paybox b{display:block;font:900 52px/1 var(--display);margin-top:6px} .det .paybox b span{font-size:18px}
+.det .paybox p{font-size:12px;opacity:.75;margin-top:8px}
+.det dl{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;margin:0;font-size:14px}
+.det dt{color:var(--mut)} .det dd{margin:0;font-weight:600;text-align:right}
+@media (max-width:760px){.det .body{grid-template-columns:1fr}.det ul{grid-template-columns:1fr}}
+
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;counter-reset:s}
+.step{position:relative;padding-top:64px}
+.step:before{counter-increment:s;content:counter(s);position:absolute;top:0;left:0;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font:800 18px var(--display);background:var(--brand);color:var(--on-brand)}
+.step:after{content:'';position:absolute;top:22px;left:56px;right:-8px;height:2px;background:repeating-linear-gradient(90deg,var(--line) 0 8px,transparent 8px 14px)}
+.step:last-child:after{display:none}
+.step h3{margin-bottom:10px}
+.step p{color:var(--mut);font-size:15px}
+.step .t{display:inline-block;margin-top:14px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--brand2)}
+@media (max-width:860px){.steps{grid-template-columns:1fr 1fr;row-gap:40px}.step:nth-child(2):after{display:none}}
+@media (max-width:480px){.steps{grid-template-columns:1fr}.step:after{display:none}}
+
+/* comfort */
+.comfort{background:var(--panel);border-block:1px solid var(--line)}
+.c-grid{display:grid;grid-template-columns:1fr 1.25fr;gap:clamp(28px,5vw,72px);align-items:start}
+.c-grid .big{position:sticky;top:110px}
+.c-grid .big p{color:var(--mut);margin-top:20px;font-size:18px;max-width:28em}
+.years{display:flex;align-items:center;gap:18px;margin-top:34px}
+.years b{font:900 96px/.8 var(--display);font-stretch:125%;color:var(--brand);letter-spacing:-.03em}
+.years span{font-weight:600;line-height:1.35}
+@media(max-width:640px){.years{flex-direction:column;align-items:flex-start;gap:10px}.years b{font-size:64px}}
+.list{display:grid;gap:14px}
+.item{display:grid;grid-template-columns:52px 1fr;gap:18px;padding:22px;border-radius:var(--r);background:var(--ink);border:1px solid var(--line)}
+.item .ico{width:52px;height:52px;border-radius:14px;background:color-mix(in srgb,var(--brand) 14%,transparent);color:var(--brand);display:grid;place-items:center}
+.item h3{font-size:19px;margin-bottom:6px}
+.item p{color:var(--mut);font-size:15px}
+.ico svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+@media (max-width:860px){.c-grid{grid-template-columns:1fr}.c-grid .big{position:static}}
+
+/* slovakia */
+.sk{display:grid;grid-template-columns:1fr 1.1fr;gap:clamp(28px,5vw,64px);align-items:center}
+.sk p.l{color:var(--mut);margin-top:20px;font-size:18px;max-width:30em}
+.kraje{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.kraj{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;min-width:0}
+.kraj b{display:block;font:800 26px/1 var(--display);font-stretch:115%}
+.kraj small{display:block;color:var(--mut);font-size:13px;margin-top:6px}
+.kraj i{display:block;width:8px;height:8px;border-radius:50%;background:var(--brand);box-shadow:0 0 0 5px color-mix(in srgb,var(--brand) 20%,transparent);margin-bottom:14px}
+@media (max-width:860px){.sk{grid-template-columns:1fr}}
+@media (max-width:480px){.kraje{grid-template-columns:1fr 1fr}}
+
+/* faq */
+.faq{max-width:860px}
+details{border-bottom:1px solid var(--line);padding-block:22px}
+summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:20px;font:700 19px/1.35 var(--body)}
+summary::-webkit-details-marker{display:none}
+summary:after{content:'+';font:400 30px/0.8 var(--display);color:var(--brand);transition:transform .2s}
+details[open] summary:after{transform:rotate(45deg)}
+details p{color:var(--mut);margin-top:14px;max-width:62ch}
+
+/* contact */
+.contact{display:grid;grid-template-columns:1fr 1.1fr;gap:20px}
+.cbox{background:linear-gradient(150deg,var(--brand),var(--brand2));color:var(--on-brand);border-radius:28px;padding:clamp(26px,4vw,44px);display:flex;flex-direction:column;gap:22px}
+.cbox h2{font-size:clamp(32px,4vw,48px)}
+.cline small{display:block;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;opacity:.7}
+.cline b{font:800 26px/1.2 var(--display);font-stretch:110%;user-select:all}
+form{background:var(--panel);border:1px solid var(--line);border-radius:28px;padding:clamp(26px,4vw,44px);display:grid;grid-template-columns:1fr 1fr;gap:16px}
+form .full{grid-column:1/-1}
+form label{display:grid;gap:8px;font-size:14px;font-weight:600;min-width:0}
+form input,form select,form textarea{background:var(--ink);border:1px solid var(--line);border-radius:12px;padding:14px;color:var(--fg);font:16px var(--body);width:100%}
+form input:focus,form select:focus,form textarea:focus{border-color:var(--brand);outline:none}
+form textarea{min-height:96px;resize:vertical}
+.ok{grid-column:1/-1;background:color-mix(in srgb,var(--brand) 14%,transparent);border:1px solid var(--brand);padding:14px;border-radius:12px;font-size:14px}
+@media (max-width:860px){.contact{grid-template-columns:1fr}}
+@media (max-width:480px){form{grid-template-columns:1fr}}
+
+footer{border-top:1px solid var(--line);padding-block:40px;color:var(--mut);font-size:13px}
+.foot{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:center}
+.legal{margin-top:18px;max-width:80ch;font-size:12px;line-height:1.5}
+.zero{color:var(--brand);font-weight:900;font-size:1.45em;line-height:1;white-space:nowrap}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="amb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#14B47E"/><stop offset="1" stop-color="#45D99B"/></linearGradient>
+    <symbol id="mark" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="18" fill="#16B57F"/>
+      <g transform="translate(8.5 9) scale(.72)">
+        <path d="M14 52 H38 A10 10 0 0 0 38 32 H26 A10 10 0 0 1 26 12 H44" fill="none" stroke="#0d0f13" stroke-width="12" stroke-linejoin="round" stroke-linecap="round"/>
+        <path d="M45 3.5 L60 12 L45 20.5 Z" fill="#0d0f13" stroke="#0d0f13" stroke-width="4" stroke-linejoin="round"/>
+        <path d="M14 52 H38 A10 10 0 0 0 38 32 H26 A10 10 0 0 1 26 12 H38" fill="none" stroke="#16B57F" stroke-width="2.6" stroke-dasharray="4 5" stroke-linecap="round"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="#top" aria-label="Splatkuj.sk – domov">
+      <svg><use href="#mark"/></svg>
+      <span class="wm">splatkuj<i>.sk</i></span>
+    </a>
+    <nav class="links" aria-label="Hlavná navigácia">
+      <a href="#ponuka">Ponuka</a><a href="#kalkulacka">Kalkulačka</a><a href="#postup">Ako to funguje</a><a href="#o-nas">O nás</a><a href="#kontakt">Kontakt</a>
+    </nav>
+    <a class="btn btn-brand" href="#kontakt">Chcem auto na splátky</a>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="eyebrow">Úver · Leasing · Celé Slovensko</span>
+        <h1>Auto na <em>splátky</em> bez prekvapení.</h1>
+        <p class="lead">Financujeme jazdené autá od akéhokoľvek predajcu, už od <strong class="zero">0&nbsp;%</strong> akontácie. Splátku, celkovú sumu aj všetky poplatky poznáte vopred. Všetko vybavíte online, kdekoľvek na Slovensku.</p>
+        <div class="ctas">
+          <a class="btn btn-brand" href="#kalkulacka">Vypočítať splátku</a>
+          <a class="btn btn-ghost" href="#ponuka">Pozrieť ponuku</a>
+        </div>
+        <div class="ticks"><span>Splátka a poplatky vopred</span><span>Auto od akéhokoľvek predajcu</span><span>Žiadne malé písmo</span><span>Pre FO, SZČO aj firmy</span></div>
+      </div>
+      <div class="shot">
+        <div class="ph" role="img" aria-label="Škoda Kodiaq RS vystavená v showroome"></div>
+        <div class="chip-top">✓ Nová generácia RS</div>
+        <div class="float">
+          <div class="a"><small>Splátka od</small><b class="num" data-hero-pay>— <span>€/mes.</span></b></div>
+          <div class="b"><small>Škoda Kodiaq RS 2026</small><b class="num">49 800 €</b></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <div class="stats">
+      <div class="stat"><b>6</b><span>rokov skúseností</span><small>predtým ako Autá za babku</small></div>
+      <div class="stat"><b>8+&nbsp;mil.&nbsp;€</b><span>prefinancovaných vozidiel</span><small>autá pre ľudí aj firmy</small></div>
+      <div class="stat"><b>Desiatky</b><span>spokojných klientov</span><small>po celom Slovensku</small></div>
+      <div class="stat"><b>0&nbsp;%</b><span>akontácia</span><small>auto aj bez vlastných peňazí</small></div>
+
+    </div>
+  </div>
+
+  <section id="kalkulacka">
+    <div class="wrap">
+      <div class="head">
+        <div><span class="eyebrow">Kalkulačka</span><h2>Koľko budete platiť mesačne?</h2></div>
+        <p>Posuňte jazdce a hneď uvidíte splátku aj celkovú sumu. Presnú ponuku s RPMN vám pripravíme po odoslaní žiadosti, s každým poplatkom vopred.</p>
+      </div>
+      <div class="calc">
+        <div class="in">
+          <div class="field">
+            <div class="row"><label for="price">Cena vozidla</label><output id="priceO" class="num"></output></div>
+            <input type="range" id="price" min="3000" max="80000" step="10" value="19500">
+            <div class="scale"><span>3 000 €</span><span>80 000 €</span></div>
+          </div>
+          <div class="field">
+            <div class="row"><label for="down">Akontácia</label><output id="downO" class="num"></output></div>
+            <input type="range" id="down" min="0" max="60" step="5" value="0">
+            <div class="scale"><span>0 %</span><span>60 %</span></div>
+          </div>
+          <div class="field">
+            <div class="row"><label for="term">Doba splácania</label><output id="termO" class="num"></output></div>
+            <input type="range" id="term" min="12" max="96" step="6" value="96">
+            <div class="scale"><span>12 mes.</span><span>96 mes.</span></div>
+          </div>
+          <input id="rate" type="hidden" value="9.9">
+        </div>
+        <div class="out" aria-live="polite">
+          <span class="k">Vaša mesačná splátka</span>
+          <div class="v num" id="pay">—</div>
+          <dl class="num">
+            <dt>Akontácia</dt><dd id="dDown"></dd>
+            <dt>Výška úveru</dt><dd id="dLoan"></dd>
+            <dt>Spolu zaplatíte</dt><dd id="dTotal"></dd>
+          </dl>
+          <a class="btn" href="#kontakt">Poslať nezáväzný dopyt</a>
+          <p class="note">Výpočet je orientačný a nie je záväznou ponukou. Konečná splátka, úroková sadzba a RPMN závisia od posúdenia žiadosti a podmienok financujúcej spoločnosti.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="ponuka" style="padding-top:0">
+    <div class="wrap">
+      <div class="head">
+        <div><span class="eyebrow">Aktuálna ponuka</span><h2>Preverené autá, pripravené na splátky</h2></div>
+        <p>Vyberte si z ponuky preverených áut. Financovanie pripravíme ku každému vozidlu.</p>
+      </div>
+      <div class="filters">
+        <input id="fQ" type="search" placeholder="Hľadať model, napr. Kodiaq" aria-label="Hľadať model">
+        <select id="fBrand" aria-label="Značka"></select>
+        <select id="fFuel" aria-label="Palivo"></select>
+        <select id="fMax" aria-label="Maximálna cena"><option value="">Akákoľvek cena</option><option value="10000">do 10 000 €</option><option value="15000">do 15 000 €</option><option value="20000">do 20 000 €</option><option value="25000">do 25 000 €</option><option value="30000">do 30 000 €</option></select>
+        <select id="fSort" aria-label="Zoradiť"><option value="">Odporúčané</option><option value="pa">Najlacnejšie</option><option value="pd">Najdrahšie</option><option value="y">Najnovšie</option></select>
+        <span class="mut num" id="fCount"></span>
+      </div>
+      <div class="cars" id="cars"></div>
+      <div style="text-align:center;margin-top:24px"><button class="btn btn-ghost" id="more" type="button">Zobraziť ďalšie autá</button></div>
+      <div class="hunt" style="margin-top:20px">
+        <div class="ico"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></div>
+        <h3>Našli ste auto inde?</h3>
+        <p>Pošlite nám odkaz na inzerát z Bazoša, bazára alebo od súkromného predajcu. Financovanie pripravíme aj k nemu. Ak auto ešte nemáte, povedzte nám značku a splátku, ktorá vám vyhovuje, a nájdeme ho.</p>
+        <a class="btn btn-ghost" href="#kontakt" style="align-self:flex-start">Poslať odkaz na auto</a>
+      </div>
+    </div>
+  </section>
+
+  <dialog class="det" id="det" aria-label="Detail vozidla">
+    <div class="gal" id="dGal"><button class="nav prev" id="dPrev" type="button" aria-label="Predchádzajúca fotka">‹</button><button class="nav next" id="dNext" type="button" aria-label="Ďalšia fotka">›</button><button class="close" id="dClose" type="button" aria-label="Zavrieť">×</button></div>
+    <div class="thumbs" id="dThumbs"></div>
+    <div class="body">
+      <div><h3 id="dTitle"></h3><p class="mut" id="dSub"></p><p class="desc" id="dDesc"></p><ul id="dEq"></ul></div>
+      <div class="side">
+        <div class="paybox"><small>Splátka orientačne od</small><b class="num" id="dPay"></b><p>Bez akontácie (0 %), 96 mesiacov, 9,9 % p.a. Presnú ponuku pripravíme na mieru.</p></div>
+        <dl class="num" id="dSpecs"></dl>
+        <a class="btn btn-brand" href="#kontakt" id="dCta" style="justify-content:center">Mám záujem o toto auto</a>
+        <button class="btn btn-ghost" type="button" id="dChat" style="justify-content:center;width:100%;margin-top:8px">💬 Opýtať sa Laury</button>
+      </div>
+    </div>
+  </dialog>
+
+  <section id="postup" style="padding-top:0">
+    <div class="wrap">
+      <div class="head">
+        <div><span class="eyebrow">Ako to funguje</span><h2>Od žiadosti po kľúče v štyroch krokoch</h2></div>
+      </div>
+      <div class="steps">
+        <div class="step"><h3>Vyberiete auto</h3><p>Z našej ponuky, alebo nám poviete, aké auto hľadáte.</p><span class="t">5 minút</span></div>
+        <div class="step"><h3>Pošlete žiadosť</h3><p>Krátky formulár online. Stačí občiansky preukaz a základné údaje o príjme.</p><span class="t">Online</span></div>
+        <div class="step"><h3>Schválime financovanie</h3><p>Pripravíme ponuku na mieru a vysvetlíme každú položku vopred.</p><span class="t">Zvyčajne v ten deň</span></div>
+        <div class="step"><h3>Odchádzate autom</h3><p>Podpíšete zmluvu, prevezmete auto a splácate v pokoji.</p><span class="t">Hotovo</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="comfort" id="o-nas">
+    <div class="wrap c-grid">
+      <div class="big">
+        <span class="eyebrow">O nás</span>
+        <h2 style="margin-top:14px">Žiadne prekvapenia. Ani pri podpise, ani pri poslednej splátke.</h2>
+        <p>Kúpa auta na splátky má byť pokojná. Každé číslo vám ukážeme vopred, všetko vysvetlíme ľudsky a nič netlačíme. Splatkuj nadväzuje na 6 rokov skúseností značky Autá za babku, počas ktorých sme prefinancovali vozidlá za viac ako 8 miliónov eur pre desiatky spokojných klientov.</p>
+        <div class="years"><b>8+&nbsp;mil.&nbsp;€</b><span>prefinancovaných vozidiel<br>za 6 rokov, predtým ako Autá za babku</span></div>
+      </div>
+      <div class="list">
+        <div class="item"><div class="ico"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg></div><div><h3>Vybavíte z domu</h3><p>Žiadosť, dokumenty aj komunikácia prebiehajú online. Na podpis prídete len raz, alebo prídeme my za vami.</p></div></div>
+        <div class="item"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></div><div><h3>Osobný poradca</h3><p>Jeden človek, ktorý pozná vašu situáciu. Žiadne prepájanie medzi oddeleniami.</p></div></div>
+        <div class="item"><div class="ico"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div><div><h3>Jasné podmienky vopred</h3><p>Splátku, akontáciu aj celkovú sumu poznáte pred podpisom. Bez prekvapení a skrytých poplatkov.</p></div></div>
+        <div class="item"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="m9 12 2 2 4-4"/></svg></div><div><h3>Preverené vozidlá</h3><p>Overený pôvod, kontrola histórie a stavu. Predávame autá, ktoré by sme si kúpili aj sami.</p></div></div>
+        <div class="item"><div class="ico"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></div><div><h3>Riešenie aj pre zložitejšie prípady</h3><p>SZČO, krátko v zamestnaní či firma na začiatku. Hľadáme cestu tam, kde iní odmietnu.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap sk">
+      <div>
+        <span class="eyebrow">Pôsobnosť</span>
+        <h2 style="margin-top:14px">Pôsobíme po celom Slovensku.</h2>
+        <p class="l">Nezáleží na tom, či bývate v Bratislave, na Orave alebo vo Vranove. Financovanie vybavíme online a auto vám pomôžeme dostať až k vám.</p>
+      </div>
+      <div class="kraje">
+        <div class="kraj"><i></i><b>BA</b><small>Bratislavský</small></div>
+        <div class="kraj"><i></i><b>TT</b><small>Trnavský</small></div>
+        <div class="kraj"><i></i><b>NR</b><small>Nitriansky</small></div>
+        <div class="kraj"><i></i><b>TN</b><small>Trenčiansky</small></div>
+        <div class="kraj"><i></i><b>ZA</b><small>Žilinský</small></div>
+        <div class="kraj"><i></i><b>BB</b><small>Banskobystrický</small></div>
+        <div class="kraj"><i></i><b>PO</b><small>Prešovský</small></div>
+        <div class="kraj"><i></i><b>KE</b><small>Košický</small></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="head"><div><span class="eyebrow">Časté otázky</span><h2>Čo sa nás ľudia pýtajú</h2></div></div>
+      <div class="faq">
+        <details open><summary>Aké doklady potrebujem?</summary><p>Občiansky preukaz a potvrdenie o príjme alebo výpis z účtu. Podnikatelia a firmy pridajú daňové priznanie. Presný zoznam vám pošleme podľa vašej situácie.</p></details>
+        <details><summary>Musím mať akontáciu?</summary><p>Nie. Financujeme už od <strong class="zero">0&nbsp;%</strong> akontácie. Ak chcete nižšiu mesačnú splátku, môžete akontáciu zložiť, ale nie je to podmienka.</p></details>
+        <details><summary>Aký je rozdiel medzi úverom a leasingom?</summary><p>Pri úvere je auto od začiatku vaše a banka má záložné právo. Pri leasingu je auto počas splácania vo vlastníctve leasingovej spoločnosti a prevedie sa na vás po poslednej splátke. Poradíme, čo je pre vás výhodnejšie.</p></details>
+        <details><summary>Môžem splatiť auto skôr?</summary><p>Áno. Predčasné splatenie je možné, podmienky závisia od konkrétnej zmluvy a vždy vám ich vysvetlíme vopred.</p></details>
+        <details><summary>Musím prísť osobne?</summary><p>Väčšinu vybavíte online. Osobne sa stretneme len pri podpise a odovzdaní auta.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section id="kontakt" style="padding-top:0">
+    <div class="wrap contact">
+      <div class="cbox">
+        <h2>Ozvite sa nám. Splátku aj celkovú sumu vám vypočítame vopred.</h2>
+        <div class="cline"><small>Telefón</small><b class="num">0903 427 088</b></div>
+        
+        <div class="cline"><small>Pôsobnosť</small><b>Celé Slovensko</b></div>
+      </div>
+      <form id="lead" novalidate>
+        <label>Meno a priezvisko<input id="f-name" name="name" autocomplete="name" required></label>
+        <label>Telefón<input id="f-phone" name="phone" type="tel" autocomplete="tel" required></label>
+        <label>Kraj<select id="f-region" name="region"><option>Bratislavský</option><option>Trnavský</option><option selected>Nitriansky</option><option>Trenčiansky</option><option>Žilinský</option><option>Banskobystrický</option><option>Prešovský</option><option>Košický</option></select></label>
+        <label>Typ financovania<select id="f-type" name="type"><option>Úver</option><option>Leasing</option><option>Neviem, poraďte mi</option></select></label>
+        <label class="full">O aké auto máte záujem?<textarea id="f-msg" name="msg" placeholder="Napr. Cupra Formentor 2023, splátka do 350 € mesačne"></textarea></label>
+        <button class="btn btn-brand full" type="submit" style="justify-content:center">Odoslať nezáväzný dopyt</button>
+        <p class="ok" id="ok" hidden>Ďakujeme. Toto je náhľad webu, formulár sa prepojí s vaším e-mailom pri spustení stránky.</p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <a class="logo" href="#top"><svg><use href="#mark"/></svg><span class="wm">splatkuj<i>.sk</i></span></a>
+      <span>© 2026 Splatkuj.sk (predtým Autá za babku) · Financovanie vozidiel po celom Slovensku · <a href="https://claude.ai/artifact/GB5mSp21vwPdeAS9FFWL4S" target="_blank" rel="noopener" style="color:var(--mut)">Administrácia</a> · <a href="https://claude.ai/artifact/RzxFmQwtobW7QqqKjhsZSy" target="_blank" rel="noopener" style="color:var(--mut)">Reklamy</a></span>
+    </div>
+    <p class="legal">Všetky výpočty na tejto stránke sú orientačné a nepredstavujú záväznú ponuku. Reprezentatívny príklad a RPMN uvádzame pri konkrétnej ponuke. Spoločnosť pôsobí ako sprostredkovateľ financovania.</p>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const eur = n => new Intl.NumberFormat('sk-SK',{maximumFractionDigits:0}).format(Math.round(n)) + ' €';
+  function monthly(price, downPct, months, rate){
+    const loan = price * (1 - downPct/100), r = rate/100/12;
+    const m = r === 0 ? loan/months : loan * r / (1 - Math.pow(1+r, -months));
+    return {loan, m, down: price - loan, total: price - loan + m*months};
+  }
+  function fill(el){ el.style.setProperty('--p', ((el.value-el.min)/(el.max-el.min)*100)+'%'); }
+  function update(){
+    const price=+$('price').value, down=+$('down').value, term=+$('term').value, rate=Math.max(0,+$('rate').value||0);
+    ['price','down','term'].forEach(id=>fill($(id)));
+    $('priceO').textContent = eur(price);
+    $('downO').textContent = down + ' %';
+    $('termO').textContent = term + ' mes.';
+    const c = monthly(price, down, term, rate);
+    $('pay').innerHTML = eur(c.m).replace(' €','') + ' <span>€ / mes.</span>';
+    $('dDown').textContent = eur(c.down); $('dLoan').textContent = eur(c.loan); $('dTotal').textContent = eur(c.total);
+  }
+  ['price','down','term','rate'].forEach(id => $(id).addEventListener('input', update));
+  update();
+  // example installment for the listed car: 0 % down, 96 months, 9.9 % p.a.
+  const pay = p => eur(monthly(p, 0, 96, 9.9).m).replace(' €','');
+  document.querySelectorAll('[data-hero-pay]').forEach(el => el.innerHTML = pay(49800) + ' <span>€/mes.</span>');
+  const CARS = [
+    {id:'cupra', title:'Cupra Formentor 1.5 TSI', sub:'110 kW · DSG · biela metalíza', price:19500, year:'5/2023', km:'85 000 km', power:'110 kW', fuel:'Benzín', gear:'Automat DSG', drive:'Predný', photos:6,
+     tags:['Virtual Cockpit','Full-LED','ACC','360° senzory','Samoparkovanie','Beats audio'],
+     desc:'Formentor v top stave, nebúraný a nestriekaný, servis len v Cupre. Elektronická servisná knižka, 2 kľúče a zmluvná garancia najazdených kilometrov.',
+     eq:['Virtual Cockpit','Full-LED svetlá s prepínaním diaľkových','Vyhrievané predné sedadlá','Polokožený športový interiér','Beats audio','F1 radenie pod volantom','ACC adaptívny tempomat','Navigácia','3-zónová automatická klíma','Kessy bezkľúčový prístup','Senzory 360° so samoparkovaním','Apple CarPlay a Android Auto','Lane assist a čítanie značiek','Disky R18']},
+    {id:'tesla', title:'Tesla Model 3 Standard Range', sub:'239 kW · RWD · šedá metalíza · tepelné čerpadlo', price:21000, year:'2021', km:'147 000 km', power:'239 kW', fuel:'Elektro', gear:'Automat', drive:'Zadný', photos:6,
+     tags:['Tepelné čerpadlo','Panoráma','Kamera 360°','Koža','ACC','SOH 88,4 %'],
+     desc:'Batéria so zdravím 88,4 %, v záruke do 192 000 km alebo do roku 2029. Reálny dojazd približne 350 km. Pravidelný servis, nebúraná, nestriekaná. Prihlásenie v cene do 7 dní.',
+     eq:['Tepelné čerpadlo','Panoramatická strecha','Full-LED svetlomety','Interiér v koži','Vyhrievané sedadlá','Kamera 360°','2-zónová automatická klíma','Elektrický kufor','Bezkľúčový štart a vstup','Adaptívny tempomat ACC','Elektrické pamäťové sedadlá','Prémiový zvukový systém']},
+    {id:'superb', title:'Škoda Superb Combi Sportline', sub:'2.0 TDI 140 kW · 4x4 · DSG · Canton', price:13500, year:'2019', km:'270 000 km', power:'140 kW', fuel:'Diesel', gear:'Automat DSG', drive:'4x4', photos:6,
+     tags:['4x4','Matrix LED','Canton','ACC','Ťažné','Alcantara'],
+     desc:'Auto po veľkom servise za 4 000 €: vymenené rozvody, EGR, adaptívne tlmiče, pretesnená hlava motora a servis prevodovky. STK a EK nové, platné do 2/2028.',
+     eq:['Sportline sedadlá v alcantare, vyhrievané','MATRIX svetlá','Ozvučenie Canton','ACC adaptívny tempomat','Predné a zadné senzory','Elektrické pamäťové sedadlá','Disky R19 Sportline','Apple CarPlay a Android Auto','Elektricky sklopné ťažné','Kessy bezkľúčový prístup','3-zónová klíma','Ambientné osvetlenie','AutoHold','Asistenti bezpečnosti']},
+    {id:'santafe', title:'Hyundai Santa Fe Plug-in Hybrid', sub:'1.6 T-GDi 195 kW · 4x4 · 7 miest · v záruke', price:26990, year:'6/2022', km:'71 000 km', power:'195 kW', fuel:'Plug-in hybrid', gear:'Automat', drive:'4x4', photos:6,
+     tags:['7 miest','4x4','Krell audio','Koža','ACC','Záruka'],
+     desc:'Servis len v Hyundai, auto ešte v záruke. Nebúrané, top stav, zmluvná garancia najazdených km. 2 kľúče a nabíjací kábel.',
+     eq:['Full-LED s automatickými diaľkovými','Prémiové ozvučenie Krell','Navigácia','Interiér v koži','Vyhrievané elektrické sedadlá','Kamera a senzory','Kessy bezkľúčový prístup','ACC adaptívny tempomat','Apple CarPlay a Android Auto','Jazdné režimy aj Sneh, Blato, Piesok','F1 radenie pod volantom','Mŕtvy uhol a jazdné pruhy']},
+    {id:'sportline', title:'Škoda Superb Combi Sportline', sub:'2.0 TDI 147 kW · 4x4 · DSG · Race Blue · Webasto', price:24990, year:'—', km:'121 000 km', power:'147 kW', fuel:'Diesel', gear:'Automat DSG', drive:'4x4', photos:6,
+     tags:['4x4','Matrix LED','Webasto','Kamera 360°','DCC','ACC'],
+     desc:'Dovezené z Nemecka, nebúrané, pôvodný lak na celom aute. Pravidelne servisované, digitálna servisná história. 3 originálne kľúče a ovládač nezávislého kúrenia.',
+     eq:['Matrix LED svetlomety','Adaptívny podvozok DCC','Adaptívny tempomat ACC','Front, Lane a Side Assist','Kamera 360° Area View','Virtuálny kokpit','Navigácia Amundsen','Bezdrôtový Apple CarPlay','Vyhrievaný volant s pádlami','Elektrické sedadlá s pamäťou','Webasto s diaľkovým ovládaním','Elektrické piate dvere','Elektricky výklopné ťažné','Disky 19" VEGA']},
+    {id:'tiguan', title:'Volkswagen Tiguan', sub:'110 kW · automat · biela · nový model', price:26490, year:'7/2024', km:'51 000 km', power:'110 kW', fuel:'—', gear:'Automat', drive:'Predný', photos:6,
+     tags:['Nový model','Virtual Cockpit','Kamera','Mŕtvy uhol','Travel Assist','ACC'],
+     desc:'Auto ako nové, nebúrané a nelakované, pôvodný lak s možnosťou premerania pri obhliadke. Dovoz z Nemecka. Sedadlá bez známok používania.',
+     eq:['Full-LED s automatickým prepínaním','Side Assist, mŕtvy uhol','Lane a Front Assist','Travel Assist','ACC adaptívny tempomat','Parkovacia kamera','Virtual Cockpit','Navigácia','Vyhrievané predné sedadlá','Kessy bezkľúčový štart','Bezdrôtové nabíjanie pre 2 telefóny','Farebné ambientné osvetlenie','Palubná doska potiahnutá kožou','Detekcia prívesu']}
+  ].concat([{"id": "196225342", "img": "s", "title": "Mini Cooper S JCW GP 2", "sub": "160 kW · Benzín · Manuál", "price": 23490, "year": "2013", "km": "86 000 km", "power": "160 kW", "fuel": "Benzín", "gear": "Manuál", "drive": "—", "photos": 6, "tags": ["Topoľčany"], "desc": "Limitovaná edícia John Cooper Works GP 2. Bi-xenónové svetlomety, automatická klimatizácia.", "eq": [], "loc": "Topoľčany", "url": "https://auto.bazos.sk/inzerat/196225342/"}, {"id": "196225341", "img": "s", "title": "Škoda Superb III Scout 2.0 TDI DSG 4x4", "sub": "147 kW · Diesel · Automat", "price": 17490, "year": "2021", "km": "220 000 km", "power": "147 kW", "fuel": "Diesel", "gear": "Automat", "drive": "4x4", "photos": 6, "tags": ["4x4", "Kamera", "Nitra"], "desc": "Facelift, po výmene rozvodov, tlmičov a haldexu v autorizovanom servise Škoda. Parkovacia kamera, svetelný a dažďový senzor.", "eq": [], "loc": "Nitra", "url": "https://auto.bazos.sk/inzerat/196225341/"}, {"id": "196225340", "img": "s", "title": "Cupra Formentor 2.0 TDI DSG 4x4", "sub": "110 kW · Diesel · Automat", "price": 21990, "year": "12/2023", "km": "78 000 km", "power": "110 kW", "fuel": "Diesel", "gear": "Automat", "drive": "4x4", "photos": 6, "tags": ["4x4", "Nitra"], "desc": "Model 2024, pohon 4x4, automatická DSG. Full-LED svetlomety s automatickým prepínaním.", "eq": [], "loc": "Nitra", "url": "https://auto.bazos.sk/inzerat/196225340/"}, {"id": "196075242", "img": "s", "title": "BMW 330d xDrive Touring F31 M-paket", "sub": "190 kW · Diesel · Automat", "price": 14990, "year": "11/2018", "km": "218 000 km", "power": "190 kW", "fuel": "Diesel", "gear": "Automat", "drive": "4x4", "photos": 6, "tags": ["4x4", "Kamera", "Topoľčany"], "desc": "LCI, 8-st. automat ZF, 4x4. 360° parkovacie senzory, kamera, parkovací asistent, adaptívne LED svetlá.", "eq": [], "loc": "Topoľčany", "url": "https://auto.bazos.sk/inzerat/196075242/"}, {"id": "196075239", "img": "s", "title": "Škoda Octavia III Combi 1.8 TSI DSG", "sub": "132 kW · Benzín · Automat", "price": 11990, "year": "12/2013", "km": "190 000 km", "power": "132 kW", "fuel": "Benzín", "gear": "Automat", "drive": "—", "photos": 6, "tags": ["Topoľčany"], "desc": "Natáčacie bi-xenóny, veľká navigácia, 4x vyhrievané sedadlá, Webasto, dvojzónová klíma, Lane Assist.", "eq": [], "loc": "Topoľčany", "url": "https://auto.bazos.sk/inzerat/196075239/"}, {"id": "196042551", "img": "s", "title": "Audi A6 Avant C8 40 TDI", "sub": "150 kW · Diesel · Automat", "price": 22990, "year": "6/2022", "km": "152 000 km", "power": "150 kW", "fuel": "Diesel", "gear": "Automat", "drive": "—", "photos": 6, "tags": ["Matrix LED", "Nitra"], "desc": "Full-LED Matrix svetlomety, predné a zadné senzory, automatická prevodovka.", "eq": [], "loc": "Nitra", "url": "https://auto.bazos.sk/inzerat/196042551/"}, {"id": "196042539", "img": "s", "title": "Cupra Formentor 1.5 TSI", "sub": "110 kW · Benzín · Automat", "price": 21990, "year": "2023", "km": "49 000 km", "power": "110 kW", "fuel": "Benzín", "gear": "Automat", "drive": "—", "photos": 6, "tags": ["Nitra"], "desc": "Modelový rok 2024, maximálne zachovalý stav, funkčná všetka výbava, zánovné letné pneumatiky.", "eq": [], "loc": "Nitra", "url": "https://auto.bazos.sk/inzerat/196042539/"}, {"id": "196010070", "img": "s", "title": "Volkswagen Tiguan 2.0 TDI DSG 4Motion R-Line", "sub": "110 kW · Diesel · Automat", "price": 23990, "year": "2022", "km": "158 000 km", "power": "110 kW", "fuel": "Diesel", "gear": "Automat", "drive": "4x4", "photos": 6, "tags": ["4x4", "Matrix LED", "R-Line", "Nitra"], "desc": "Facelift R-Line, 4x4. 360° parkovacie senzory, parkovací asistent, Full-LED s automatickými matrix diaľkovými.", "eq": [], "loc": "Nitra", "url": "https://auto.bazos.sk/inzerat/196010070/"}, {"id": "195396721", "img": "s", "title": "Peugeot 2008 GT Line 1.5 HDi", "sub": "96 kW · Diesel · Automat", "price": 16990, "year": "2021", "km": "109 000 km", "power": "96 kW", "fuel": "Diesel", "gear": "Automat", "drive": "—", "photos": 6, "tags": ["Kamera", "Topoľčany"], "desc": "360° parkovacie senzory, kamera, Full-LED svetlá s automatickými diaľkovými.", "eq": [], "loc": "Topoľčany", "url": "https://auto.bazos.sk/inzerat/195396721/"}, {"id": "195396727", "img": "s", "title": "Volkswagen Multivan T7 2.0 TDI DSG", "sub": "110 kW · Diesel · Automat", "price": 44990, "year": "2/2023", "km": "86 000 km", "power": "110 kW", "fuel": "Diesel", "gear": "Automat", "drive": "—", "photos": 6, "tags": ["7 miest", "Kamera", "Matrix LED", "Topoľčany"], "desc": "7-miestny. 360° senzory, kamera, parkovací asistent, Full-LED s matrix diaľkovými.", "eq": [], "loc": "Topoľčany", "url": "https://auto.bazos.sk/inzerat/195396727/"}, {"id": "195625102", "img": "s", "title": "Volkswagen Transporter T6 Kombi 2.0 TDI", "sub": "75 kW · Diesel · Manuál", "price": 16990, "year": "2019", "km": "180 000 km", "power": "75 kW", "fuel": "Diesel", "gear": "Manuál", "drive": "—", "photos": 6, "tags": ["Topoľčany"], "desc": "Long verzia, 9 miest. Tempomat, klíma, Webasto, parkovacie senzory, vymenené rozvody.", "eq": [], "loc": "Topoľčany", "url": "https://auto.bazos.sk/inzerat/195625102/"}, {"id": "195686812", "img": "s", "title": "Volkswagen Golf Alltrack 2.0 TDI DSG 4Motion", "sub": "135 kW · Diesel · Automat", "price": 10990, "year": "7/2015", "km": "222 000 km", "power": "135 kW", "fuel": "Diesel", "gear": "Automat", "drive": "4x4", "photos": 6, "tags": ["4x4", "Kamera", "Topoľčany"], "desc": "4x4. Navigácia, parkovacia kamera, parkovací asistent, vyhrievané sedadlá, ACC.", "eq": [], "loc": "Topoľčany", "url": "https://auto.bazos.sk/inzerat/195686812/"}, {"id": "195707737", "img": "s", "title": "Audi Q5 55 TFSIe Quattro S-Line", "sub": "270 kW · Plug-in hybrid · Automat", "price": 35990, "year": "2023", "km": "22 000 km", "power": "270 kW", "fuel": "Plug-in hybrid", "gear": "Automat", "drive": "4x4", "photos": 6, "tags": ["4x4", "Kamera", "Topoľčany"], "desc": "Facelift, plug-in hybrid. Parkovacia kamera, Full-LED s automatickými diaľkovými.", "eq": [], "loc": "Topoľčany", "url": "https://auto.bazos.sk/inzerat/195707737/"}, {"id": "195907819", "img": "s", "title": "Porsche Boxster 981 2.7 PDK", "sub": "195 kW · Benzín · Automat", "price": 38990, "year": "5/2013", "km": "108 000 km", "power": "195 kW", "fuel": "Benzín", "gear": "Automat", "drive": "—", "photos": 6, "tags": ["Topoľčany"], "desc": "Kabriolet. Navigácia, bi-xenóny, vyhrievané sedadlá, elektrická klapka výfuku, originálne disky Porsche.", "eq": [], "loc": "Topoľčany", "url": "https://auto.bazos.sk/inzerat/195907819/"}, {"id": "195907815", "img": "s", "title": "Alpina XD3 Biturbo", "sub": "257 kW · Diesel · Automat", "price": 26900, "year": "2015", "km": "148 000 km", "power": "257 kW", "fuel": "Diesel", "gear": "Automat", "drive": "—", "photos": 6, "tags": ["Topoľčany"], "desc": "8-st. automat ZF. Bi-xenóny, asistent mŕtveho uhla, adaptívny tempomat.", "eq": [], "loc": "Topoľčany", "url": "https://auto.bazos.sk/inzerat/195907815/"}, {"id": "194416141", "img": "s", "title": "Renault Megane R.S. Line 1.3 TCe EDC", "sub": "117 kW · Benzín · Automat", "price": 16490, "year": "9/2020", "km": "67 000 km", "power": "117 kW", "fuel": "Benzín", "gear": "Automat", "drive": "—", "photos": 6, "tags": ["Kamera", "Topoľčany"], "desc": "360° parkovacie senzory, kamera, parkovací asistent, Full-LED s automatickými diaľkovými.", "eq": [], "loc": "Topoľčany", "url": "https://auto.bazos.sk/inzerat/194416141/"}, {"id": "195885606", "img": "s", "title": "Volkswagen Touareg 3.0 TDI 4Motion R-Line", "sub": "193 kW · Diesel · Automat", "price": 21990, "year": "12/2015", "km": "150 000 km", "power": "193 kW", "fuel": "Diesel", "gear": "Automat", "drive": "4x4", "photos": 6, "tags": ["4x4", "Kamera", "R-Line", "Topoľčany"], "desc": "Facelift, 8-st. automat, 4x4. 360° senzory, kamera, natáčacie bi-xenóny.", "eq": [], "loc": "Topoľčany", "url": "https://auto.bazos.sk/inzerat/195885606/"}, {"id": "194903907", "img": "s", "title": "BMW 540d xDrive Touring G31 M-paket", "sub": "250 kW · Diesel · Automat", "price": 29990, "year": "11/2020", "km": "154 000 km", "power": "250 kW", "fuel": "Diesel", "gear": "Automat", "drive": "4x4", "photos": 6, "tags": ["4x4", "Kamera", "Topoľčany"], "desc": "LCI, 8-st. automat ZF, 4x4. Laserové svetlomety, 360° senzory, kamera, parkovací asistent.", "eq": [], "loc": "Topoľčany", "url": "https://auto.bazos.sk/inzerat/194903907/"}, {"id": "195822153", "img": "s", "title": "Volkswagen Tiguan Allspace 2.0 TDI DSG 4Motion R-Line", "sub": "147 kW · Diesel · Automat", "price": 28990, "year": "12/2023", "km": "133 000 km", "power": "147 kW", "fuel": "Diesel", "gear": "Automat", "drive": "4x4", "photos": 6, "tags": ["4x4", "Kamera", "Matrix LED", "R-Line", "Topoľčany"], "desc": "Facelift R-Line, 4x4. 360° kamera, parkovací asistent, Full-LED s matrix diaľkovými.", "eq": [], "loc": "Topoľčany", "url": "https://auto.bazos.sk/inzerat/195822153/"}, {"id": "195148842", "img": "s", "title": "Volkswagen Golf R 2.0 TSI DSG", "sub": "217 kW · Benzín · Automat", "price": 12990, "year": "2011", "km": "199 000 km", "power": "217 kW", "fuel": "Benzín", "gear": "Automat", "drive": "—", "photos": 6, "tags": ["Kamera", "Topoľčany"], "desc": "Natáčacie bi-xenóny, vyhrievané sedadlá, navigácia, Dynaudio, kamera.", "eq": [], "loc": "Topoľčany", "url": "https://auto.bazos.sk/inzerat/195148842/"}, {"id": "195646879", "img": "s", "title": "Volkswagen Arteon Shooting Brake 2.0 TDI DSG R-Line", "sub": "147 kW · Diesel · Automat", "price": 20990, "year": "6/2021", "km": "185 000 km", "power": "147 kW", "fuel": "Diesel", "gear": "Automat", "drive": "—", "photos": 6, "tags": ["Kamera", "Matrix LED", "R-Line", "Nitra"], "desc": "Facelift. Parkovacia kamera, Full-LED s automatickými matrix diaľkovými.", "eq": [], "loc": "Nitra", "url": "https://auto.bazos.sk/inzerat/195646879/"}, {"id": "195584743", "img": "s", "title": "Seat Ateca 1.6 TDI", "sub": "85 kW · Diesel · —", "price": 14990, "year": "3/2019", "km": "129 000 km", "power": "85 kW", "fuel": "Diesel", "gear": "—", "drive": "—", "photos": 6, "tags": ["Nitra"], "desc": "360° parkovacie senzory, samoparkovanie, Full-LED s automatickými diaľkovými.", "eq": [], "loc": "Nitra", "url": "https://auto.bazos.sk/inzerat/195584743/"}, {"id": "195457046", "img": "s", "title": "Seat Tarraco FR 2.0 TDI DSG 4x4", "sub": "147 kW · Diesel · Automat", "price": 26990, "year": "5/2021", "km": "134 000 km", "power": "147 kW", "fuel": "Diesel", "gear": "Automat", "drive": "4x4", "photos": 6, "tags": ["4x4", "Kamera", "Nitra"], "desc": "360° senzory, 360° kamera, samoparkovanie, Full-LED svetlomety.", "eq": [], "loc": "Nitra", "url": "https://auto.bazos.sk/inzerat/195457046/"}, {"id": "195430470", "img": "s", "title": "Mercedes-Benz E300de AMG", "sub": "225 kW · Plug-in hybrid · Automat", "price": 27490, "year": "3/2021", "km": "111 000 km", "power": "225 kW", "fuel": "Plug-in hybrid", "gear": "Automat", "drive": "—", "photos": 6, "tags": ["Nitra"], "desc": "AMG paket, 306 koní, 9G-Tronic. Hybrid diesel a elektro.", "eq": [], "loc": "Nitra", "url": "https://auto.bazos.sk/inzerat/195430470/"}, {"id": "194805529", "img": "s", "title": "Seat Tarraco FR 2.0 TDI DSG 4Drive", "sub": "147 kW · Diesel · Automat", "price": 19990, "year": "6/2022", "km": "194 000 km", "power": "147 kW", "fuel": "Diesel", "gear": "Automat", "drive": "4x4", "photos": 6, "tags": ["4x4", "Nitra"], "desc": "360° senzory, samoparkovanie, Full-LED, ACC, Lane a Front Assist, Beats audio.", "eq": [], "loc": "Nitra", "url": "https://auto.bazos.sk/inzerat/194805529/"}, {"id": "195179225", "img": "s", "title": "Volkswagen Tiguan Facelift R-Line 2.0 TDI", "sub": "147 kW · Diesel · Automat", "price": 26990, "year": "2021", "km": "119 000 km", "power": "147 kW", "fuel": "Diesel", "gear": "Automat", "drive": "—", "photos": 6, "tags": ["Panoráma", "R-Line", "Nitra"], "desc": "DSG, 4x4, panoráma. Výborný technický aj vizuálny stav, kompletná servisná história.", "eq": [], "loc": "Nitra", "url": "https://auto.bazos.sk/inzerat/195179225/"}, {"id": "195019062", "img": "s", "title": "Volkswagen ID.4 Pro", "sub": "150 kW · Elektro · Automat", "price": 25490, "year": "6/2022", "km": "101 000 km", "power": "150 kW", "fuel": "Elektro", "gear": "Automat", "drive": "—", "photos": 6, "tags": ["Nitra"], "desc": "Batéria 82 kWh (77 kWh využiteľná), zadný náhon. Po výmene bŕzd.", "eq": [], "loc": "Nitra", "url": "https://auto.bazos.sk/inzerat/195019062/"}, {"id": "194999017", "img": "s", "title": "Škoda Kodiaq Sportline 2.0 TDI DSG", "sub": "110 kW · Diesel · Automat", "price": 23990, "year": "6/2021", "km": "162 000 km", "power": "110 kW", "fuel": "Diesel", "gear": "Automat", "drive": "—", "photos": 6, "tags": ["7 miest", "Kamera", "Sportline", "Nitra"], "desc": "7-miestna verzia. Parkovacia kamera, senzory, Full-LED svetlomety.", "eq": [], "loc": "Nitra", "url": "https://auto.bazos.sk/inzerat/194999017/"}, {"id": "194992166", "img": "s", "title": "Škoda Octavia IV Combi 2.0 TDI Style", "sub": "110 kW · Diesel · Manuál", "price": 13290, "year": "12/2022", "km": "212 000 km", "power": "110 kW", "fuel": "Diesel", "gear": "Manuál", "drive": "—", "photos": 6, "tags": ["Panoráma", "Nitra"], "desc": "Model 2023, strieborná metalíza, panoramatická strecha.", "eq": [], "loc": "Nitra", "url": "https://auto.bazos.sk/inzerat/194992166/"}, {"id": "194992123", "img": "s", "title": "Cupra Formentor VZ 2.0 TSI DSG 4Drive", "sub": "228 kW · Benzín · Automat", "price": 25990, "year": "12/2021", "km": "60 000 km", "power": "228 kW", "fuel": "Benzín", "gear": "Automat", "drive": "4x4", "photos": 6, "tags": ["4x4", "Panoráma", "Nitra"], "desc": "Camouflage Green metalíza, výbava VZ Veloz, panoráma, 4x4.", "eq": [], "loc": "Nitra", "url": "https://auto.bazos.sk/inzerat/194992123/"}, {"id": "194983324", "img": "s", "title": "Seat Tarraco 2.0 TDI Style", "sub": "110 kW · Diesel · Manuál", "price": 15990, "year": "6/2022", "km": "186 000 km", "power": "110 kW", "fuel": "Diesel", "gear": "Manuál", "drive": "—", "photos": 6, "tags": ["Kamera", "Nitra"], "desc": "Predný náhon, 6-st. manuál. Kamera, virtuálny štít.", "eq": [], "loc": "Nitra", "url": "https://auto.bazos.sk/inzerat/194983324/"}, {"id": "194938398", "img": "s", "title": "Audi A4 Avant B9 35 TDI S-tronic", "sub": "120 kW · Diesel · Automat", "price": 19990, "year": "2022", "km": "160 000 km", "power": "120 kW", "fuel": "Diesel", "gear": "Automat", "drive": "—", "photos": 6, "tags": ["Kamera", "Nitra"], "desc": "Facelift. Parkovacia kamera, Full-LED s automatickými diaľkovými.", "eq": [], "loc": "Nitra", "url": "https://auto.bazos.sk/inzerat/194938398/"}, {"id": "194938386", "img": "s", "title": "Škoda Octavia IV Combi 2.0 TDI DSG", "sub": "110 kW · Diesel · Automat", "price": 14990, "year": "11/2021", "km": "191 000 km", "power": "110 kW", "fuel": "Diesel", "gear": "Automat", "drive": "—", "photos": 6, "tags": ["Kamera", "Matrix LED", "Nitra"], "desc": "Model 2022. Kamera, Full-LED Matrix svetlomety.", "eq": [], "loc": "Nitra", "url": "https://auto.bazos.sk/inzerat/194938386/"}, {"id": "194938380", "img": "s", "title": "Škoda Kodiaq Sportline 2.0 TDI DSG 4x4", "sub": "147 kW · Diesel · Automat", "price": 33990, "year": "6/2022", "km": "47 000 km", "power": "147 kW", "fuel": "Diesel", "gear": "Automat", "drive": "4x4", "photos": 6, "tags": ["4x4", "7 miest", "Kamera", "Matrix LED", "Sportline", "Nitra"], "desc": "Facelift, 7-miestny, 4x4. Kamera, Full-LED Matrix svetlomety.", "eq": [], "loc": "Nitra", "url": "https://auto.bazos.sk/inzerat/194938380/"}, {"id": "194863472", "img": "s", "title": "Škoda Kodiaq Sportline 2.0 TDI DSG", "sub": "110 kW · Diesel · Automat", "price": 19990, "year": "6/2021", "km": "207 000 km", "power": "110 kW", "fuel": "Diesel", "gear": "Automat", "drive": "—", "photos": 6, "tags": ["Panoráma", "Sportline", "Nitra"], "desc": "Strieborná metalíza, panoráma, predný náhon.", "eq": [], "loc": "Nitra", "url": "https://auto.bazos.sk/inzerat/194863472/"}, {"id": "194784862", "img": "s", "title": "Peugeot 3008 GT Line 1.5 BlueHDi", "sub": "96 kW · Diesel · Automat", "price": 15990, "year": "10/2021", "km": "113 000 km", "power": "96 kW", "fuel": "Diesel", "gear": "Automat", "drive": "—", "photos": 6, "tags": ["Topoľčany"], "desc": "Veľmi dobrý technický aj vizuálny stav, pravidelne servisovaný.", "eq": [], "loc": "Topoľčany", "url": "https://auto.bazos.sk/inzerat/194784862/"}, {"id": "194773562", "img": "s", "title": "Volkswagen Taigo 1.0 TSI DSG R-Line", "sub": "81 kW · Benzín · Automat", "price": 17990, "year": "5/2023", "km": "76 000 km", "power": "81 kW", "fuel": "Benzín", "gear": "Automat", "drive": "—", "photos": 6, "tags": ["Kamera", "R-Line", "Nitra"], "desc": "Červená metalíza, výbava R-Line, kamera.", "eq": [], "loc": "Nitra", "url": "https://auto.bazos.sk/inzerat/194773562/"}, {"id": "194773224", "img": "s", "title": "Škoda Superb Combi 3.6 FSI V6 4x4 DSG", "sub": "191 kW · Benzín · Automat", "price": 8700, "year": "2013", "km": "220 000 km", "power": "191 kW", "fuel": "Benzín", "gear": "Automat", "drive": "4x4", "photos": 6, "tags": ["4x4", "Nitra"], "desc": "Facelift, atmosférický V6. Dovoz zo Švajčiarska, mimoriadne zachovalý stav.", "eq": [], "loc": "Nitra", "url": "https://auto.bazos.sk/inzerat/194773224/"}, {"id": "194659092", "img": "s", "title": "Volkswagen ID.4 Pro Performance", "sub": "150 kW · Elektro · Automat", "price": 25490, "year": "5/2022", "km": "118 000 km", "power": "150 kW", "fuel": "Elektro", "gear": "Automat", "drive": "—", "photos": 6, "tags": ["Matrix LED", "Topoľčany"], "desc": "Maximálna výbava, 1. majiteľ. Matrix LED IQ.Light, tepelné čerpadlo, ťažné.", "eq": [], "loc": "Topoľčany", "url": "https://auto.bazos.sk/inzerat/194659092/"}, {"id": "194659086", "img": "s", "title": "Audi A3 Sportback 2.0 TFSI Quattro S-Line", "sub": "147 kW · Benzín · Automat", "price": 6500, "year": "2008", "km": "250 000 km", "power": "147 kW", "fuel": "Benzín", "gear": "Automat", "drive": "4x4", "photos": 6, "tags": ["4x4", "Topoľčany"], "desc": "S-tronic, quattro. Bi-xenóny, navigácia, koža a alcantara, vyhrievané sedadlá.", "eq": [], "loc": "Topoľčany", "url": "https://auto.bazos.sk/inzerat/194659086/"}, {"id": "194623555", "img": "s", "title": "Volkswagen ID.4 Pro Performance", "sub": "150 kW · Elektro · Automat", "price": 25190, "year": "1/2022", "km": "110 000 km", "power": "150 kW", "fuel": "Elektro", "gear": "Automat", "drive": "—", "photos": 6, "tags": ["Topoľčany"], "desc": "Batéria 82 kWh, hnedý interiér. Po servise v autorizovanom servise VW, nové predné brzdy.", "eq": [], "loc": "Topoľčany", "url": "https://auto.bazos.sk/inzerat/194623555/"}, {"id": "194623552", "img": "s", "title": "Škoda Kodiaq Style 2.0 TDI DSG", "sub": "110 kW · Diesel · Automat", "price": 22490, "year": "5/2022", "km": "148 000 km", "power": "110 kW", "fuel": "Diesel", "gear": "Automat", "drive": "—", "photos": 6, "tags": ["Matrix LED", "Topoľčany"], "desc": "Facelift, predný pohon. Full-LED Matrix svetlomety.", "eq": [], "loc": "Topoľčany", "url": "https://auto.bazos.sk/inzerat/194623552/"}, {"id": "194548935", "img": "s", "title": "Ford Galaxy 2.0 TDCi", "sub": "110 kW · Diesel · Automat", "price": 15990, "year": "10/2022", "km": "194 000 km", "power": "110 kW", "fuel": "Diesel", "gear": "Automat", "drive": "—", "photos": 6, "tags": ["7 miest", "Nitra"], "desc": "7-miestny, 8-st. automat. Úsporný rodinný van.", "eq": [], "loc": "Nitra", "url": "https://auto.bazos.sk/inzerat/194548935/"}, {"id": "196277103", "img": "s", "title": "Škoda Octavia III Facelift 1.4 TSI Style", "sub": "110 kW · Benzín · Manuál", "price": 15990, "year": "2018", "km": "44 897 km", "power": "110 kW", "fuel": "Benzín", "gear": "Manuál", "drive": "—", "photos": 6, "tags": ["Bánovce nad Bebravou"], "desc": "Reprezentatívna výbava s množstvom príplatkovej výbavy, len 44 897 km.", "eq": [], "loc": "Bánovce nad Bebravou", "url": "https://auto.bazos.sk/inzerat/196277103/"}, {"id": "195617840", "img": "s", "title": "Volkswagen Passat B8 1.4 TSI", "sub": "92 kW · Benzín · Manuál", "price": 10990, "year": "2016", "km": "154 297 km", "power": "92 kW", "fuel": "Benzín", "gear": "Manuál", "drive": "—", "photos": 6, "tags": ["Bánovce nad Bebravou"], "desc": "Nehavarované. BlueMotion Technology, komfortná výbava.", "eq": [], "loc": "Bánovce nad Bebravou", "url": "https://auto.bazos.sk/inzerat/195617840/"}, {"id": "195456870", "img": "s", "title": "Seat Ateca FR 2.0 TDI DSG Facelift", "sub": "110 kW · Diesel · Automat", "price": 19990, "year": "1/2022", "km": "133 487 km", "power": "110 kW", "fuel": "Diesel", "gear": "Automat", "drive": "—", "photos": 6, "tags": ["Bánovce nad Bebravou"], "desc": "Červená. Ťažné zariadenie, LED svetlomety, virtuálny štít.", "eq": [], "loc": "Bánovce nad Bebravou", "url": "https://auto.bazos.sk/inzerat/195456870/"}, {"id": "195240817", "img": "s", "title": "Audi Q2 Sport 1.4 TSI", "sub": "110 kW · Benzín · Manuál", "price": 14490, "year": "2017", "km": "147 698 km", "power": "110 kW", "fuel": "Benzín", "gear": "Manuál", "drive": "—", "photos": 6, "tags": ["Bánovce nad Bebravou"], "desc": "Tango Red metalíza, nadštandardná výbava, navigácia.", "eq": [], "loc": "Bánovce nad Bebravou", "url": "https://auto.bazos.sk/inzerat/195240817/"}, {"id": "195249240", "img": "s", "title": "Škoda Superb Combi 2.0 TDI Style Premium", "sub": "110 kW · Diesel · Manuál", "price": 12990, "year": "2016", "km": "218 111 km", "power": "110 kW", "fuel": "Diesel", "gear": "Manuál", "drive": "—", "photos": 6, "tags": ["Bánovce nad Bebravou"], "desc": "Najvyššia výbava Style Premium, koža, mŕtvy uhol.", "eq": [], "loc": "Bánovce nad Bebravou", "url": "https://auto.bazos.sk/inzerat/195249240/"}, {"id": "195276686", "img": "s", "title": "Volkswagen Golf GTI 2.0 TSI Facelift", "sub": "169 kW · Benzín · Manuál", "price": 18490, "year": "2018", "km": "115 345 km", "power": "169 kW", "fuel": "Benzín", "gear": "Manuál", "drive": "—", "photos": 6, "tags": ["Bánovce nad Bebravou"], "desc": "Golf 7.5 GTI, 230 koní, LED svetlomety, Kessy.", "eq": [], "loc": "Bánovce nad Bebravou", "url": "https://auto.bazos.sk/inzerat/195276686/"}, {"id": "195315827", "img": "s", "title": "SEAT Tarraco 2.0 TDI 4Drive DSG Xcellence", "sub": "110 kW · Diesel · Automat", "price": 18990, "year": "2020", "km": "173 351 km", "power": "110 kW", "fuel": "Diesel", "gear": "Automat", "drive": "4x4", "photos": 6, "tags": ["4x4", "Panoráma", "Bánovce nad Bebravou"], "desc": "Najvyššia výbava Xcellence, panoráma, alcantara, ťažné, 4x4.", "eq": [], "loc": "Bánovce nad Bebravou", "url": "https://auto.bazos.sk/inzerat/195315827/"}, {"id": "195190999", "img": "s", "title": "Škoda Kamiq 1.5 TSI DSG Monte Carlo", "sub": "110 kW · Benzín · Automat", "price": 19990, "year": "2020", "km": "99 363 km", "power": "110 kW", "fuel": "Benzín", "gear": "Automat", "drive": "—", "photos": 6, "tags": ["Panoráma", "Bánovce nad Bebravou"], "desc": "Edícia Monte Carlo, panoráma, prémiový zvuk. Možný odpočet DPH.", "eq": [], "loc": "Bánovce nad Bebravou", "url": "https://auto.bazos.sk/inzerat/195190999/"}, {"id": "194764716", "img": "s", "title": "Volkswagen Sharan 2.0 TDI DSG Highline", "sub": "103 kW · Diesel · Automat", "price": 7990, "year": "5/2011", "km": "320 550 km", "power": "103 kW", "fuel": "Diesel", "gear": "Automat", "drive": "—", "photos": 6, "tags": ["Bánovce nad Bebravou"], "desc": "Čierna metalíza, kožený interiér, parkovací asistent. Diaľničné kilometre.", "eq": [], "loc": "Bánovce nad Bebravou", "url": "https://auto.bazos.sk/inzerat/194764716/"}, {"id": "196196663", "img": "s", "title": "Škoda Superb 2.0 TDI SportLine 4x4 DSG", "sub": "140 kW · Diesel · Automat", "price": 16490, "year": "7/2017", "km": "187 111 km", "power": "140 kW", "fuel": "Diesel", "gear": "Automat", "drive": "4x4", "photos": 6, "tags": ["4x4", "Sportline", "Bánovce nad Bebravou"], "desc": "Čierna metalíza. Xenóny, Canton, navigácia, mŕtvy uhol.", "eq": [], "loc": "Bánovce nad Bebravou", "url": "https://auto.bazos.sk/inzerat/196196663/"}, {"id": "196196654", "img": "s", "title": "Škoda Octavia 1.2 TSI Ambition", "sub": "77 kW · Benzín · Manuál", "price": 7790, "year": "2013", "km": "150 616 km", "power": "77 kW", "fuel": "Benzín", "gear": "Manuál", "drive": "—", "photos": 6, "tags": ["Bánovce nad Bebravou"], "desc": "Biela, spoľahlivá a úsporná, nízke prevádzkové náklady.", "eq": [], "loc": "Bánovce nad Bebravou", "url": "https://auto.bazos.sk/inzerat/196196654/"}, {"id": "194864407", "img": "s", "title": "Volkswagen Tiguan 1.5 TSI DSG Highline", "sub": "110 kW · Benzín · Automat", "price": 18990, "year": "4/2019", "km": "148 514 km", "power": "110 kW", "fuel": "Benzín", "gear": "Automat", "drive": "—", "photos": 6, "tags": ["Panoráma", "Kamera", "Bánovce nad Bebravou"], "desc": "Panoráma, 360° kamera, virtuálny štít, hnedá koža.", "eq": [], "loc": "Bánovce nad Bebravou", "url": "https://auto.bazos.sk/inzerat/194864407/"}, {"id": "196292410", "img": "s", "title": "Škoda Superb Combi 2.0 TDI SportLine 4x4 DSG", "sub": "140 kW · Diesel · Automat", "price": 15490, "year": "5/2017", "km": "229 061 km", "power": "140 kW", "fuel": "Diesel", "gear": "Automat", "drive": "4x4", "photos": 6, "tags": ["4x4", "Sportline", "Bánovce nad Bebravou"], "desc": "Červená. Xenónové svetlomety, navigácia, alcantara.", "eq": [], "loc": "Bánovce nad Bebravou", "url": "https://auto.bazos.sk/inzerat/194390721/"}, {"id": "195240812", "img": "s", "title": "Alfa Romeo Giulietta Sport 1.6 JTD", "sub": "77 kW · Diesel · Manuál", "price": 5990, "year": "3/2013", "km": "219 849 km", "power": "77 kW", "fuel": "Diesel", "gear": "Manuál", "drive": "—", "photos": 6, "tags": ["Bánovce nad Bebravou"], "desc": "Šedá metalíza. LED svietenie, systém D.N.A., koža.", "eq": [], "loc": "Bánovce nad Bebravou", "url": "https://auto.bazos.sk/inzerat/195240812/"}, {"id": "195240828", "img": "s", "title": "Volkswagen Tiguan 1.4 TSI Highline", "sub": "92 kW · Benzín · Manuál", "price": 10990, "year": "6/2016", "km": "175 684 km", "power": "92 kW", "fuel": "Benzín", "gear": "Manuál", "drive": "—", "photos": 6, "tags": ["Bánovce nad Bebravou"], "desc": "Sport & Style, šedá metalíza, kožený interiér, navigácia.", "eq": [], "loc": "Bánovce nad Bebravou", "url": "https://auto.bazos.sk/inzerat/195240828/"}, {"id": "195389178", "img": "s", "title": "Volkswagen Touran 1.6 TDI Highline", "sub": "81 kW · Diesel · Manuál", "price": 10990, "year": "2/2016", "km": "213 574 km", "power": "81 kW", "fuel": "Diesel", "gear": "Manuál", "drive": "—", "photos": 6, "tags": ["7 miest", "Bánovce nad Bebravou"], "desc": "7-miestny. Ťažné zariadenie, navigácia, ACC.", "eq": [], "loc": "Bánovce nad Bebravou", "url": "https://auto.bazos.sk/inzerat/195389178/"}, {"id": "195389183", "img": "s", "title": "Volkswagen Touran 1.6 TDI Highline DSG", "sub": "81 kW · Diesel · Automat", "price": 11990, "year": "3/2016", "km": "198 766 km", "power": "81 kW", "fuel": "Diesel", "gear": "Automat", "drive": "—", "photos": 6, "tags": ["7 miest", "Bánovce nad Bebravou"], "desc": "7-miestny, hnedá metalíza. LED svetlomety, navigácia.", "eq": [], "loc": "Bánovce nad Bebravou", "url": "https://auto.bazos.sk/inzerat/195389183/"}, {"id": "195785520", "img": "s", "title": "Škoda Octavia Combi 1.5 TSI Style DSG", "sub": "110 kW · Benzín · Automat", "price": 13990, "year": "2/2020", "km": "142 899 km", "power": "110 kW", "fuel": "Benzín", "gear": "Automat", "drive": "—", "photos": 6, "tags": ["Bánovce nad Bebravou"], "desc": "Facelift, strieborná metalíza. Full LED s AFS, navigácia.", "eq": [], "loc": "Bánovce nad Bebravou", "url": "https://auto.bazos.sk/inzerat/195785520/"}, {"id": "195713930", "img": "s", "title": "Seat Leon FR 1.5 TSI Facelift", "sub": "96 kW · Benzín · Manuál", "price": 10990, "year": "1/2020", "km": "166 567 km", "power": "96 kW", "fuel": "Benzín", "gear": "Manuál", "drive": "—", "photos": 6, "tags": ["Bánovce nad Bebravou"], "desc": "Čierna metalíza, výbava FR, LED svetlomety, Full Link.", "eq": [], "loc": "Bánovce nad Bebravou", "url": "https://auto.bazos.sk/inzerat/195713930/"},{"id": "196212627", "title": "Seat Ateca FR 4Drive 2.0 TDI", "sub": "110 kW · Diesel · Automat", "price": 20990, "year": "2022", "km": "100 000 km", "power": "110 kW", "fuel": "Diesel", "gear": "Automat", "drive": "4x4", "photos": 6, "tags": ["FR", "Webasto", "Beats Audio", "Full LED", "ACC", "Kamera"], "desc": "Nebúraná, nestriekaná, servis v autorizovanom servise. 4Drive, Webasto, vyhrievané sedadlá aj volant, adaptívny tempomat, Lane Assist, ťažné.", "eq": [], "loc": "Nitra", "url": "https://auto.bazos.sk/inzerat/196212627/seat-ateca-fr-4drive-20-tdi-webasto.php"}, {"id": "196283221", "title": "Mercedes-Benz S 400d 4Matic AMG Long", "sub": "250 kW · Diesel · Automat 9G", "price": 48800, "year": "12/2018", "km": "118 500 km", "power": "250 kW", "fuel": "Diesel", "gear": "Automat 9G", "drive": "4x4", "photos": 6, "tags": ["AMG", "Long", "Panoráma", "Head-up", "Masáže", "ACC"], "desc": "Nikdy nebúrané, pôvodný stav, plná výbava, nejazdené v zime. Panoráma, head-up, adaptívny podvozok, 4-zónová klíma, kamera.", "eq": [], "loc": "Púchov", "url": "https://auto.bazos.sk/inzerat/196283221/mercedes-benz-s-trieda-sedan-400d-4matic-amg-long.php"}, {"id": "196135489", "title": "Volkswagen Touareg 3.0 V6 TDI R-Line 4Motion", "sub": "170 kW · Diesel · Automat", "price": 49900, "year": "2022", "km": "82 900 km", "power": "170 kW", "fuel": "Diesel", "gear": "Automat", "drive": "4x4", "photos": 6, "tags": ["R-Line", "Matrix LED", "360° kamera", "ACC", "Ťažné"], "desc": "Pôvodný stav, nikdy nebúrané. Matrix LED, kamery 360°, adaptívny tempomat, kožený interiér, ťažné zariadenie.", "eq": [], "loc": "Púchov", "url": "https://auto.bazos.sk/inzerat/196135489/volkswagen-touareg-30-v6-tdi-scr-r-line-4motion-tiptronic.php"}, {"id": "196133105", "title": "Škoda Karoq 2.0 TDI Style 4x4 DSG", "sub": "110 kW · Diesel · Automat DSG", "price": 25700, "year": "2023", "km": "101 050 km", "power": "110 kW", "fuel": "Diesel", "gear": "Automat DSG", "drive": "4x4", "photos": 6, "tags": ["Style", "Virtual Cockpit", "Matrix LED", "ACC", "Ťažné"], "desc": "Virtual cockpit, Matrix LED, adaptívny tempomat, kamera, vyhrievané sedadlá, ťažné zariadenie.", "eq": [], "loc": "Púchov", "url": "https://auto.bazos.sk/inzerat/196133105/skoda-karoq-20-tdi-evo-scr-style-4x4-dsg-virtual.php"}, {"id": "195959727", "title": "Škoda Kodiaq 2.0 TDI 200 k DSG 4x4 Clever", "sub": "147 kW · Diesel · Automat DSG", "price": 28500, "year": "2022", "km": "138 200 km", "power": "147 kW", "fuel": "Diesel", "gear": "Automat DSG", "drive": "4x4", "photos": 6, "tags": ["Clever", "Matrix LED", "360° kamera", "Virtual Cockpit", "ACC"], "desc": "Clever Edition, Matrix LED, kamery 360°, virtual cockpit, adaptívny tempomat, ťažné zariadenie.", "eq": [], "loc": "Púchov", "url": "https://auto.bazos.sk/inzerat/195959727/skoda-kodiaq-20tdi-200ps-dsg-4x4-clever-edition-matrix-360.php"}, {"id": "195642620", "title": "Volkswagen Touareg 3.0 V6 TDI 286 k R-Line", "sub": "210 kW · Diesel · Automat", "price": 53500, "year": "2023", "km": "80 200 km", "power": "210 kW", "fuel": "Diesel", "gear": "Automat", "drive": "4x4", "photos": 6, "tags": ["R-Line", "Matrix LED", "360° kamera", "Head-up", "Webasto"], "desc": "R-Line, Matrix LED, kamery 360°, head-up displej, Webasto, kožený interiér, ťažné zariadenie.", "eq": [], "loc": "Púchov", "url": "https://auto.bazos.sk/inzerat/195642620/volkswagen-touareg-30-v6-tdi-scr-286k-r-line-4motion-tiptro.php"}, {"id": "195506516", "title": "Škoda Octavia Combi 2.0 TDI Style DSG", "sub": "110 kW · Diesel · Automat DSG", "price": 14200, "year": "10/2020", "km": "152 900 km", "power": "110 kW", "fuel": "Diesel", "gear": "Automat DSG", "drive": "Predný", "photos": 6, "tags": ["Style", "Virtual Cockpit", "Panoráma", "ACC", "Odpočet DPH"], "desc": "Style, virtual cockpit, panoramatická strecha, adaptívny tempomat, kamera. Možný odpočet DPH.", "eq": [], "loc": "Púchov", "url": "https://auto.bazos.sk/inzerat/195506516/skoda-octavia-combi-20-tdi-style-dsg-virtual-odpocet-dph.php"}, {"id": "195164915", "title": "Škoda Octavia Combi RS 2.0 TDI 4x4 DSG", "sub": "147 kW · Diesel · Automat DSG", "price": 25500, "year": "2022", "km": "114 300 km", "power": "147 kW", "fuel": "Diesel", "gear": "Automat DSG", "drive": "4x4", "photos": 6, "tags": ["RS Plus", "Matrix LED", "Panoráma", "Head-up", "Webasto"], "desc": "RS Plus, Matrix LED, panoráma, head-up displej, Webasto, Lane Assist, ťažné zariadenie.", "eq": [], "loc": "Púchov", "url": "https://auto.bazos.sk/inzerat/195164915/skoda-octavia-combi-20-tdi-rs-plus-4x4-dsg-panorama.php"}, {"id": "195132366", "title": "Volkswagen T6 Multivan 2.0 BiTDI 4Motion Highline", "sub": "150 kW · Diesel · Automat DSG", "price": 23500, "year": "2017", "km": "209 900 km", "power": "150 kW", "fuel": "Diesel", "gear": "Automat DSG", "drive": "4x4", "photos": 6, "tags": ["Highline", "7 miest", "Webasto", "Ťažné"], "desc": "Highline, 7 miest, otočné kožené sedačky, Webasto, kamera, ťažné zariadenie.", "eq": [], "loc": "Púchov", "url": "https://auto.bazos.sk/inzerat/195132366/volkswagen-t6-multivan-20-bitdi-4motion-highline-7-miest-we.php"}, {"id": "194960238", "title": "Audi A6 Allroad 50 TDI quattro S-line", "sub": "210 kW · Diesel · Automat", "price": 51300, "year": "2024", "km": "67 800 km", "power": "210 kW", "fuel": "Diesel", "gear": "Automat", "drive": "4x4", "photos": 6, "tags": ["S-line", "Matrix LED", "360° kamera", "Webasto", "ACC"], "desc": "S-line, Matrix LED, kamery 360°, Webasto, adaptívny tempomat, virtual cockpit, ťažné zariadenie.", "eq": [], "loc": "Púchov", "url": "https://auto.bazos.sk/inzerat/194960238/audi-a6-allroad-50-30-tdi-quattro-tiptronic210kwb8-s-line.php"}, {"id": "194958849", "title": "Škoda Superb Combi 2.0 TDI 4x4 L&K", "sub": "147 kW · Diesel · Automat DSG", "price": 27700, "year": "2023", "km": "120 000 km", "power": "147 kW", "fuel": "Diesel", "gear": "Automat DSG", "drive": "4x4", "photos": 6, "tags": ["L&K", "Matrix LED", "360° kamera", "Canton", "ACC"], "desc": "Laurin & Klement, Matrix LED, kamery 360°, audio Canton, hnedá koža, ťažné zariadenie.", "eq": [], "loc": "Púchov", "url": "https://auto.bazos.sk/inzerat/194958849/skoda-superb-combi-20-tdi-dsg-4x4-laurin-klement.php"}, {"id": "195959717", "title": "Volkswagen Touareg 3.0 V6 TDI 4Motion Vzduch", "sub": "193 kW · Diesel · Automat", "price": 26300, "year": "2018", "km": "180 100 km", "power": "193 kW", "fuel": "Diesel", "gear": "Automat", "drive": "4x4", "photos": 6, "tags": ["Vzduch", "Webasto", "Head-up", "Ťažné"], "desc": "Vzduchový podvozok, Webasto, head-up displej, kožený interiér, ťažné zariadenie.", "eq": [], "loc": "Púchov", "url": "https://auto.bazos.sk/inzerat/195959717/volkswagen-touareg-30-v6-tdi-bmt-4xmotion-vzduch.php"}, {"id": "194559178", "title": "Škoda Kodiaq RS 2.0 TSI 4x4", "sub": "195 kW · Benzín · Automat DSG", "price": 49800, "year": "2026", "km": "8 500 km", "power": "195 kW", "fuel": "Benzín", "gear": "Automat DSG", "drive": "4x4", "photos": 6, "tags": ["RS", "Matrix LED", "360° kamera", "Head-up", "ACC"], "desc": "Nová generácia Kodiaq RS, Matrix LED, kamery 360°, head-up displej, adaptívny tempomat.", "eq": [], "loc": "Púchov", "url": "https://auto.bazos.sk/inzerat/194559178/skoda-kodiaq-rs-20-tsi-195-kw-7-stup-automat-4x4-2026.php"}, {"id": "195378384", "title": "Audi RS5 4.2 FSI V8 quattro", "sub": "331 kW · Benzín · Automat", "price": 24000, "year": "2013", "km": "240 000 km", "power": "331 kW", "fuel": "Benzín", "gear": "Automat", "drive": "4x4", "photos": 6, "tags": ["V8", "RS", "DRC podvozok", "Panoráma"], "desc": "Atmosférický V8 450 k. DSG po repase, nové spojky, rozvody menené, pretesnený motor, podvozok DRC po repase.", "eq": [], "loc": "Nitra", "url": "https://auto.bazos.sk/inzerat/195378384/audi-rs5-42fsi-v8.php"}, {"id": "195151891", "title": "Volkswagen Golf 5 Variant 1.9 TDI", "sub": "77 kW · Diesel · Manuál", "price": 1800, "year": "2009", "km": "352 000 km", "power": "77 kW", "fuel": "Diesel", "gear": "Manuál", "drive": "Predný", "photos": 6, "tags": ["Nová STK", "Klíma"], "desc": "Plne pojazdné, motor má pekný chod. Funkčná klimatizácia, nová STK a EK, rozvody menené pri 324 000 km.", "eq": [], "loc": "Nitra", "url": "https://auto.bazos.sk/inzerat/195151891/volkswagen-golf-5.php"}]).concat([{"id": "196039389", "title": "Audi A4 Avant 35 TFSI S tronic Sport", "sub": "110 kW · Benzín · Automat", "price": 17990, "year": "6/2020", "km": "153 000 km", "power": "110 kW", "fuel": "Benzín", "gear": "Automat", "drive": "Predný", "photos": 6, "tags": ["Facelift", "1. majiteľ", "Virtual Cockpit", "CarPlay", "Ťažné", "3-zónová klíma"], "desc": "Po prvom majiteľovi, kompletná servisná história v autorizovanom servise. Facelift, biela metalíza, ambientné osvetlenie, Drive Select, ťažné zariadenie.", "eq": [], "loc": "Nitra", "url": "https://auto.bazos.sk/inzerat/196039389/audi-a4-avant-35-20-tfsi-110kw-facelift-s-tronic-sport.php", "seller": "andrej"}, {"id": "196194945", "title": "Škoda Kodiaq 1.5 TSI DSG Facelift", "sub": "110 kW · Benzín · Automat", "price": 20290, "year": "11/2021", "km": "146 000 km", "power": "110 kW", "fuel": "Benzín", "gear": "Automat", "drive": "Predný", "photos": 6, "tags": ["Facelift", "Panoráma", "1. majiteľ", "Full LED", "Navigácia", "Kamera"], "desc": "Model 2022, po prvom majiteľovi, servis v autorizovanom servise. Panoráma, Full LED, vyhrievané sedadlá aj čelné sklo, kamera, bezkľúčové otváranie.", "eq": [], "loc": "Nitra", "url": "https://auto.bazos.sk/inzerat/196194945/skoda-kodiaq-15-tsi-110kw-dsg-model-2022-facelift-panorama.php", "seller": "andrej"}, {"id": "196164501", "title": "Audi A4 Avant 35 TDI S tronic Sport", "sub": "120 kW · Diesel · Automat", "price": 19290, "year": "4/2022", "km": "161 000 km", "power": "120 kW", "fuel": "Diesel", "gear": "Automat", "drive": "Predný", "photos": 6, "tags": ["Facelift", "Panoráma", "1. majiteľ", "Navarra Blue", "CarPlay", "Senzory"], "desc": "Po prvom majiteľovi, kompletná servisná história v autorizovanom servise. Navarra Blue metalíza, panoráma, parkovacie senzory vpredu aj vzadu, bezdrôtové nabíjanie.", "eq": [], "loc": "Nitra", "url": "https://auto.bazos.sk/inzerat/196164501/audi-a4-avant-35-20-tdi-s-tronic-facelift-sport-panorama.php", "seller": "andrej"}, {"id": "196130215", "title": "Škoda Kodiaq 1.5 TSI DSG Facelift", "sub": "110 kW · Benzín · Automat", "price": 20690, "year": "2022", "km": "115 000 km", "power": "110 kW", "fuel": "Benzín", "gear": "Automat", "drive": "Predný", "photos": 6, "tags": ["Facelift", "Ťažné", "1. majiteľ", "Full LED", "Kamera", "Navigácia"], "desc": "Po prvom majiteľovi, servis v autorizovanom servise. Ťažné zariadenie, Full LED, cúvacia kamera, ambientné podsvietenie, pádla pod volantom.", "eq": [], "loc": "Nitra", "url": "https://auto.bazos.sk/inzerat/196130215/skoda-kodiaq-facelift-15-tsi-dsg-110kw-2022-tka-tazne.php", "seller": "andrej"}]).concat([{"id": "196303058", "title": "Škoda Enyaq iV 80", "sub": "150 kW · Elektro · Automat", "price": 25990, "year": "2022", "km": "115 000 km", "power": "150 kW", "fuel": "Elektro", "gear": "Automat", "drive": "Zadný", "photos": 5, "tags": ["SOH 93 %", "Tepelné čerpadlo", "Ťažné", "ACC", "Kamera", "Full LED"], "desc": "Batéria v kondícii 93 % (SOH), servis výhradne v autorizovanom servise Škoda, čerstvo po prehliadke, softvér 3.8. Tepelné čerpadlo, nezávislé kúrenie, elektricky nastaviteľné sedadlá s pamäťou, ťažné.", "eq": [], "loc": "Nitra", "url": "https://auto.bazos.sk/inzerat/196303058/skoda-enyaq-iv-80-150-kw-2022-soh-93.php", "seller": "mf"}]);
+  const BID={cupra:'196254307',tesla:'195922384',superb:'195898559',santafe:'195044448',sportline:'195817373',tiguan:'194599121'};
+  const PN=[1,2,3,4,8];
+  const HIDE=new Set([]);
+  for (let i = CARS.length-1; i >= 0; i--){ if (HIDE.has(CARS[i].id) || HIDE.has(BID[CARS[i].id])) { CARS.splice(i,1); continue; } CARS[i].photos = Math.min(CARS[i].photos||5, 5); }
+  const photo = (c,i) => `img/p/${BID[c.id]||c.id}-${PN[(i-1)%5]}.jpg`;
+  function paint(el,c,i,fit){ el.style.backgroundImage=`url(${photo(c,i)})`; el.style.backgroundSize=fit; el.style.backgroundPosition='center'; }
+  const fmt = n => new Intl.NumberFormat('sk-SK').format(n) + ' €';
+  const BR = c => { const m=c.title.match(/^(Alfa Romeo|Mercedes-Benz)/i); const w=m?m[1]:c.title.split(' ')[0]; return w.toUpperCase()==='SEAT'?'Seat':w.toUpperCase()==='BMW'?'BMW':w; };
+  const brands=[...new Set(CARS.map(BR))].sort();
+  $('fBrand').innerHTML='<option value="">Všetky značky</option>'+brands.map(b=>`<option>${b}</option>`).join('');
+  $('fFuel').innerHTML='<option value="">Každé palivo</option>'+[...new Set(CARS.map(c=>c.fuel).filter(f=>f&&f!=='—'))].sort().map(b=>`<option>${b}</option>`).join('');
+  let shown=12;
+  function list(){
+    const q=$('fQ').value.trim().toLowerCase(), b=$('fBrand').value, f=$('fFuel').value, mx=+$('fMax').value||Infinity, so=$('fSort').value;
+    let r=CARS.map((c,ix)=>({c,ix})).filter(({c})=>(!b||BR(c)===b)&&(!f||c.fuel===f)&&c.price<=mx&&(!q||(c.title+' '+c.sub+' '+(c.loc||'')).toLowerCase().includes(q)));
+    if(so==='pa')r.sort((a,b)=>a.c.price-b.c.price); if(so==='pd')r.sort((a,b)=>b.c.price-a.c.price);
+    if(so==='y')r.sort((a,b)=>parseInt(String(b.c.year).slice(-4))-parseInt(String(a.c.year).slice(-4))||0);
+    $('fCount').textContent=r.length+' '+(r.length===1?'auto':r.length<5&&r.length>1?'autá':'áut');
+    $('cars').innerHTML = r.length? r.slice(0,shown).map(({c,ix})=>card(c,ix)).join('') : '<p class="mut" style="grid-column:1/-1">Žiadne auto nezodpovedá filtru. Skúste upraviť výber.</p>';
+    $('more').hidden = r.length<=shown;
+  }
+  ['fQ','fBrand','fFuel','fMax','fSort'].forEach(id=>$(id).addEventListener('input',()=>{shown=12;list();}));
+  $('more').addEventListener('click',()=>{shown+=12;list();});
+  const card = (c,ix) => `
+    <button class="car" type="button" data-ix="${ix}" aria-label="Detail: ${c.title}">
+      <div class="ph" style="background-image:url(${photo(c,1)})"><div class="pay"><small>splátka od</small><b class="num">${pay(c.price)} <span>€/mes.</span></b></div><span class="cnt">${c.photos} fotiek</span></div>
+      <div class="info">
+        <div><h3>${c.title}</h3><p class="sub">${c.sub}</p></div>
+        <div class="specs num"><div><b>${c.year}</b><small>rok</small></div><div><b>${c.km.replace(' km','')}</b><small>km</small></div><div><b>${c.power}</b><small>výkon</small></div><div><b>${c.fuel}</b><small>palivo</small></div></div>
+        <div class="tags">${c.tags.map(t=>`<span>${t}</span>`).join('')}</div>
+        <div class="foot2"><b class="num">${fmt(c.price)}</b><span>Detail auta →</span></div>
+      </div>
+    </button>`;
+  list();
+  const det = $('det'); let cur = null, pi = 1;
+  function showPhoto(){ paint($('dGal'),cur,pi,'contain');
+    [...$('dThumbs').children].forEach((t,i)=>t.setAttribute('aria-current', String(i+1===pi))); }
+  const slug = c => (c.title + ' ' + String(c.year).split('/').pop()).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') + '-' + (BID[c.id]||c.id);
+  function openCar(c){
+    cur = c; pi = 1; try { history.replaceState(null, '', '#auto-' + slug(c)); } catch {}
+    $('dTitle').textContent = c.title; $('dSub').textContent = c.sub; $('dDesc').textContent = c.desc;
+    $('dEq').innerHTML = c.eq.map(e=>`<li>${e}</li>`).join(''); $('dEq').hidden=!c.eq.length;
+    $('dPay').innerHTML = pay(c.price) + ' <span>€ / mes.</span>';
+    $('dSpecs').innerHTML = [['Cena',fmt(c.price)],['Rok výroby',c.year],['Najazdené',c.km],['Výkon',c.power],['Palivo',c.fuel],['Prevodovka',c.gear],['Pohon',c.drive]].concat(c.loc?[['Lokalita',c.loc]]:[]).map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join('');
+    $('dThumbs').innerHTML = Array.from({length:c.photos},(_,i)=>`<button type="button" data-p="${i+1}" aria-label="Fotka ${i+1}"></button>`).join('');
+    [...$('dThumbs').children].forEach((b,i)=>paint(b,c,i+1,'cover'));
+    showPhoto(); det.showModal();
+  }
+  $('cars').addEventListener('click', e => { const b = e.target.closest('[data-ix]'); if (b) openCar(CARS[+b.dataset.ix]); });
+  $('dThumbs').addEventListener('click', e => { const b = e.target.closest('[data-p]'); if (b){ pi = +b.dataset.p; showPhoto(); } });
+  $('dPrev').addEventListener('click', () => { pi = pi > 1 ? pi-1 : cur.photos; showPhoto(); });
+  $('dNext').addEventListener('click', () => { pi = pi < cur.photos ? pi+1 : 1; showPhoto(); });
+  $('dClose').addEventListener('click', () => det.close());
+  det.addEventListener('click', e => { if (e.target === det) det.close(); });
+  det.addEventListener('close', () => { try { history.replaceState(null, '', location.pathname + location.search); } catch {} });
+  $('dCta').addEventListener('click', () => { $('f-msg').value = `${cur.title}, ${cur.year}, ${fmt(cur.price)}`; det.close(); });
+  $('lead').addEventListener('submit', e => { e.preventDefault(); $('ok').hidden = false; });
+  $('dChat').addEventListener('click', () => { const c = cur; det.close(); window.SKchat?.car(c); });
+  window.SK = {CARS, openCar, photo, monthly, slug};
+})();
+</script>
+
+<!-- ===== Chat asistent Splatkuj ===== -->
+<style>
+.skc-fab[hidden],.skc-teaser[hidden],.skc-panel[hidden],.skc-fab .dot[hidden]{display:none!important}
+.skc-fab{position:fixed;right:max(16px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom));z-index:60;width:62px;height:62px;border-radius:50%;border:0;cursor:pointer;background:linear-gradient(135deg,var(--brand),var(--brand2));color:var(--on-brand);box-shadow:0 14px 34px -10px color-mix(in srgb,var(--brand) 70%,transparent);display:grid;place-items:center}
+.skc-fab svg{width:28px;height:28px}
+.skc-fab .dot{position:absolute;top:2px;right:2px;min-width:20px;height:20px;border-radius:10px;background:#ef4444;color:#fff;font:700 12px/20px var(--body);padding:0 5px;border:2px solid var(--ink)}
+.skc-teaser{position:fixed;right:max(16px,env(safe-area-inset-right));bottom:calc(max(16px,env(safe-area-inset-bottom)) + 76px);z-index:60;max-width:min(300px,calc(100vw - 32px));background:var(--panel);border:1px solid var(--line);border-radius:18px 18px 4px 18px;padding:14px 38px 14px 16px;font-size:14.5px;line-height:1.45;box-shadow:0 18px 40px -16px #000;cursor:pointer;animation:skcIn .35s ease}
+.skc-teaser b{display:block;margin-bottom:2px}
+.skc-teaser .x{position:absolute;top:6px;right:6px;width:28px;height:28px;border:0;background:none;color:var(--mut);font-size:18px;cursor:pointer;border-radius:50%}
+.skc-panel{padding:0;margin:0;position:fixed;right:max(16px,env(safe-area-inset-right));bottom:calc(max(16px,env(safe-area-inset-bottom)) + 76px);z-index:61;width:min(390px,calc(100vw - 32px));height:min(620px,calc(100dvh - 120px));background:var(--ink);border:1px solid var(--line);border-radius:22px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 30px 70px -20px #000;animation:skcIn .3s ease}
+@keyframes skcIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.skc-head{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--panel);border-bottom:1px solid var(--line)}
+.skc-ava{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--brand2));display:grid;place-items:center;color:var(--on-brand);flex:none}
+.skc-ava{font:800 18px/1 var(--display)}
+.skc-head b{display:block;font-size:15px;line-height:1.2}
+.skc-head small{color:var(--brand2);font-size:12.5px;display:flex;align-items:center;gap:6px}
+.skc-head small:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--brand2)}
+.skc-head .x{margin-left:auto;width:36px;height:36px;border-radius:50%;border:0;background:var(--panel2);color:var(--fg);font-size:18px;cursor:pointer}
+.skc-log{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:16px 14px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth}
+.skc-m{max-width:86%;padding:10px 14px;border-radius:18px;font-size:14.5px;line-height:1.5;white-space:pre-line;word-wrap:break-word}
+.skc-m.bot{background:var(--panel);border:1px solid var(--line);border-bottom-left-radius:6px;align-self:flex-start}
+.skc-m.me{background:var(--brand);color:var(--on-brand);border-bottom-right-radius:6px;align-self:flex-end;font-weight:600}
+.skc-m a{color:var(--brand2)}
+.skc-typing{align-self:flex-start;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:12px 16px;display:flex;gap:5px}
+.skc-typing i{width:7px;height:7px;border-radius:50%;background:var(--mut);animation:skcB 1s infinite}
+.skc-typing i:nth-child(2){animation-delay:.15s}.skc-typing i:nth-child(3){animation-delay:.3s}
+@keyframes skcB{0%,60%,100%{opacity:.3;transform:none}30%{opacity:1;transform:translateY(-3px)}}
+.skc-chips{display:flex;flex-wrap:wrap;gap:7px;align-self:stretch}
+.skc-chips button,.skc-chips a{border:1.5px solid color-mix(in srgb,var(--brand) 55%,var(--line));background:transparent;color:var(--fg);border-radius:999px;padding:8px 13px;font:600 13.5px/1.2 var(--body);cursor:pointer;text-decoration:none;min-height:38px;display:inline-flex;align-items:center;gap:6px}
+.skc-chips button:hover,.skc-chips a:hover{background:color-mix(in srgb,var(--brand) 14%,transparent)}
+.skc-chips .main{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
+.skc-car{align-self:stretch;display:grid;grid-template-columns:96px 1fr;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:10px;text-align:left;color:var(--fg)}
+.skc-car .ph{border-radius:10px;background:var(--panel2) center/cover;min-height:84px}
+.skc-car b{display:block;font-size:14px;line-height:1.3}
+.skc-car .pay{color:var(--brand2);font-weight:800;font-size:15px;margin-top:2px}
+.skc-car .pay small{color:var(--mut);font-weight:500;font-size:12px}
+.skc-car p{margin:4px 0 8px;font-size:12.5px;color:var(--mut);line-height:1.4}
+.skc-car .acts{display:flex;gap:6px;flex-wrap:wrap}
+.skc-car .acts button{border:1px solid var(--line);background:var(--panel2);color:var(--fg);border-radius:999px;padding:6px 11px;font:600 12.5px var(--body);cursor:pointer}
+.skc-car .acts .go{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
+.skc-in{display:flex;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);background:var(--panel)}
+.skc-in input{flex:1;min-width:0;background:var(--ink);border:1px solid var(--line);color:var(--fg);border-radius:999px;padding:11px 16px;font:16px var(--body)}
+.skc-in input:focus{outline:2px solid var(--brand);outline-offset:0}
+.skc-in button{width:44px;height:44px;border-radius:50%;border:0;background:var(--brand);color:var(--on-brand);cursor:pointer;display:grid;place-items:center;flex:none}
+.skc-in button svg{width:20px;height:20px}
+.skc-note{font-size:11px;color:var(--mut);text-align:center;padding:0 12px 8px;background:var(--panel)}
+@media (max-width:520px){.skc-panel{right:0;left:0;bottom:0;width:100%;height:100dvh;border-radius:0;border:0}}
+@media (prefers-reduced-motion:reduce){.skc-panel,.skc-teaser,.skc-typing i{animation:none}}
+</style>
+<button class="skc-fab" id="skcFab" type="button" aria-label="Otvoriť chat s Laurou">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M8.5 12h.01M12 12h.01M15.5 12h.01"/></svg>
+  <span class="dot" id="skcDot" hidden>1</span>
+</button>
+<div class="skc-teaser" id="skcTeaser" hidden role="button" tabindex="0"><button class="x" type="button" aria-label="Zavrieť">×</button><b>Dobrý deň, som Laura 👋</b>Hľadáte auto na splátky? Pomôžem vám vybrať auto a vypočítať splátku za minútu.</div>
+<section class="skc-panel" id="skcPanel" hidden aria-label="Chat s Laurou zo Splatkuj.sk">
+  <div class="skc-head">
+    <div class="skc-ava">L</div>
+    <div><b>Laura</b><small>Splatkuj.sk · online</small></div>
+    <button class="x" id="skcClose" type="button" aria-label="Zavrieť chat">×</button>
+  </div>
+  <div class="skc-log" id="skcLog" aria-live="polite"></div>
+  <form class="skc-in" id="skcForm" autocomplete="off">
+    <input id="skcInput" placeholder="Napíšte správu…" aria-label="Vaša správa" enterkeyhint="send">
+    <button type="submit" aria-label="Odoslať"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+  </form>
+  <div class="skc-note">Výpočty sú orientačné, záväznú ponuku dostanete od nás.</div>
+</section>
+<script>
+(() => {
+  const SK = window.SK; if (!SK) return;
+  const PHONE = '0903 427 088', PHONE_INT = '421903427088';
+  const $ = id => document.getElementById(id);
+  const eur = n => new Intl.NumberFormat('sk-SK',{maximumFractionDigits:0}).format(Math.round(n)) + ' €';
+  const pay = (p, down=0) => SK.monthly(p, down, 96, 9.9).m;
+  const WHY = {"196254307": "Štýlové SUV-kupé s automatom, ktoré si užijete v meste aj na diaľnici – auto, za ktorým sa ľudia otočia.", "195922384": "Elektrina namiesto benzínky: s Teslou jazdíte lacno, ticho a s neustále novými aktualizáciami softvéru.", "195898559": "Obrovský kufor, pohon 4x4 a pohodlie na dlhé trasy – ideálny parťák pre rodinu aj služobné cesty.", "195044448": "7 miest, 4x4 a plug-in hybrid v záruke – priestranné rodinné SUV, ktoré po meste jazdí na elektrinu.", "195817373": "Športovo ladené kombi s 4x4 a Webasto – ráno sadáte do vyhriateho auta a s rodinou vyrážate kamkoľvek.", "194599121": "Takmer nový Tiguan s nízkym nájazdom – moderné rodinné SUV bez starostí na roky dopredu.", "196225342": "Limitovaný hot-hatch pre nadšencov – čistá radosť z jazdy a auto, ktoré si drží hodnotu.", "196225341": "Superb Scout s 4x4 a zvýšeným podvozkom – obrovské rodinné kombi, ktoré zvládne aj zasnežené cesty na chatu.", "196225340": "Úsporný diesel, 4x4 a dizajn, ktorý zaujme – Formentor pre tých, čo chcú športový vzhľad aj nízku spotrebu.", "196075242": "Legendárny šesťvalec BMW s 4x4 v praktickom kombi – výkon a radosť z jazdy aj s rodinou na palube.", "196075239": "Spoľahlivé kombi s automatom a Webasto – praktické rodinné auto za rozumnú splátku.", "196042551": "Prémiové Audi A6 Avant s Matrix LED – elegantné a pohodlné kombi pre podnikateľov aj rodiny.", "196042539": "Takmer nový Formentor s automatom – mladé, štýlové auto do mesta s nízkym nájazdom.", "196010070": "Tiguan R-Line s 4x4 a automatom – istota na každej ceste a dosť miesta na rodinné výlety.", "195396721": "Kompaktné SUV s automatom a kamerou – ľahko sa s ním parkuje v meste a pohodlne cestuje.", "195396727": "7-miestny Multivan T7 – pojazdná obývačka pre veľkú rodinu, firmu alebo dovolenky s partiou.", "195625102": "9 miest a Webasto – ideálne auto pre veľkú rodinu, športový klub alebo firemnú prepravu.", "195686812": "Golf Alltrack s 4x4 a automatom – praktické kombi, ktoré sa nezľakne ani poľnej cesty na chatu.", "195707737": "Plug-in hybrid s výkonom 270 kW – po meste na elektrinu, na diaľnici prémiové Audi Q5 s quattro.", "195907819": "Kabriolet Porsche so stredovým motorom – splnený sen na letné víkendy a kľukaté cesty.", "195907815": "Alpina XD3 – exkluzívne SUV s výkonom športiaka, ktoré na cestách stretnete len zriedka.", "194416141": "Moderný hatchback s automatom a nízkym nájazdom – ideálny na každodenné dochádzanie do práce.", "195885606": "Touareg so šesťvalcom a 4x4 – veľké a bezpečné SUV, ktoré utiahne aj karavan alebo príves.", "194903907": "BMW 540d xDrive Touring – rýchle a luxusné kombi pre tých, ktorí veľa jazdia a chcú to najlepšie.", "195822153": "Tiguan Allspace s 4x4 – takmer nové priestranné SUV pre rodinu, ktorá rada cestuje.", "195148842": "Golf R s výkonom 217 kW – nenápadné auto s dušou športiaka za veľmi rozumnú splátku.", "195646879": "Arteon Shooting Brake – elegantné kombi, ktoré spája štýl kupé s praktickosťou rodinného auta.", "195584743": "Kompaktné SUV s úsporným dieselom – praktické auto pre mladú rodinu do mesta aj na výlety.", "195457046": "Tarraco FR s 4x4 a 360° kamerou – veľké rodinné SUV s výbavou na každú cestu.", "195430470": "Mercedes E s AMG paketom a hybridom – luxus, výkon 306 koní a nízka spotreba v jednom.", "194805529": "Tarraco s 4x4 a Beats audiom – priestranné SUV pre rodinu, ktorá rada cestuje s hudbou.", "195179225": "Tiguan R-Line s panorámou a 4x4 – pohodlné rodinné SUV s kompletnou servisnou históriou.", "195019062": "Elektrické SUV s batériou 82 kWh – lacná prevádzka a tichá jazda na každý deň.", "194999017": "7-miestny Kodiaq – ideálne auto pre rodinné výlety, keď sa so sebou berie aj babka.", "194992166": "Octavia Combi s panorámou – overené, úsporné a priestranné rodinné kombi.", "194992123": "Formentor VZ s 228 kW a 4x4 – rýchle SUV pre tých, ktorí chcú adrenalín aj praktickosť.", "194983324": "Veľké rodinné SUV Tarraco za priaznivú cenu – priestor pre deti, kočík aj batožinu.", "194938398": "Audi A4 Avant s automatom – prémiové kombi pre podnikateľov aj rodiny, úsporné na dlhé trasy.", "194938386": "Najnovšia Octavia Combi s automatom – spoľahlivé a priestranné auto na každý deň.", "194938380": "Takmer nový 7-miestny Kodiaq s 4x4 – rodinné SUV, ktoré vás zoberie kamkoľvek.", "194863472": "Kodiaq Sportline s panorámou – priestranné rodinné SUV so športovým štýlom.", "194784862": "Peugeot 3008 GT Line – moderné SUV s pekným interiérom a nízkou spotrebou.", "194773562": "Mestské SUV-kupé s automatom – štýlové a úsporné auto pre mladých vodičov.", "194773224": "Superb so šesťvalcom a 4x4 za výbornú cenu – veľa auta za málo peňazí.", "194659092": "Elektrické SUV po 1. majiteľovi s maximálnou výbavou – úsporná a tichá jazda pre celú rodinu.", "194659086": "Audi s quattro a koženým interiérom – prvé prémiové auto za najnižšiu splátku.", "194623555": "Elektrické SUV s veľkou batériou – nízke náklady na prevádzku a pohodlie pre rodinu.", "194623552": "Kodiaq s automatom a Matrix LED – priestranné rodinné SUV s modernou výbavou.", "194548935": "7-miestny van s automatom – keď potrebujete odviezť celú rodinu aj s batožinou naraz.", "196277103": "Octavia s nízkym nájazdom len 45 tisíc km – takmer nové auto za cenu ojazdeného.", "195617840": "Passat B8 – pohodlný a spoľahlivý sedan na dlhé cesty do práce aj na dovolenku.", "195456870": "Ateca FR s automatom a ťažným – kompaktné SUV na výlety s bicyklami aj vozíkom.", "195240817": "Audi Q2 v Tango Red – malé prémiové SUV do mesta, ktoré vynikne na každom parkovisku.", "195249240": "Superb v najvyššej výbave s kožou – luxusné kombi za cenu bežného auta.", "195276686": "Golf GTI s 230 koňmi – ikona medzi hot-hatchmi, ktorá baví každý deň.", "195315827": "Tarraco Xcellence s 4x4 a panorámou – luxusné rodinné SUV s najvyššou výbavou.", "195190999": "Kamiq Monte Carlo s panorámou – štýlové mestské SUV s automatom a možnosťou odpočtu DPH.", "194764716": "Sharan s posuvnými dverami a automatom – praktický rodinný van za najnižšiu splátku.", "196196663": "Superb SportLine s 4x4 a Cantonom – obrovské kombi s výkonom a skvelým zvukom.", "196196654": "Spoľahlivá Octavia s nízkou spotrebou – ideálne prvé auto alebo auto do práce.", "194864407": "Tiguan s panorámou a 360° kamerou – rodinné SUV s výbavou, ktorá uľahčí každý deň.", "194390721": "Superb SportLine s 4x4 – priestranné kombi, ktoré zvládne aj zimu na horách.", "195240812": "Alfa Romeo Giulietta – taliansky štýl a radosť z jazdy za najnižšiu splátku v ponuke.", "195240828": "Tiguan s kožou a navigáciou – praktické SUV na rodinné výlety za priaznivú cenu.", "195389178": "7-miestny Touran – praktický rodinný van, kde sa zmestia deti, kočík aj batožina.", "195389183": "Touran s automatom – pohodlný rodinný van, s ktorým zvládnete mesto aj dovolenku.", "195785520": "Octavia Combi s automatom – úsporné a priestranné kombi pre rodinu aj firmu.", "195713930": "Seat Leon FR – športovo ladený hatchback, ktorý baví aj na ceste do práce.", "196212627": "Ateca FR s 4x4 a Webasto – kompaktné SUV, ktoré je ráno vždy vyhriate a pripravené na cestu.", "196283221": "Mercedes S Long s AMG paketom – absolútny luxus a pohodlie zadných sedadiel ako v limuzíne.", "196135489": "Touareg R-Line so šesťvalcom – prémiové SUV pre náročných, ktoré utiahne aj príves.", "196133105": "Karoq s 4x4 a automatom – kompaktné SUV, ktoré sa hodí do mesta aj na hory.", "195959727": "Kodiaq s 200 koňmi a 4x4 – výkonné rodinné SUV s veľkým kufrom.", "195642620": "Takmer nový Touareg s 286 koňmi – vlajková loď VW pre tých, ktorí chcú to najlepšie.", "195506516": "Octavia Combi s automatom – overená klasika, ktorá najazdí veľa km s nízkou spotrebou.", "195164915": "Octavia RS s 4x4 – rodinné kombi s výkonom športiaka.", "195132366": "Multivan s 4x4 a automatom – priestranný van na dovolenky s celou rodinou.", "194960238": "Audi A6 Allroad z roku 2024 – prémiové kombi so zvýšeným podvozkom a výkonom 210 kW.", "194958849": "Superb Laurin & Klement s 4x4 – najvyššia výbava a luxus za cenu bežného auta.", "195959717": "Touareg so vzduchovým podvozkom – pohodlie limuzíny a sila SUV v jednom.", "194559178": "Úplne nový Kodiaq RS – výkonné rodinné SUV takmer bez najazdených km.", "195378384": "Audi RS5 s atmosférickým V8 – zvuk a výkon, aký sa už dnes nevyrába.", "195151891": "Golf Variant s nezničiteľným 1.9 TDI – najlacnejšie auto do práce za pár eur mesačne.", "196039389": "Audi A4 Avant po 1. majiteľovi s automatom – elegantné kombi pre rodinu aj podnikanie.", "196194945": "Kodiaq s panorámou a automatom po 1. majiteľovi – priestranné rodinné SUV na výlety aj dovolenky.", "196164501": "Audi A4 Avant s panorámou a úsporným dieselom – prémiové kombi na dlhé trasy.", "196130215": "Kodiaq s ťažným a automatom – rodinné SUV, ktoré utiahne aj karavan na dovolenku."};
+  const bid = c => (SK.photo(c,1).match(/p\/([^-]+)-/)||[])[1] || c.id;
+  const why = c => WHY[bid(c)] || '';
+  const store = { get(k){ try{ return sessionStorage.getItem(k); }catch{ return null; } }, set(k,v){ try{ sessionStorage.setItem(k,v); }catch{} } };
+
+  const log = $('skcLog'), panel = $('skcPanel'), fab = $('skcFab'), teaser = $('skcTeaser'), input = $('skcInput');
+  let started = false, step = null, lead = {}, ai = null, aiTurns = [];
+  window.claude?.use?.('sample').then(s => { ai = s; }).catch(()=>{});
+
+  const scroll = () => requestAnimationFrame(() => { log.scrollTop = log.scrollHeight; });
+  function el(tag, cls, html){ const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+  function me(t){ const m = el('div','skc-m me'); m.textContent = t; log.append(m); scroll(); }
+  function wait(ms){ return new Promise(r => setTimeout(r, ms)); }
+  async function bot(t, delay){ const ty = el('div','skc-typing','<i></i><i></i><i></i>'); log.append(ty); scroll();
+    await wait(delay ?? Math.min(1100, 350 + t.length * 7)); ty.remove(); const m = el('div','skc-m bot'); m.innerHTML = t; log.append(m); scroll(); return m; }
+  function chips(list){ log.querySelectorAll('.skc-chips[data-live]').forEach(c => c.remove());
+    const w = el('div','skc-chips'); w.dataset.live = '1';
+    list.forEach(([label, fn, cls]) => { if (typeof fn === 'string'){ const a = el('a', cls||'', label); a.href = fn; a.target = '_blank'; a.rel = 'noopener'; w.append(a); return; }
+      const b = el('button', cls||'', label); b.type = 'button'; b.onclick = () => { w.remove(); me(b.textContent.replace(/^[^\p{L}\d]+/u,'')); fn(); }; w.append(b); });
+    log.append(w); scroll(); }
+  function carCard(c){ const d = el('div','skc-car');
+    d.innerHTML = `<div class="ph" style="background-image:url(${SK.photo(c,1)})"></div><div><b></b><div class="pay">${eur(pay(c.price))} <small>/ mes. · ${eur(c.price)}</small></div><p></p><div class="acts"><button type="button" data-a="det">Detail</button><button type="button" class="go" data-a="want">Mám záujem</button></div></div>`;
+    d.querySelector('b').textContent = c.title; d.querySelector('p').textContent = why(c) || `${c.year} · ${c.km} · ${c.fuel}`;
+    d.querySelector('[data-a=det]').onclick = () => { SK.openCar(c); };
+    d.querySelector('[data-a=want]').onclick = async () => { log.querySelectorAll('.skc-chips[data-live]').forEach(x=>x.remove()); me('Mám záujem o ' + c.title); lead.car = carLine(c); curCar = c;
+      await bot(`Výborná voľba! 👍 <b>${esc(c.title)}</b> stojí <b>${eur(c.price)}</b>, splátka od <b>${eur(pay(c.price))} / mes.</b> bez akontácie (96 mesiacov).`); askName(); };
+    log.append(d); scroll(); }
+
+  // ---------- hlavné menu ----------
+  async function greet(){
+    await bot('Dobrý deň 👋 Som <b>Laura</b>, virtuálna asistentka <b>Splatkuj.sk</b>. Pomôžem vám nájsť auto na splátky a vypočítať, koľko by ste mesačne platili.', 500);
+    await bot('S čím vám môžem pomôcť?', 600);
+    menu();
+  }
+  function menu(){ step = null; chips([
+    ['🚗 Hľadám auto na splátky', findBudget, 'main'],
+    ['🔗 Auto mám vybraté inde', elsewhere],
+    ['🧮 Koľko by som platil?', calc],
+    ['❓ Mám otázku', faqMenu],
+    ['📞 Zavolajte mi', () => { lead.car = lead.car || ''; askName(); }],
+  ]); }
+
+  // ---------- hľadanie auta ----------
+  let pick = {};
+  async function findBudget(){ await bot('Super! Akú mesačnú splátku si viete pohodlne dovoliť?');
+    chips([['do 200 €', () => setB(0,200)], ['200 – 300 €', () => setB(200,300)], ['300 – 400 €', () => setB(300,400)], ['400 – 550 €', () => setB(400,550)], ['viac ako 550 €', () => setB(550,9999)]]); }
+  async function setB(a,b){ pick = {a,b}; await bot('A aký typ auta hľadáte?');
+    chips([['SUV', () => setT('suv')], ['Kombi', () => setT('kombi')], ['7 miest / van', () => setT('7')], ['Elektro / hybrid', () => setT('el')], ['Je mi to jedno', () => setT('')]]); }
+  const RX = { suv:/kodiaq|tiguan|tarraco|ateca|karoq|kamiq|q2|q5|touareg|2008|3008|formentor|santa fe|id\.4|taigo|xd3|allspace|galaxy/i,
+    kombi:/combi|avant|touring|variant|allroad|shooting|alltrack|superb|octavia.*combi/i,
+    '7':/multivan|galaxy|touran|sharan|transporter|santa fe|allspace|tarraco|kodiaq/i,
+    el:/elektro|hybrid/i };
+  async function setT(t){ pick.t = t;
+    const ok = c => !t || (t==='el' ? RX.el.test(c.fuel) : RX[t].test(c.title) || (t==='7' && /7[- ]miest/i.test(why(c))));
+    const mid = Math.min((pick.a+pick.b)/2, pick.a+150);
+    let list = SK.CARS.filter(c => ok(c) && pay(c.price) >= pick.a && pay(c.price) <= pick.b);
+    let note = '';
+    if (!list.length){ list = SK.CARS.filter(ok); note = 'V presne tomto rozpočte teraz nič nemáme, ale tieto autá sú najbližšie:'; }
+    list.sort((x,y) => Math.abs(pay(x.price)-mid) - Math.abs(pay(y.price)-mid));
+    const top = list.slice(0,3);
+    if (!top.length){ await bot('Momentálne nemám v ponuke presne takéto auto. Ale financujeme autá od <b>akéhokoľvek predajcu</b> – stačí nám poslať odkaz.'); return chips([['🔗 Poslať odkaz na auto', elsewhere,'main'],['🔄 Skúsiť znova', findBudget],['📞 Zavolajte mi', askName]]); }
+    await bot(note || `Vybrala som pre vás ${top.length === 1 ? 'toto auto' : top.length + ' autá'} z našej ponuky (splátka pri 0 % akontácii, 96 mesiacov):`);
+    for (const c of top){ await wait(250); carCard(c); }
+    await wait(300); await bot('Kliknite na <b>Mám záujem</b> a ozveme sa vám s presnou ponukou. Alebo si pozrite ďalšie autá.', 500);
+    chips([['📋 Celá ponuka', () => { closeP(); document.getElementById('ponuka')?.scrollIntoView({behavior:'smooth'}); }], ['🔄 Iný rozpočet', findBudget], ['🔗 Auto mám inde', elsewhere]]); }
+
+  // ---------- konkrétne auto z ponuky ----------
+  const carLine = c => `${c.title}, ${c.year}, ${c.km}, cena ${eur(c.price)}, splátka od ${eur(pay(c.price))}/mes.`;
+  async function carIntro(c){ lead.car = carLine(c); curCar = c;
+    await bot(`<b>${esc(c.title)}</b> · ${esc(c.year)} · ${esc(c.km)}\n\nCena: <b>${eur(c.price)}</b>\nSplátka bez akontácie: <b>${eur(pay(c.price))} / mes.</b>\nS 20 % akontáciou (${eur(c.price*.2)}): <b>${eur(pay(c.price,20))} / mes.</b>\n\nOrientačne pri 96 mesiacoch.${why(c) ? '\n\n' + esc(why(c)) : ''}`, 700);
+    chips([['✅ Chcem presnú ponuku', askName, 'main'], ['❓ Mám otázku k autu', faqMenu], ['🚗 Ukážte mi iné autá', findBudget]]); }
+  let curCar = null;
+  async function fromAd(c){ openP(true); lead.car = carLine(c); curCar = c; lead.zdroj = 'reklama na sieti';
+    await bot(`Dobrý deň 👋 Som <b>Laura</b> zo Splatkuj.sk. Vidím, že vás zaujalo auto <b>${esc(c.title)}</b> – dobrý výber! 🙂`, 600);
+    carCard(c);
+    await bot(`Cena: <b>${eur(c.price)}</b>\nSplátka bez akontácie: <b>${eur(pay(c.price))} / mes.</b>\nS 20 % akontáciou: <b>${eur(pay(c.price,20))} / mes.</b>\n<small>Orientačne pri 96 mesiacoch.</small>`, 700);
+    await bot('Aké máte k tomuto autu otázky? Napíšte mi alebo vyberte nižšie.', 500);
+    chips([['✅ Chcem presnú ponuku', askName, 'main'], ['❓ Potrebujem akontáciu?', async () => { await bot(FAQ[0][2]); after(); }], ['📄 Aké doklady treba?', async () => { await bot(FAQ[3][2]); after(); }], ['📞 Zavolajte mi', askName]]); }
+  // deep link z reklamy: splatkuj.sk/#auto-<id>
+  const m0 = location.hash.match(/^#auto-(?:[a-z0-9-]*-)?([a-z0-9]+)$/i);
+  const adCar = m0 && SK.CARS.find(c => bid(c) === m0[1] || c.id === m0[1]);
+  if (adCar){ store.set('skc-seen','1'); setTimeout(() => { started = true; fromAd(adCar); }, 700); }
+  window.SKchat = { car(c){ openP(true); log.querySelectorAll('.skc-chips[data-live]').forEach(x=>x.remove()); me('Zaujíma ma ' + c.title); carIntro(c); } };
+
+  // ---------- auto inde ----------
+  async function elsewhere(){ step = 'link';
+    await bot('Výborne – financujeme autá od <b>akéhokoľvek predajcu</b> (bazár, autosalón aj súkromná osoba).');
+    await bot('Vložte sem odkaz na inzerát (Bazoš, Autobazar.eu…) alebo napíšte model a cenu auta.'); input.focus(); }
+  async function gotLink(t){ const bid0 = (t.match(/inzerat\/(\d{9})/)||[])[1]; const own = bid0 && SK.CARS.find(c => bid(c) === bid0);
+    if (own){ await bot('Toto auto máme aj v našej ponuke 🙂'); return carIntro(own); }
+    lead.car = t; const p = num(t);
+    if (p) return showPay(p, true);
+    step = 'linkprice'; await bot('Ďakujem! Aká je cena auta v eurách? (stačí číslo, napr. 18500)'); input.focus(); }
+
+  // ---------- kalkulačka ----------
+  async function calc(){ step = 'price'; await bot('Koľko stojí auto, ktoré zvažujete? Napíšte cenu v eurách, napr. <b>18500</b>.'); input.focus(); }
+  function num(t){ const m = String(t).replace(/\s| /g,'').match(/(\d{1,3}(?:[.,]?\d{3})+|\d{4,6})(?:€|eur)?/i); if (!m) return 0;
+    const v = +m[1].replace(/[.,]/g,''); return v >= 1000 && v <= 300000 ? v : 0; }
+  async function showPay(p, fromLink){ step = null;
+    await bot(`Pri cene <b>${eur(p)}</b> by splátka vychádzala orientačne:\n\n• bez akontácie: <b>${eur(pay(p))} / mes.</b>\n• s 20 % akontáciou (${eur(p*.2)}): <b>${eur(pay(p,20))} / mes.</b>\n\nPri dobe splácania 96 mesiacov. Presnú ponuku vrátane všetkých poplatkov vám pošleme vopred.`, 900);
+    chips([['✅ Chcem presnú ponuku', () => { if (!fromLink) lead.car = lead.car || `Auto za ${eur(p)}`; askName(); }, 'main'], ['🚗 Ukážte mi autá v tejto cene', () => { const m = pay(p); setB(Math.max(0,m-80), m+80); }], ['❓ Mám otázku', faqMenu]]); }
+
+  // ---------- FAQ ----------
+  const FAQ = [
+    ['Potrebujem akontáciu?', /akont|záloh|zaloh|vlastn.*peniaz|bez peňaz|0 ?%/i, 'Nie. Financujeme <b>už od 0 % akontácie</b>, takže auto môžete mať aj bez vlastných peňazí. Ak akontáciu dáte, splátka bude nižšia.'],
+    ['Od koho môžem auto kúpiť?', /predajc|bazár|bazar|súkrom|sukrom|inde|kdekoľvek|odkiaľ/i, 'Od <b>akéhokoľvek predajcu</b> – z autobazára, autosalónu aj od súkromnej osoby. Stačí nám poslať odkaz na inzerát.'],
+    ['Financujete aj SZČO a firmy?', /szčo|szco|živnost|zivnost|firm|s\.r\.o|sro|podnikat/i, 'Áno. Financujeme <b>fyzické osoby, SZČO aj firmy</b>. Pre firmy a SZČO je často výhodný leasing.'],
+    ['Aké doklady potrebujem?', /doklad|občian|obcian|preukaz|príjem|prijem|výplat|vyplat|potrebuj/i, 'Zvyčajne stačí <b>občiansky preukaz a druhý doklad</b> (napr. vodičský preukaz). Podľa typu financovania môže byť potrebné aj potvrdenie príjmu, pri SZČO daňové priznanie. Presný zoznam vám povieme vopred.'],
+    ['Ako rýchlo to vybavíte?', /rýchlo|rychlo|dlho|kedy|schvál|schval|čas|cas/i, 'Väčšinou vám <b>odpovieme do 24 hodín</b> a celé financovanie vybavíme online, bez zbytočného chodenia.'],
+    ['Musím prísť osobne?', /osobne|online|prísť|prist|pobočk|pobock|kde ste|adresa/i, 'Nemusíte. Úver alebo leasing vybavíme <b>online po celom Slovensku</b>.'],
+    ['Aké sú poplatky?', /poplat|úrok|urok|rpmn|koľko stojí úver|skryt|malé písmo|male pismo/i, 'Splátku, celkovú sumu aj všetky poplatky <b>vám povieme vopred</b>. Orientačný úrok v našich výpočtoch je 9,9 % p.a., presné podmienky závisia od auta a vašej situácie.'],
+    ['Úver alebo leasing?', /leasing|lízing|lizing|úver|uver|rozdiel/i, 'Pri <b>úvere</b> ste majiteľom auta hneď, pri <b>leasingu</b> je majiteľom leasingová spoločnosť až do splatenia – pre firmy a SZČO býva daňovo výhodnejší. Radi vám poradíme, čo sa hodí vám.'],
+  ];
+  async function faqMenu(){ await bot('Jasné, na čo sa chcete opýtať? Vyberte otázku alebo ju napíšte.');
+    chips(FAQ.map(([q,,a]) => [q, async () => { await bot(a); after(); }]).concat([['📞 Radšej sa porozprávam s človekom', askName]])); }
+  function after(){ chips([['❓ Ďalšia otázka', faqMenu], ['🚗 Hľadám auto', findBudget], ['📞 Zavolajte mi', askName, 'main']]); }
+
+  // ---------- kontakt / lead ----------
+  // ---------- predbežné posúdenie ----------
+  const Q = [
+    ['typ', 'Aby sme vám pripravili presnú ponuku, mám pár krátkych otázok 🙂\n\n<b>1/6</b> Na koho bude financovanie?', ['Zamestnanec','SZČO (živnosť)','Firma (s.r.o.)']],
+    ['prijem', '', []],
+    ['exekucie', '<b>3/6</b> Máte momentálne nejaké exekúcie alebo nesplácané úvery?', ['Nie','Áno','Neviem']],
+    ['registre', '<b>4/6</b> Splácate úvery načas (čisté úverové registre)?', ['Áno, registre mám čisté','V minulosti som mal omeškanie','Neviem']],
+    ['akontacia', '<b>5/6</b> Koľko by ste chceli dať akontáciu?', ['0 %','10 %','20 % a viac','Inú sumu (napíšem)']],
+    ['doba', '<b>6/6</b> Na ako dlho chcete splácať?', ['4 roky','6 rokov','8 rokov']],
+  ];
+  async function qualify(i = 0){
+    if (i >= Q.length) return askName2();
+    const [k, q, opts] = Q[i]; if (k === 'prijem') return prijemFlow(i); await bot(q);
+    chips(opts.map(o => [o, async () => { lead[k] = o;
+      if (o.startsWith('Inú sumu')){ step = 'akont'; akontNext = i + 1; await bot('Napíšte, koľko by ste chceli dať akontáciu – v eurách alebo v percentách (napr. 3000 € alebo 15 %).'); input.focus(); return; }
+      if (k === 'exekucie' && o === 'Áno'){ await bot('Ďakujem za úprimnosť. Pri exekúcii alebo nesplácaných úveroch žiaľ financovanie nevieme schváliť – banky a leasingové spoločnosti to neumožňujú. Keď bude všetko vyrovnané, radi vám pomôžeme 🙏'); lead.pozn = 'EXEKÚCIA / NESPLÁCANÉ ÚVERY'; return chips([['📞 Aj tak sa chcem poradiť', () => askName2()], ['🏠 Späť na začiatok', menu]]); }
+      qualify(i + 1); }]));
+  }
+  let akontNext = 0, prijemNext = 0;
+  async function prijemFlow(i){ prijemNext = i + 1;
+    if (lead.typ === 'Firma (s.r.o.)' || lead.typ === 'SZČO (živnosť)'){ lead.prijem = lead.typ === 'Firma (s.r.o.)' ? 'Firma' : 'Živnosť'; return askIco(); }
+    await bot('<b>2/6</b> Aký máte pracovný pomer?');
+    chips([['Zmluva na dobu neurčitú', () => askOdkedy('Zmluva na dobu neurčitú')], ['Zmluva na dobu určitú', () => askOdkedy('Zmluva na dobu určitú')]]); }
+  const isFirma = () => lead.typ === 'Firma (s.r.o.)';
+  async function askIco(retry){ step = 'ico'; await bot(retry ? 'Napíšte prosím správne IČO (8 číslic).' : (isFirma() ? '<b>2/6</b> Aké je IČO vašej firmy?' : '<b>2/6</b> Aké je IČO vašej živnosti?'));
+    chips([['Doplním neskôr', () => { lead.ico = 'doplní neskôr'; step = null; input.removeAttribute('inputmode'); manualAge(); }]]); input.setAttribute('inputmode','numeric'); input.focus(); }
+  async function manualAge(){
+    if (isFirma()){ await bot('Má vaša firma aspoň 6 mesiacov od založenia?');
+      return chips([['Áno, viac ako 6 mesiacov', () => { lead.prijem = 'Firma viac ako 6 mesiacov'; qualify(prijemNext); }], ['Nie, menej ako 6 mesiacov', () => { lead.prijem = 'Firma menej ako 6 mesiacov'; lead.pozn = [lead.pozn, 'FIRMA < 6 MES.'].filter(Boolean).join(', '); qualify(prijemNext); }]]); }
+    step = 'odkedy'; await bot('Odkedy máte živnosť? Napíšte prosím dátum, napr. <b>03/2022</b>.'); input.focus(); }
+  async function lookupFirma(ico){
+    if (!/^https?:$/.test(location.protocol)) return null;
+    try { const ac = new AbortController(); const tm = setTimeout(() => ac.abort(), 6000);
+      const r = await fetch('/api/firma?ico=' + ico, {signal: ac.signal}); clearTimeout(tm);
+      if (!r.ok) return null; const f = await r.json(); return f && f.ok && f.name ? f : null; } catch { return null; } }
+  const skDate = d => d ? d.split('-').reverse().map(x => String(+x)).join('. ') : '';
+  async function gotIco(ico){ lead.ico = ico; step = null; input.removeAttribute('inputmode');
+    const f = await lookupFirma(ico);
+    if (!f) return manualAge();
+    await bot(`Našla som v registri:\n<b>${esc(f.name)}</b>${f.address ? '\n' + esc(f.address) : ''}${f.established ? '\nzaložená ' + esc(skDate(f.established)) : ''}\n\nJe to ${isFirma() ? 'vaša firma' : 'vaša živnosť'}?`);
+    chips([['✅ Áno, správne', () => { lead.firma = f.name + (f.address ? ', ' + f.address : '');
+        if (f.established){ lead.odkedy = skDate(f.established);
+          if (isFirma()){ const ok = f.ageMonths == null || f.ageMonths >= 6; lead.prijem = ok ? 'Firma viac ako 6 mesiacov' : 'Firma menej ako 6 mesiacov'; if (!ok) lead.pozn = [lead.pozn, 'FIRMA < 6 MES.'].filter(Boolean).join(', '); }
+          return qualify(prijemNext); }
+        manualAge(); }, 'main'],
+      ['✏️ Nie, opravím IČO', () => askIco(true)]]); }
+  async function askOdkedy(z){ lead.prijem = z; step = 'odkedy'; await bot('Odkedy ste u súčasného zamestnávateľa? Napíšte prosím presný dátum nástupu, napr. <b>15.03.2021</b>.'); input.focus(); }
+  async function askYear(){ step = 'year'; await bot('Aký je ročník vozidla? Vyberte alebo napíšte presný rok.');
+    chips(['2023 a novšie','2020 – 2022','2016 – 2019','2012 – 2015','staršie ako 2012','Ešte neviem'].map(o => [o, () => { lead.rok = o; step = null; askName(); }])); input.focus(); }
+  async function askName(){ if (lead.car && !curCar && !/https?:\/\//.test(lead.car) && !lead.rok) return askYear(); if (lead.typ) return askName2(); return qualify(0); }
+  async function askName2(){ step = 'name'; await bot(lead.name ? 'Potvrďte prosím vaše meno:' : 'Ďakujem! Ako sa voláte?'); input.focus(); }
+  async function askPhone(){ step = 'phone'; await bot(`Ďakujem, ${esc(lead.name.split(' ')[0])}. Na aké telefónne číslo vám môžeme zavolať?`); input.setAttribute('inputmode','tel'); input.focus(); }
+  async function finish(){ step = null; input.removeAttribute('inputmode');
+    const extra = [['Ročník',lead.rok],['Typ',lead.typ],['Príjem',lead.prijem],['Odkedy',lead.odkedy],['IČO',lead.ico],['Firma',lead.firma],['Firma v registri',/^\d{8}$/.test(lead.ico||'') ? 'https://www.finstat.sk/' + lead.ico : ''],['Poznámka',lead.pozn],['Exekúcie',lead.exekucie],['Registre',lead.registre],['Akontácia',lead.akontacia],['Doba',lead.doba]].filter(x=>x[1]).map(([a,b])=>`\n${a}: ${b}`).join('');
+    const links = curCar ? `\nOdkaz: https://splatkuj.sk/#auto-${SK.slug(curCar)}` + (curCar.url ? `\nInzerát: ${curCar.url}` : '') : '';
+    const src = lead.zdroj ? `\nZdroj: ${lead.zdroj}` : '';
+    const txt = `Dobrý deň, mám záujem o financovanie auta.\nMeno: ${lead.name}\nTelefón: ${lead.phone}${lead.car ? '\nAuto: ' + lead.car : ''}${links}${extra}${src}`;
+    try { $('f-msg').value = (lead.car||'') + links + extra + src; } catch {}
+    try { $('f-name').value = lead.name; $('f-phone').value = lead.phone; } catch {}
+    await bot(`Výborne, máme všetko 👍\n\n<b>${esc(lead.name)}</b> · ${esc(lead.phone)}${lead.car ? '\n' + esc(lead.car) : ''}\n\nPošlite nám to jedným klikom a ozveme sa vám čo najskôr – zvyčajne ešte v ten istý deň.`, 900);
+    chips([['💬 Poslať cez WhatsApp', 'https://wa.me/' + PHONE_INT + '?text=' + encodeURIComponent(txt), 'main'], ['✉️ Poslať SMS', 'sms:+' + PHONE_INT + '?&body=' + encodeURIComponent(txt)], ['📞 Zavolať ' + PHONE, 'tel:+' + PHONE_INT]]); }
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+  // ---------- voľný text ----------
+  async function free(t){
+    if (step === 'name'){ if (t.trim().length < 2) return bot('Napíšte prosím aspoň krstné meno 🙂'); lead.name = t.trim().slice(0,60); return askPhone(); }
+    if (step === 'phone'){ const d = t.replace(/[^\d+]/g,''); if (d.replace(/\D/g,'').length < 9) return bot('Toto číslo sa mi nezdá úplné. Skúste ho napísať napr. v tvare 0905 123 456.'); lead.phone = t.trim().slice(0,20); return finish(); }
+    if (step === 'link') return gotLink(t);
+    if (step === 'year'){ lead.rok = t.trim().slice(0,30); step = null; log.querySelectorAll('.skc-chips[data-live]').forEach(x=>x.remove()); return askName(); }
+    if (step === 'odkedy'){ lead.odkedy = t.trim().slice(0,40); step = null; return qualify(prijemNext); }
+    if (step === 'ico'){ const d = t.replace(/\D/g,''); if (d.length !== 8) return bot('IČO má 8 číslic, napr. 12345678. Skúste ho prosím napísať znova, alebo kliknite na „Doplním neskôr“.'); log.querySelectorAll('.skc-chips[data-live]').forEach(x=>x.remove()); return gotIco(d); }
+    if (step === 'akont'){ lead.akontacia = t.trim().slice(0,40); step = null; return qualify(akontNext); }
+    if (step === 'price' || step === 'linkprice'){ const p = num(t); if (!p) return bot('Napíšte prosím cenu ako číslo, napr. 18500.'); return showPay(p, step === 'linkprice'); }
+    if (/https?:\/\//i.test(t)) return gotLink(t);
+    if (/^\s*\d[\d\s.,]{3,}\s*(€|eur)?\s*$/i.test(t) && num(t)) return showPay(num(t));
+    if (ai) return askAI(t);
+    const hit = FAQ.find(([,rx]) => rx.test(t));
+    if (hit){ await bot(hit[2]); return after(); }
+    if (/suv|kombi|auto|hľad|hlad|chcem|kúpi|kupi|škoda|skoda|vw|audi|bmw|kodiaq|octavia|superb/i.test(t)){ await bot('Pomôžem vám vybrať. Najprv rozpočet:'); return findBudget(); }
+    if (/ahoj|dobr[ýy]|zdrav|čau|cau|hello/i.test(t)){ await bot('Dobrý deň 🙂 S čím vám môžem pomôcť?'); return menu(); }
+    await bot('Na toto vám najlepšie odpovie náš špecialista. Môžem vám zariadiť spätný hovor?');
+    chips([['📞 Áno, zavolajte mi', askName, 'main'], ['❓ Časté otázky', faqMenu], ['🚗 Hľadám auto', findBudget]]);
+  }
+
+  // ---------- AI odpovede (keď je k dispozícii) ----------
+  function rules(){
+    const cars = SK.CARS.map(c => `${bid(c)} | ${c.title} | ${c.year} | ${c.km} | ${c.fuel} | ${c.gear} | cena ${c.price} € | splátka ${Math.round(pay(c.price))} €/mes`).join('\n');
+    return `Voláš sa Laura a si priateľská chat asistentka (o sebe hovor v ženskom rode) firmy Splatkuj.sk (predtým Autá za babku) – sprostredkovanie financovania áut na Slovensku. Odpovedaj VŽDY po slovensky, stručne (max 3–4 vety), ľudsky, bez markdown nadpisov.
+FAKTY (nič iné nesľubuj): podmienka financovania sú čisté registre (úverové aj exekučné), pri exekúcii financovať nevieme; nerobíme notárske zmluvy; schválenie zvyčajne do 30 minút; financovanie už od 0 % akontácie; úver aj leasing; pre FO, SZČO aj firmy; auto od akéhokoľvek predajcu (bazár, autosalón, súkromná osoba); vybavenie online po celom Slovensku; odpoveď zvyčajne do 24 h; splátku, celkovú sumu a poplatky povieme vopred; 6 rokov skúseností, prefinancované vozidlá za viac ako 8 mil. €; telefón ${PHONE}. Orientačné výpočty: 96 mesiacov, úrok 9,9 % p.a. – vždy uveď, že sú orientačné. Presné podmienky schválenia, úrok či výsledok posúdenia NIKDY nesľubuj – odkáž na špecialistu.
+Ak sa hodí odporučiť autá z ponuky, uveď max 3 a na samostatný riadok napíš ich ID v tvare [[ID]]. Ak chce klient ponuku alebo hovor, povedz mu, nech klikne na „Zavolajte mi“.
+PONUKA (ID | auto | rok | km | palivo | prevodovka | cena | splátka pri 0 % akontácii):
+${cars}`; }
+  async function askAI(t){
+    aiTurns.push({role:'user', content:t}); if (aiTurns.length > 10) aiTurns = aiTurns.slice(-10); if (aiTurns[0].role !== 'user') aiTurns.shift();
+    const ty = el('div','skc-typing','<i></i><i></i><i></i>'); log.append(ty); scroll();
+    let m = null;
+    try {
+      const { text } = await ai([{role:'user', content: rules() + (curCar ? `\nKlient si práve pozerá auto: ${carLine(curCar)} (ID ${bid(curCar)}). Cenu a splátku tohto auta poznáš – nepýtaj sa na ňu.` : '')}, ...aiTurns], { modelTier:'quick', cache:false,
+        onText: ({text}) => { if (!m){ ty.remove(); m = el('div','skc-m bot'); log.append(m); } m.textContent = text.replace(/\[\[[^\]]+\]\]/g,'').trim(); scroll(); } });
+      aiTurns.push({role:'assistant', content:text});
+      const ids = [...text.matchAll(/\[\[([^\]]+)\]\]/g)].map(x => x[1].trim());
+      for (const id of ids.slice(0,3)){ const c = SK.CARS.find(c => bid(c) === id); if (c){ await wait(200); carCard(c); } }
+      chips([['📞 Zavolajte mi', askName, 'main'], ['🚗 Vybrať auto podľa rozpočtu', findBudget], ['❓ Časté otázky', faqMenu]]);
+    } catch (e) {
+      ty.remove(); aiTurns.pop();
+      if (['not_granted','sampling_disabled','not_declared','capability_disabled','capability_removed'].includes(e?.code)) ai = null;
+      if (m && e?.text) m.textContent = e.text.replace(/\[\[[^\]]+\]\]/g,'').trim();
+      const hit = FAQ.find(([,rx]) => rx.test(t));
+      if (hit){ await bot(hit[2]); return after(); }
+      await bot('Na toto vám najlepšie odpovie náš špecialista. Môžem vám zariadiť spätný hovor?');
+      chips([['📞 Áno, zavolajte mi', askName, 'main'], ['❓ Časté otázky', faqMenu]]);
+    }
+  }
+
+  // ---------- otvorenie / zatvorenie ----------
+  function openP(noGreet){ panel.hidden = false; teaser.hidden = true; $('skcDot').hidden = true; fab.setAttribute('aria-expanded','true'); store.set('skc-seen','1');
+    if (!started){ started = true; if (!noGreet) greet(); else bot('Dobrý deň 👋 Som <b>Laura</b> zo Splatkuj.sk.', 200); } setTimeout(() => { if (matchMedia('(min-width:521px)').matches) input.focus(); }, 300); }
+  function closeP(){ panel.hidden = true; fab.setAttribute('aria-expanded','false'); }
+  fab.onclick = () => panel.hidden ? openP() : closeP();
+  $('skcClose').onclick = closeP;
+  teaser.onclick = e => { if (e.target.closest('.x')){ teaser.hidden = true; store.set('skc-seen','1'); return; } openP(); };
+  teaser.onkeydown = e => { if (e.key === 'Enter') openP(); };
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !panel.hidden && !document.querySelector('dialog[open]')) closeP(); });
+  $('skcForm').onsubmit = e => { e.preventDefault(); const t = input.value.trim(); if (!t) return; input.value = ''; me(t);
+    log.querySelectorAll('.skc-chips[data-live]').forEach(c => c.remove()); free(t); };
+  // proaktívne osloví návštevníka
+  if (!store.get('skc-seen')) setTimeout(() => { if (panel.hidden){ teaser.hidden = false; $('skcDot').hidden = false; } }, 5000);
+})();
+</script>
+<!-- ===== /Chat asistent ===== -->
+</body></html>
