@@ -12,13 +12,13 @@ const clean = (s) => s
 
 export async function onRequestGet({ params, request }) {
   const id = params.id;
-  const p = new URL(request.url).searchParams.get('p') || '';
-  const json = (d, s = 200) => new Response(JSON.stringify(d), { status: s, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'public, max-age=21600' } });
+  const q = new URL(request.url).searchParams, p = q.get('p') || '', fresh = q.get('fresh') === '1';
+  const json = (d, s = 200) => new Response(JSON.stringify(d), { status: s, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': fresh ? 'no-store' : 'public, max-age=21600' } });
   if (!/^\d{9}$/.test(id) || !/^[a-z0-9-]+\.php$/.test(p)) return json({ ok: false, error: 'zlý odkaz' }, 400);
   try {
     const r = await fetch(`https://auto.bazos.sk/inzerat/${id}/${p}`, {
       headers: { 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36', 'accept-language': 'sk' },
-      cf: { cacheTtl: 21600, cacheEverything: true },
+      cf: fresh ? { cacheTtl: 0 } : { cacheTtl: 21600, cacheEverything: true },
     });
     const h = await r.text();
     const m = h.match(/class=["']?popisdetail["']?[^>]*>([\s\S]*?)<\/div>/i);

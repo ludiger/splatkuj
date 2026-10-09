@@ -123,6 +123,8 @@ render(); jump();
     d = OUT / 'reklamy'
     d.mkdir(parents=True, exist_ok=True)
     (d / 'index.html').write_text(wrap(h))
+    if Path(assets).resolve() == d.resolve():
+        return
     for sub in ('r', 't', 'v'):
         s, t = Path(assets) / sub, d / sub
         t.mkdir(exist_ok=True)
@@ -133,6 +135,6 @@ render(); jump();
 
 
 if __name__ == '__main__':
-    a = sys.argv[1:] or ['/home/claude/splatkuj-admin/index.html', '/home/claude/splatkuj-ads/index.html', '/home/claude/splatkuj-ads']
+    a = sys.argv[1:] or [str(ROOT / 'src/admin.html'), str(ROOT / 'src/ads.html'), str(OUT / 'reklamy')]
     admin(a[0]); ads(a[1], a[2])
     print('ok')
