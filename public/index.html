@@ -785,6 +785,7 @@ video.lau{transform:scale(1.6);transform-origin:50% 33%}
 @keyframes skcB{0%,60%,100%{opacity:.3;transform:none}30%{opacity:1;transform:translateY(-3px)}}
 .skc-chips{display:flex;flex-wrap:wrap;gap:7px;align-self:stretch}
 .skc-chips button,.skc-chips a{border:1.5px solid color-mix(in srgb,var(--brand) 55%,var(--line));background:transparent;color:var(--fg);border-radius:999px;padding:8px 13px;font:600 13.5px/1.2 var(--body);cursor:pointer;text-decoration:none;min-height:38px;display:inline-flex;align-items:center;gap:6px}
+.skc-chips .back{border-color:var(--line);color:var(--mut)}
 .skc-chips button:hover,.skc-chips a:hover{background:color-mix(in srgb,var(--brand) 14%,transparent)}
 .skc-chips .main{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
 .skc-car{align-self:stretch;display:grid;grid-template-columns:96px 1fr;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:10px;text-align:left;color:var(--fg)}
@@ -846,8 +847,9 @@ video.lau{transform:scale(1.6);transform-origin:50% 33%}
   function wait(ms){ return new Promise(r => setTimeout(r, ms)); }
   async function bot(t, delay){ const ty = el('div','skc-typing','<i></i><i></i><i></i>'); log.append(ty); scroll();
     await wait(delay ?? Math.min(1100, 350 + t.length * 7)); ty.remove(); const m = el('div','skc-m bot'); m.innerHTML = t; log.append(m); scroll(); return m; }
-  function chips(list){ log.querySelectorAll('.skc-chips[data-live]').forEach(c => c.remove());
+  function chips(list, back){ log.querySelectorAll('.skc-chips[data-live]').forEach(c => c.remove());
     const w = el('div','skc-chips'); w.dataset.live = '1';
+    if (back) list = [...list, ['↩ Späť', back, 'back']];
     list.forEach(([label, fn, cls]) => { if (typeof fn === 'string'){ const a = el('a', cls||'', label); a.href = fn; a.target = '_blank'; a.rel = 'noopener'; w.append(a); return; }
       const b = el('button', cls||'', label); b.type = 'button'; b.onclick = () => { w.remove(); me(b.textContent.replace(/^[^\p{L}\d]+/u,'')); fn(); }; w.append(b); });
     log.append(w); scroll(); }
@@ -878,21 +880,23 @@ video.lau{transform:scale(1.6);transform-origin:50% 33%}
   // Laurina osobnosť: šarmantná, pozitívna, každého pochváli za výber (bez flirtovania)
   const pickOne = a => a[Math.floor(Math.random() * a.length)];
   function praise(c){
-    const t = (c.title + ' ' + (c.sub||'') + ' ' + (c.fuel||'')).toLowerCase(), y = parseInt(String(c.year).slice(-4)) || 0;
+    const t = (c.title + ' ' + (c.sub||'') + ' ' + (c.fuel||'')).toLowerCase(), y = parseInt(String(c.year).slice(-4)) || 0, km = parseInt(String(c.km).replace(/\D/g,'')) || 0;
     const opts = [];
-    if (/elektr|iv |e-tron|ev\b|hybrid/.test(t)) opts.push('Tichá, úsporná a moderná – s týmto autom budete o krok pred ostatnými ⚡', 'Elektrina namiesto benzínky? Peňaženka vám poďakuje ⚡');
-    if (/suv|kodiaq|karoq|tiguan|x3|x5|q5|q7|sportage|tucson|touareg|tarraco|ateca|xd3/.test(t)) opts.push('SUV je skvelá voľba – vyššie sedenie, priestor a pocit istoty na každej ceste 🚙', 'S týmto SUV zvládnete mesto aj chatu na horách. Výborný výber!');
-    if (/combi|kombi|variant|touring|avant|sw\b|break/.test(t)) opts.push('Kombi je kráľ praktickosti – kufor na dovolenku aj na veľký nákup 🧳', 'Rozumná a praktická voľba. Takéto autá sa predávajú najrýchlejšie!');
-    if (/bmw|audi|mercedes|porsche|alpina|lexus|volvo|jaguar|land rover/.test(t)) opts.push('Máte vkus! Toto je auto, pri ktorom sa ľudia otočia 😉', 'Prémiová trieda – tu sa naozaj nebudete mať za čo hanbiť ✨');
-    if (y >= 2021) opts.push('Takmer nové auto za cenu ojazdeného – to je šikovný ťah 👌');
-    if (/dsg|automat/.test(t)) opts.push('A automat k tomu – v kolóne si poďakujete 🙂');
-    opts.push('Výborný výber – na tomto aute je vidieť, že viete, čo chcete 👌', 'Dobré oko! Toto auto patrí k tomu najlepšiemu, čo máme v ponuke ✨', 'Krásne auto. Už si viem predstaviť, ako s ním prídete domov 🚗');
-    return pickOne(opts);
+    if (/elektr|iv |e-tron|ev\b|hybrid/.test(t)) opts.push('Elektrina namiesto benzínky – na prevádzke ušetríte ⚡');
+    if (/suv|kodiaq|karoq|tiguan|x3|x5|q5|q7|sportage|tucson|touareg|tarraco|ateca|xd3/.test(t)) opts.push('SUV – vyššie sedenie a priestor, to sa na cestách oplatí 🚙');
+    if (/combi|kombi|variant|touring|avant|sw\b|break/.test(t)) opts.push('Kombi je praktická voľba – kufor na dovolenku aj na veľký nákup 🧳');
+    if (/dsg|automat/.test(t)) opts.push('Automat – v meste a v kolóne si ho pochválite 🙂');
+    if (y >= 2021) opts.push('Pomerne mladé auto – to je fajn ťah 👌');
+    if (km && km < 100000) opts.push('Nízky nájazd, to je dobrý znak 👌');
+    if (c.price <= 12000) opts.push('Rozumná voľba – slušné auto za príjemnú splátku 👍');
+    if (/bmw|audi|mercedes|porsche|alpina|lexus|volvo/.test(t) && c.price > 20000) opts.push('Prémiová trieda – tu sa máte na čo tešiť ✨');
+    opts.push('Dobrá voľba 👍', 'Pekný kúsok 🙂');
+    return pickOne(opts.slice(0, Math.max(2, opts.length - 2)));
   }
   async function findBudget(){ await bot('Super, to je moja obľúbená časť! 😊 Akú mesačnú splátku si viete pohodlne dovoliť?');
-    chips([['do 200 €', () => setB(0,200)], ['200 – 300 €', () => setB(200,300)], ['300 – 400 €', () => setB(300,400)], ['400 – 550 €', () => setB(400,550)], ['viac ako 550 €', () => setB(550,9999)]]); }
+    chips([['do 200 €', () => setB(0,200)], ['200 – 300 €', () => setB(200,300)], ['300 – 400 €', () => setB(300,400)], ['400 – 550 €', () => setB(400,550)], ['viac ako 550 €', () => setB(550,9999)]], menu); }
   async function setB(a,b){ pick = {a,b}; await bot('A aký typ auta hľadáte?');
-    chips([['SUV', () => setT('suv')], ['Kombi', () => setT('kombi')], ['7 miest / van', () => setT('7')], ['Elektro / hybrid', () => setT('el')], ['Je mi to jedno', () => setT('')]]); }
+    chips([['SUV', () => setT('suv')], ['Kombi', () => setT('kombi')], ['7 miest / van', () => setT('7')], ['Elektro / hybrid', () => setT('el')], ['Je mi to jedno', () => setT('')]], findBudget); }
   const RX = { suv:/kodiaq|tiguan|tarraco|ateca|karoq|kamiq|q2|q5|touareg|2008|3008|formentor|santa fe|id\.4|taigo|xd3|allspace|galaxy/i,
     kombi:/combi|avant|touring|variant|allroad|shooting|alltrack|superb|octavia.*combi/i,
     '7':/multivan|galaxy|touran|sharan|transporter|santa fe|allspace|tarraco|kodiaq/i,
@@ -907,22 +911,27 @@ video.lau{transform:scale(1.6);transform-origin:50% 33%}
     const shown = list.slice(0,12); for (const c of shown){ await wait(150); carCard(c); }
     const rest = list.length - shown.length, seen = [...(skip||[]), ...shown];
     await wait(300); await bot(rest ? `Ukázala som ${shown.length}, ďalších ${rest} vám rada ukážem. Ktoré sa vám páči? 🙂` : 'Ktoré sa vám páči? Kliknite na <b>Mám záujem</b> a pripravíme vám presnú ponuku 🙂', 400);
-    chips([...(rest ? [[`➕ Ukázať ďalšie (${rest})`, () => showAll(t, seen), 'main']] : []), ['📋 Pozrieť na stránke', () => { closeP(); document.getElementById('ponuka')?.scrollIntoView({behavior:'smooth'}); }], ['💶 Vybrať podľa rozpočtu', findBudget], ['📞 Zavolajte mi', askName]]);
+    chips([...(rest ? [[`➕ Ukázať ďalšie (${rest})`, () => showAll(t, seen), 'main']] : []), ['📋 Pozrieť na stránke', () => { closeP(); document.getElementById('ponuka')?.scrollIntoView({behavior:'smooth'}); }], ['💶 Vybrať podľa rozpočtu', findBudget], ['📞 Zavolajte mi', askName]], menu);
   }
-  async function setT(t){ pick.t = t;
-    const ok = c => isT(c,t);
+  async function setT(t, page = 0, wide = 0){ pick.t = t;
+    const ok = c => isT(c,t), a = Math.max(0, pick.a - wide), b = pick.b + wide;
     const mid = Math.min((pick.a+pick.b)/2, pick.a+150);
-    let list = SK.CARS.filter(c => ok(c) && pay(c.price) >= pick.a && pay(c.price) <= pick.b);
+    let list = SK.CARS.filter(c => ok(c) && pay(c.price) >= a && pay(c.price) <= b);
     let note = '';
-    if (!list.length){ list = SK.CARS.filter(ok); note = 'V presne tomto rozpočte teraz nič nemáme, ale tieto autá sú najbližšie:'; }
+    if (!list.length && !page){ list = SK.CARS.filter(ok); note = 'V presne tomto rozpočte teraz nič nemáme, ale tieto autá sú najbližšie:'; }
     list.sort((x,y) => Math.abs(pay(x.price)-mid) - Math.abs(pay(y.price)-mid));
-    const top = list.slice(0,3);
-    if (!top.length){ await bot('Momentálne nemám v ponuke presne takéto auto. Ale financujeme autá od <b>akéhokoľvek predajcu</b> – stačí nám poslať odkaz.'); return chips([['🔗 Poslať odkaz na auto', elsewhere,'main'],['🔄 Skúsiť znova', findBudget],['📞 Zavolajte mi', askName]]); }
-    await bot(note || `Vybrala som pre vás ${top.length === 1 ? 'toto auto' : top.length + ' autá'} z našej ponuky (splátka pri 0 % akontácii, 96 mesiacov):`);
+    const N = 3, top = list.slice(page*N, page*N + N), rest = list.length - (page*N + top.length);
+    const backT = () => setB(pick.a, pick.b);
+    if (!top.length){ await bot('Momentálne nemám v ponuke presne takéto auto. Ale financujeme autá od <b>akéhokoľvek predajcu</b> – stačí nám poslať odkaz.'); return chips([['🔗 Poslať odkaz na auto', elsewhere,'main'],['🔄 Iný rozpočet', findBudget],['📞 Zavolajte mi', askName]], backT); }
+    const lbl = t ? TYPN[t] : 'autá';
+    await bot(page ? 'Ďalšie autá v rovnakom rozpočte:' : wide ? `Rozšírila som rozpočet na ${a} – ${b} € mesačne:` : (note || `Vybrala som pre vás ${top.length === 1 ? 'toto auto' : top.length + ' autá'} z našej ponuky (splátka pri 0 % akontácii, 96 mesiacov):`));
     for (const c of top){ await wait(250); carCard(c); }
-    await wait(300); await bot('Kliknite na <b>Mám záujem</b> a ozveme sa vám s presnou ponukou. Alebo si pozrite ďalšie autá.', 500);
-    const more = SK.CARS.filter(ok).length - top.length;
-    chips([...(more > 0 ? [[`📋 Ukázať všetky ${t ? TYPN[t] : 'autá'} (${more + top.length})`, () => showAll(t, top), 'main']] : []), ['🔄 Iný rozpočet', findBudget], ['🔗 Auto mám inde', elsewhere]]); }
+    await wait(300); await bot(rest ? `V tomto rozpočte mám ešte ${rest} ${rest === 1 ? 'auto' : rest < 5 ? 'autá' : 'áut'}. Kliknite na <b>Mám záujem</b>, alebo vám ukážem ďalšie.` : 'Kliknite na <b>Mám záujem</b> a ozveme sa vám s presnou ponukou.', 500);
+    const opts = [];
+    if (rest) opts.push([`➕ Ďalšie ${Math.min(N, rest)} v tomto rozpočte`, () => setT(t, page + 1, wide), 'main']);
+    else if (!note && wide < 200 && pick.b < 9999) opts.push(['↔ Rozšíriť rozpočet o 100 €', () => setT(t, 0, wide + 100), 'main']);
+    opts.push(['🔄 Iný rozpočet', findBudget], ['🔗 Auto mám inde', elsewhere]);
+    chips(opts, backT); }
 
   // ---------- konkrétne auto z ponuky ----------
   const carLine = c => `${c.title}, ${c.year}, ${c.km}, cena ${eur(c.price)}, splátka od ${eur(pay(c.price))}/mes.`;
@@ -946,7 +955,7 @@ video.lau{transform:scale(1.6);transform-origin:50% 33%}
   async function insFlow(){ lead.zaujem = 'poistenie'; lead.zdroj = lead.zdroj || 'služba: poistenie';
     await bot('Pripravíme vám porovnanie povinného zmluvného (PZP) aj havarijného poistenia.');
     await bot('Aké poistenie vás zaujíma?');
-    chips([['PZP', () => insCar('PZP')], ['Havarijné', () => insCar('Havarijné')], ['Obe', () => insCar('PZP + havarijné')]]); }
+    chips([['PZP', () => insCar('PZP')], ['Havarijné', () => insCar('Havarijné')], ['Obe', () => insCar('PZP + havarijné')]], menu); }
   async function insCar(t){ lead.poistenie = t; step = 'inscar'; await bot('Aké auto chcete poistiť? Napíšte značku, model a rok (prípadne EČV).'); input.focus(); }
   window.SKchat = { svc(k){ openP(true); log.querySelectorAll('.skc-chips[data-live]').forEach(x=>x.remove());
       if (k === 'sell'){ me('Chcem predať vozidlo'); return sellFlow(); }
@@ -984,7 +993,7 @@ video.lau{transform:scale(1.6);transform-origin:50% 33%}
     ['Úver alebo leasing?', /leasing|lízing|lizing|úver|uver|rozdiel/i, 'Pri <b>úvere</b> ste majiteľom auta hneď, pri <b>leasingu</b> je majiteľom leasingová spoločnosť až do splatenia – pre firmy a SZČO býva daňovo výhodnejší. Radi vám poradíme, čo sa hodí vám.'],
   ];
   async function faqMenu(){ await bot('Jasné, na čo sa chcete opýtať? Vyberte otázku alebo ju napíšte.');
-    chips(FAQ.map(([q,,a]) => [q, async () => { await bot(a); after(); }]).concat([['📞 Radšej sa porozprávam s človekom', askName]])); }
+    chips(FAQ.map(([q,,a]) => [q, async () => { await bot(a); after(); }]).concat([['📞 Radšej sa porozprávam s človekom', askName]]), menu); }
   function after(){ chips([['❓ Ďalšia otázka', faqMenu], ['🚗 Hľadám auto', findBudget], ['📞 Zavolajte mi', askName, 'main']]); }
 
   // ---------- kontakt / lead ----------
@@ -1003,23 +1012,23 @@ video.lau{transform:scale(1.6);transform-origin:50% 33%}
     chips(opts.map(o => [o, async () => { lead[k] = o;
       if (o.startsWith('Inú sumu')){ step = 'akont'; akontNext = i + 1; await bot('Napíšte, koľko by ste chceli dať akontáciu – v eurách alebo v percentách (napr. 3000 € alebo 15 %).'); input.focus(); return; }
       if (k === 'exekucie' && o === 'Áno'){ await bot('Ďakujem za úprimnosť. Pri exekúcii alebo nesplácaných úveroch žiaľ financovanie nevieme schváliť – banky a leasingové spoločnosti to neumožňujú. Keď bude všetko vyrovnané, radi vám pomôžeme 🙏'); lead.pozn = 'EXEKÚCIA / NESPLÁCANÉ ÚVERY'; return chips([['📞 Aj tak sa chcem poradiť', () => askName2()], ['🏠 Späť na začiatok', menu]]); }
-      qualify(i + 1); }]));
+      qualify(i + 1); }]), i > 0 ? () => qualify(i - 1) : null);
   }
   let akontNext = 0, prijemNext = 0;
   async function prijemFlow(i){ prijemNext = i + 1;
     if (lead.typ === 'Firma (s.r.o.)' || lead.typ === 'SZČO (živnosť)'){ lead.prijem = lead.typ === 'Firma (s.r.o.)' ? 'Firma' : 'Živnosť'; return askIco(); }
     if (lead.typ === 'Dôchodca'){ await bot('<b>2/6</b> Aký dôchodok poberáte?');
-      return chips(['Starobný','Výsluhový','Invalidný'].map(o => [o, () => { lead.prijem = o + ' dôchodok'; qualify(prijemNext); }])); }
+      return chips(['Starobný','Výsluhový','Invalidný'].map(o => [o, () => { lead.prijem = o + ' dôchodok'; qualify(prijemNext); }]), () => qualify(0)); }
     if (lead.typ === 'Cudzinec s pobytom v SR' && !lead.pobyt){ await bot('<b>2/6</b> Aký typ pobytu na Slovensku máte?');
-      return chips(['Trvalý pobyt','Prechodný pobyt'].map(o => [o, () => { lead.pobyt = o; prijemFlow(prijemNext - 1); }])); }
+      return chips(['Trvalý pobyt','Prechodný pobyt'].map(o => [o, () => { lead.pobyt = o; prijemFlow(prijemNext - 1); }]), () => qualify(0)); }
     await bot(lead.typ === 'Cudzinec s pobytom v SR' ? 'Aký máte pracovný pomer na Slovensku?' : '<b>2/6</b> Aký máte pracovný pomer?');
-    chips([['Zmluva na dobu neurčitú', () => askOdkedy('Zmluva na dobu neurčitú')], ['Zmluva na dobu určitú', () => askOdkedy('Zmluva na dobu určitú')]]); }
+    chips([['Zmluva na dobu neurčitú', () => askOdkedy('Zmluva na dobu neurčitú')], ['Zmluva na dobu určitú', () => askOdkedy('Zmluva na dobu určitú')]], () => qualify(0)); }
   const isFirma = () => lead.typ === 'Firma (s.r.o.)';
   async function askIco(retry){ step = 'ico'; await bot(retry ? 'Napíšte prosím správne IČO (8 číslic).' : (isFirma() ? '<b>2/6</b> Aké je IČO vašej firmy?' : '<b>2/6</b> Aké je IČO vašej živnosti?'));
     chips([['Doplním neskôr', () => { lead.ico = 'doplní neskôr'; step = null; input.removeAttribute('inputmode'); manualAge(); }]]); input.setAttribute('inputmode','numeric'); input.focus(); }
   async function manualAge(){
     if (isFirma()){ await bot('Má vaša firma aspoň 6 mesiacov od založenia?');
-      return chips([['Áno, viac ako 6 mesiacov', () => { lead.prijem = 'Firma viac ako 6 mesiacov'; qualify(prijemNext); }], ['Nie, menej ako 6 mesiacov', () => { lead.prijem = 'Firma menej ako 6 mesiacov'; lead.pozn = [lead.pozn, 'FIRMA < 6 MES.'].filter(Boolean).join(', '); qualify(prijemNext); }]]); }
+      return chips([['Áno, viac ako 6 mesiacov', () => { lead.prijem = 'Firma viac ako 6 mesiacov'; qualify(prijemNext); }], ['Nie, menej ako 6 mesiacov', () => { lead.prijem = 'Firma menej ako 6 mesiacov'; lead.pozn = [lead.pozn, 'FIRMA < 6 MES.'].filter(Boolean).join(', '); qualify(prijemNext); }]], () => qualify(0)); }
     step = 'odkedy'; await bot('Odkedy máte živnosť? Napíšte prosím dátum, napr. <b>03/2022</b>.'); input.focus(); }
   async function lookupFirma(ico){
     if (!/^https?:$/.test(location.protocol)) return null;
