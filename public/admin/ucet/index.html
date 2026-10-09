@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<title>Účet · Splatkuj Admin</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+:root{--ink:#0d0e11;--panel:#16181d;--panel2:#1d2027;--line:#2a2e37;--fg:#f3f4f6;--mut:#9ca2ad;--brand:#14B47E;--brand2:#45D99B;--on:#03140D;--red:#f0616d;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ink);color:var(--fg);font:15px/1.5 Figtree,system-ui,sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:24px clamp(16px,3vw,32px) 60px;display:grid;gap:20px}
+h1{font:900 clamp(26px,3.4vw,34px)/1.1 Archivo,system-ui;font-stretch:115%;margin:0}
+h2{font:800 19px/1.2 Archivo,system-ui;font-stretch:110%;margin:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px;display:grid;gap:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+label{display:grid;gap:5px;font-size:13px;font-weight:600;color:var(--mut)}
+input{width:100%;background:var(--ink);border:1px solid var(--line);border-radius:10px;padding:11px 12px;color:var(--fg);font:15px Figtree,system-ui}
+input:focus{outline:none;border-color:var(--brand)}
+button{font:700 14px/1 Figtree;padding:12px 16px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);color:var(--fg);cursor:pointer;justify-self:start}
+button.pri{background:linear-gradient(135deg,var(--brand),var(--brand2));color:var(--on);border:0}
+button.mini{font-size:12.5px;padding:8px 11px;border-radius:9px}
+.msg{font-size:14px;font-weight:600}.msg.ok{color:var(--brand2)}.msg.err{color:var(--red)}
+.hint{font-size:13px;color:var(--mut);margin:0}
+.warn{border-color:var(--brand);background:color-mix(in srgb,var(--brand) 10%,var(--panel))}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:10px 8px;border-top:1px solid var(--line);vertical-align:middle}
+th{color:var(--mut);font-weight:600;font-size:12.5px;border-top:0}
+td .acts{display:flex;gap:6px;flex-wrap:wrap}
+.tbl{overflow-x:auto}
+.log{font-size:13px;color:var(--mut);max-height:320px;overflow:auto}
+.log div{padding:5px 0;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<script src="/admin/shim.js"></script>
+<div class="wrap">
+  <h1>Účet</h1>
+  <div class="card warn" id="must" hidden><b>Najprv si nastavte vlastné heslo.</b><p class="hint">Dočasné heslo vám dal majiteľ účtu. Po zmene budete mať prístup ku všetkému.</p></div>
+
+  <form class="card" id="pwForm">
+    <h2>Zmeniť heslo</h2>
+    <div class="grid">
+      <label>Súčasné heslo<input type="password" id="old" autocomplete="current-password" required></label>
+      <label>Nové heslo<input type="password" id="new1" autocomplete="new-password" required></label>
+      <label>Nové heslo znova<input type="password" id="new2" autocomplete="new-password" required></label>
+    </div>
+    <p class="hint">Aspoň 10 znakov, písmená aj číslice. Po zmene sa odhlásia ostatné zariadenia.</p>
+    <button class="pri" type="submit">Uložiť nové heslo</button>
+    <span class="msg" id="pwMsg" role="status"></span>
+  </form>
+
+  <section class="card" id="usersCard" hidden>
+    <h2>Ľudia s prístupom</h2>
+    <div class="tbl"><table><thead><tr><th>Meno</th><th>Prihlasovacie meno</th><th>Rola</th><th>Naposledy</th><th></th></tr></thead><tbody id="users"></tbody></table></div>
+    <form id="addForm" class="grid" style="align-items:end">
+      <label>Meno<input id="aName" placeholder="napr. Jana" required></label>
+      <label>Prihlasovacie meno<input id="aLogin" placeholder="napr. jana" autocapitalize="none" spellcheck="false" required></label>
+      <label>Dočasné heslo<input id="aPw" autocomplete="new-password" required></label>
+      <button class="pri" type="submit">Pridať človeka</button>
+    </form>
+    <p class="hint">Dočasné heslo jej pošlite osobne alebo cez telefón, nie e-mailom. Pri prvom prihlásení si ho musí zmeniť.</p>
+    <span class="msg" id="uMsg" role="status"></span>
+  </section>
+
+  <section class="card" id="logCard" hidden>
+    <h2>Posledné prihlásenia a zmeny</h2>
+    <div class="log" id="log"></div>
+  </section>
+</div>
+<script>
+(async () => {
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const fmt = (iso) => { if (!iso) return '—'; const d = new Date(iso); return isNaN(d) ? '—' : d.toLocaleString('sk-SK', { day: 'numeric', month: 'numeric', year: '2-digit', hour: '2-digit', minute: '2-digit' }); };
+  const msg = (id, t, ok) => { $(id).textContent = t; $(id).className = 'msg ' + (ok ? 'ok' : 'err'); };
+  const me = await window.SKme;
+  if (me.mustChange) $('must').hidden = false;
+
+  $('pwForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if ($('new1').value !== $('new2').value) return msg('pwMsg', 'Nové heslá sa nezhodujú.');
+    try {
+      await SKapi('password', { method: 'POST', body: JSON.stringify({ old: $('old').value, password: $('new1').value }) });
+      e.target.reset(); msg('pwMsg', 'Heslo je zmenené.', true);
+      if (me.mustChange) setTimeout(() => location.href = '/admin/', 900);
+    } catch (err) { msg('pwMsg', err.message); }
+  });
+
+  if (me.role !== 'owner') return;
+  $('usersCard').hidden = $('logCard').hidden = false;
+  const LBL = { login: 'prihlásenie', login_fail: 'nesprávne heslo', setup: 'vytvorenie účtu', password: 'zmena hesla', user_add: 'pridaný človek', user_del: 'odobraný človek', user_reset: 'nové heslo pre', set: 'zápis', update: 'úprava', delete: 'zmazanie', bulk: 'hromadný zápis' };
+  async function load() {
+    const { users } = await SKapi('users');
+    $('users').innerHTML = users.map((u) => `<tr><td>${esc(u.name)}</td><td>${esc(u.login)}</td><td>${u.role === 'owner' ? 'majiteľ' : 'kolega'}${u.must_change ? ' · čaká na zmenu hesla' : ''}</td><td>${fmt(u.last_login)}</td>
+      <td>${u.login === me.login ? '<span class="hint">vy</span>' : `<div class="acts"><button class="mini" type="button" data-reset="${esc(u.login)}">Nové heslo</button><button class="mini" type="button" data-del="${esc(u.login)}">Odobrať prístup</button></div>`}</td></tr>`).join('');
+    const { log } = await SKapi('log');
+    $('log').innerHTML = log.slice(0, 80).map((l) => `<div>${fmt(l.at)} · <b>${esc(l.login || '—')}</b> · ${esc(LBL[l.action] || l.action)} ${esc(l.detail || '')}</div>`).join('') || 'Zatiaľ nič.';
+  }
+  load();
+  $('addForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+      await SKapi('users', { method: 'POST', body: JSON.stringify({ name: $('aName').value, login: $('aLogin').value, password: $('aPw').value }) });
+      msg('uMsg', `Pridané. Prihlasovacie meno: ${$('aLogin').value.trim().toLowerCase()}. Stránka: splatkuj.sk/admin`, true); e.target.reset(); load();
+    } catch (err) { msg('uMsg', err.message); }
+  });
+  $('users').addEventListener('click', async (e) => {
+    const d = e.target.closest('[data-del]'), r = e.target.closest('[data-reset]');
+    if (d) {
+      if (d.dataset.sure !== '1') { d.dataset.sure = '1'; d.textContent = 'Naozaj odobrať?'; return; }
+      try { await SKapi('users/' + d.dataset.del, { method: 'DELETE' }); msg('uMsg', 'Prístup bol odobraný.', true); load(); } catch (err) { msg('uMsg', err.message); }
+    }
+    if (r) {
+      const row = r.closest('tr');
+      if (!row.querySelector('input')) {
+        const td = r.closest('td'); td.innerHTML = `<div class="acts"><input type="text" placeholder="nové dočasné heslo" style="width:180px" autocomplete="new-password"><button class="mini pri" type="button" data-setpw="${esc(r.dataset.reset)}">Uložiť</button></div>`;
+        td.querySelector('input').focus(); return;
+      }
+    }
+    const s = e.target.closest('[data-setpw]');
+    if (s) {
+      const pw = s.parentElement.querySelector('input').value;
+      try { await SKapi('users/' + s.dataset.setpw + '/reset', { method: 'POST', body: JSON.stringify({ password: pw }) }); msg('uMsg', 'Nové dočasné heslo je nastavené. Pri prihlásení si ho musí zmeniť.', true); load(); }
+      catch (err) { msg('uMsg', err.message); }
+    }
+  });
+})();
+</script>
+</body>
+</html>

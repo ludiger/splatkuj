@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<title>Dopyty · Splatkuj Admin</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+:root{--ink:#0d0e11;--panel:#16181d;--panel2:#1d2027;--line:#2a2e37;--fg:#f3f4f6;--mut:#9ca2ad;--brand:#14B47E;--brand2:#45D99B;--on:#03140D;--red:#f0616d;--amber:#f2b84b;--blue:#6aa8ff;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ink);color:var(--fg);font:15px/1.5 Figtree,system-ui,sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:24px clamp(16px,3vw,32px) 60px}
+h1{font:900 clamp(26px,3.4vw,34px)/1.1 Archivo,system-ui;font-stretch:115%;margin:0 0 6px}
+.lead{color:var(--mut);margin:0 0 20px}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.seg{display:flex;gap:4px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:4px}
+.seg button{font:700 13px/1 Figtree,system-ui;padding:9px 14px;border-radius:999px;border:0;background:none;color:var(--mut);cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--panel2);color:var(--fg);box-shadow:inset 0 0 0 1px var(--brand)}
+.seg b{font-variant-numeric:tabular-nums;margin-left:4px}
+input[type=search]{flex:1 1 220px;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:10px 16px;color:var(--fg);font:14px Figtree,system-ui}
+.list{display:grid;gap:12px}
+.ld{background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--mut);border-radius:16px;padding:16px 18px;display:grid;gap:10px}
+.ld.s-novy{border-left-color:var(--brand)} .ld.s-volane{border-left-color:var(--blue)} .ld.s-schvalene{border-left-color:var(--brand2)} .ld.s-zamietnute,.ld.s-nedostupny{border-left-color:var(--red)}
+.hd{display:flex;gap:10px 16px;align-items:baseline;flex-wrap:wrap}
+.hd b{font-size:17px}
+.hd a{color:var(--brand2);font-weight:700;text-decoration:none;font-variant-numeric:tabular-nums}
+.hd .when{color:var(--mut);font-size:13px;margin-left:auto}
+.tag{font:700 11.5px/1 Figtree;padding:5px 9px;border-radius:999px;background:var(--panel2);color:var(--mut)}
+.tag.new{background:var(--brand);color:var(--on)}
+.car{font-weight:600}
+.car a{color:var(--brand2);font-weight:600;font-size:13px;margin-left:8px}
+dl{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;margin:0}
+dl div{background:var(--panel2);border-radius:10px;padding:8px 10px;min-width:0}
+dt{font-size:11.5px;color:var(--mut)} dd{margin:2px 0 0;font-weight:600;font-size:13.5px;overflow-wrap:anywhere}
+dd a{color:var(--brand2)}
+.acts{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.acts button{font:700 12.5px/1 Figtree;padding:8px 11px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:var(--fg);cursor:pointer}
+.acts button[aria-pressed=true]{background:var(--brand);color:var(--on);border-color:var(--brand)}
+.acts .sp{flex:1}
+textarea{width:100%;min-height:42px;background:var(--ink);border:1px solid var(--line);border-radius:10px;padding:9px 11px;color:var(--fg);font:14px Figtree,system-ui;resize:vertical}
+textarea:focus,input:focus{outline:none;border-color:var(--brand)}
+.empty{padding:44px 16px;text-align:center;color:var(--mut);background:var(--panel);border:1px dashed var(--line);border-radius:16px}
+.empty b{display:block;color:var(--fg);font-size:17px;margin-bottom:4px}
+.who{font-size:12px;color:var(--mut)}
+</style>
+</head>
+<body>
+<script src="/admin/shim.js"></script>
+<div class="wrap">
+  <h1>Dopyty od Laury</h1>
+  <p class="lead">Každý klient, ktorý v chate na splatkuj.sk vyplní meno a telefón, sa tu objaví sám. Obnovuje sa každých 15 sekúnd.</p>
+  <div class="bar">
+    <div class="seg" id="seg" role="group" aria-label="Filter podľa stavu"></div>
+    <input type="search" id="q" placeholder="Hľadať meno, telefón, auto…" aria-label="Hľadať v dopytoch">
+  </div>
+  <div class="list" id="list"><div class="empty"><b>Načítavam…</b></div></div>
+</div>
+<script>
+(async () => {
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const ST = [['novy', 'Nový'], ['volane', 'Volali sme'], ['schvalene', 'Schválené'], ['zamietnute', 'Zamietnuté'], ['nedostupny', 'Nedvíha']];
+  const STL = Object.fromEntries(ST);
+  const ZA = { financovanie: 'Financovanie', predaj: 'Predaj auta', poistenie: 'Poistenie' };
+  let rows = [], filter = 'novy', me = null;
+  const db = await claude.use('db');
+  me = await window.SKme.catch(() => null);
+  const fmt = (iso) => { const d = new Date(iso); return isNaN(d) ? '' : d.toLocaleString('sk-SK', { day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' }); };
+  const udaje = (r) => { try { return typeof r.udaje === 'string' ? JSON.parse(r.udaje) : (r.udaje || {}); } catch { return {}; } };
+  const link = (v) => /^https?:\/\//.test(v) ? `<a href="${esc(v)}" target="_blank" rel="noopener">${esc(v.replace(/^https?:\/\/(www\.)?/, '').slice(0, 40))}</a>` : esc(v);
+
+  function render() {
+    const counts = { all: rows.length }; ST.forEach(([k]) => counts[k] = rows.filter((r) => (r.stav || 'novy') === k).length);
+    $('seg').innerHTML = [['all', 'Všetky'], ...ST].map(([k, l]) => `<button type="button" data-f="${k}" aria-pressed="${filter === k}">${l}<b>${counts[k]}</b></button>`).join('');
+    const q = $('q').value.trim().toLowerCase();
+    const list = rows.filter((r) => filter === 'all' || (r.stav || 'novy') === filter)
+      .filter((r) => !q || [r.meno, r.tel, r.auto, r.text].join(' ').toLowerCase().includes(q))
+      .sort((a, b) => String(b.prijate).localeCompare(String(a.prijate)));
+    if (!list.length) { $('list').innerHTML = `<div class="empty"><b>${rows.length ? 'Nič tu nie je' : 'Zatiaľ žiadne dopyty'}</b>${rows.length ? 'Skúste iný filter.' : 'Keď klient v chate s Laurou vyplní kontakt, objaví sa tu.'}</div>`; return; }
+    $('list').innerHTML = list.map((r) => {
+      const st = r.stav || 'novy', u = udaje(r);
+      const tel = String(r.tel || '').replace(/[^\d+]/g, '');
+      return `<article class="ld s-${st}" data-id="${esc(r.leadId)}">
+        <div class="hd"><b>${esc(r.meno)}</b>${tel ? `<a href="tel:${esc(tel)}">${esc(r.tel)}</a>` : ''}<span class="tag${st === 'novy' ? ' new' : ''}">${STL[st] || st}</span><span class="tag">${esc(ZA[r.zaujem] || r.zaujem || '')}</span><span class="when">${fmt(r.prijate)}</span></div>
+        ${r.auto ? `<div class="car">🚗 ${esc(r.auto)}${r.odkaz ? `<a href="${esc(r.odkaz)}" target="_blank" rel="noopener">na webe ↗</a>` : ''}${r.inzerat ? `<a href="${esc(r.inzerat)}" target="_blank" rel="noopener">Bazoš ↗</a>` : ''}${r.autoId ? `<a href="/admin/reklamy/#${esc(r.autoId)}">reklama</a>` : ''}</div>` : ''}
+        ${Object.keys(u).length || r.zdroj ? `<dl>${Object.entries(u).map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${link(v)}</dd></div>`).join('')}${r.zdroj ? `<div><dt>Zdroj</dt><dd>${esc(r.zdroj)}</dd></div>` : ''}</dl>` : ''}
+        <textarea data-note placeholder="Poznámka k hovoru…" aria-label="Poznámka">${esc(r.poznamka || '')}</textarea>
+        <div class="acts">${ST.map(([k, l]) => `<button type="button" data-st="${k}" aria-pressed="${st === k}">${l}</button>`).join('')}<span class="sp"></span>
+          ${r.upravil ? `<span class="who">${esc(r.upravil)} · ${fmt(r.upravene)}</span>` : ''}</div>
+      </article>`;
+    }).join('');
+  }
+  const save = async (id, data) => {
+    try { await db.doc('leady/' + id).update({ ...data, upravil: me ? me.name : '', upravene: new Date().toISOString() }); }
+    catch (e) { alertBox('Uloženie sa nepodarilo: ' + e.message); }
+  };
+  const alertBox = (t) => { const p = document.createElement('p'); p.className = 'empty'; p.textContent = t; $('list').prepend(p); setTimeout(() => p.remove(), 4000); };
+  $('seg').addEventListener('click', (e) => { const b = e.target.closest('[data-f]'); if (b) { filter = b.dataset.f; render(); } });
+  $('q').addEventListener('input', render);
+  $('list').addEventListener('click', (e) => { const b = e.target.closest('[data-st]'); if (!b) return; const id = b.closest('[data-id]').dataset.id; const r = rows.find((x) => x.leadId === id); if (r) r.stav = b.dataset.st; render(); save(id, { stav: b.dataset.st }); });
+  $('list').addEventListener('change', (e) => { if (!e.target.matches('[data-note]')) return; const id = e.target.closest('[data-id]').dataset.id; const r = rows.find((x) => x.leadId === id); if (r) r.poznamka = e.target.value; save(id, { poznamka: e.target.value.slice(0, 2000) }); });
+  db.collection('leady').onSnapshot((s) => { if (document.activeElement && document.activeElement.matches('[data-note]')) return; rows = s.docs.map((d) => ({ ...d.data(), leadId: d.id })); render(); });
+})();
+</script>
+</body>
+</html>

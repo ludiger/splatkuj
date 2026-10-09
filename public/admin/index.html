@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<title>Splatkuj.sk Admin</title>
+</head>
+<body>
+<script src="/admin/shim.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Unbounded:wght@800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: admin console in the Splatkuj showroom palette — summary tiles, add box, then the ad list as a status-striped table */
+:root{
+  --ink:#0d0e11; --panel:#16181d; --panel2:#1d2027; --line:#2a2e37;
+  --fg:#f3f4f6; --mut:#9ca2ad; --amber:#14B47E; --amber2:#45D99B; --on-amber:#03140D;
+  --ok:#3ecf8e; --sold:#f0616d; --wait:#8b93a1;
+  --display:'Archivo','Arial Narrow',system-ui,sans-serif;
+  --body:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--ink);color:var(--fg);font:15px/1.5 var(--body);margin:0}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:clamp(16px,3vw,32px);padding-block:20px 60px}
+h1,h2{font-family:var(--display);font-stretch:115%;margin:0;letter-spacing:-.01em;text-wrap:balance}
+h1{font-size:clamp(26px,3.4vw,36px);font-weight:900}
+h2{font-size:20px;font-weight:800}
+.mut{color:var(--mut)}
+.num{font-variant-numeric:tabular-nums}
+:focus-visible{outline:2px solid var(--amber2);outline-offset:2px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding-block:10px 26px;border-bottom:1px solid var(--line);margin-bottom:26px}
+.logo{display:flex;align-items:center;gap:12px}
+.logo svg{width:42px;height:42px}
+.logo b{font:800 21px/1 'Unbounded',var(--display);letter-spacing:-.04em;display:block}
+.logo small{font:600 10px/1 var(--body);letter-spacing:.2em;color:var(--amber);display:block;margin-top:5px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:700 14px/1 var(--body);padding:13px 18px;border-radius:999px;border:0;cursor:pointer;color:var(--fg);background:var(--panel2);border:1px solid var(--line)}
+.btn:hover{border-color:var(--amber)}
+.btn[disabled]{opacity:.5;cursor:default}
+.btn-amber{background:linear-gradient(135deg,var(--amber),var(--amber2));color:var(--on-amber);border:0}
+.runbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.runinfo{font-size:13px;color:var(--mut);text-align:right}
+.runinfo b{color:var(--fg)}
+.msg{margin:0 0 20px;padding:12px 16px;border-radius:12px;font-size:14px;border:1px solid var(--line);background:var(--panel)}
+.msg.warn{border-color:var(--amber);background:color-mix(in srgb,var(--amber) 10%,var(--panel))}
+.msg.err{border-color:var(--sold);background:color-mix(in srgb,var(--sold) 10%,var(--panel))}
+
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px 20px;cursor:pointer;text-align:left;color:var(--fg);font:inherit}
+.tile[aria-pressed="true"]{border-color:var(--amber)}
+.tile b{display:block;font:900 34px/1 var(--display);font-stretch:112%}
+.tile span{display:flex;align-items:center;gap:8px;margin-top:8px;font-weight:600;font-size:14px;color:var(--mut)}
+.dot{width:9px;height:9px;border-radius:50%;flex:none}
+.d-ok{background:var(--ok)} .d-sold{background:var(--sold)} .d-wait{background:var(--wait)} .d-all{background:var(--amber)}
+@media (max-width:720px){.tiles{grid-template-columns:1fr 1fr}}
+
+.sellers{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-bottom:22px;align-items:start}
+.seller{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:grid;gap:6px;min-width:0;cursor:pointer;text-align:left;color:var(--fg);font:inherit}
+.seller[aria-pressed="true"]{border-color:var(--amber)}
+.seller b{font-weight:800;font-size:15px}
+.seller .cnt{font-size:13px;color:var(--mut)}
+.seller a{font-size:12.5px;color:var(--amber2);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.seller a:hover{text-decoration:underline}
+.seller .links{display:grid;gap:3px;min-width:0}
+.seller .row2{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.mini{font:700 12px/1 var(--body);padding:7px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--fg);cursor:pointer}
+.mini:hover{border-color:var(--amber)}
+.mini.pri{background:linear-gradient(135deg,var(--amber),var(--amber2));color:var(--on-amber);border:0}
+.seller.edit{cursor:default;border-color:var(--amber);grid-column:span 2}
+.seller.edit label{font-size:12px;color:var(--mut);font-weight:600}
+.seller.edit input{width:100%;min-width:0;background:var(--ink);border:1px solid var(--line);border-radius:10px;padding:9px 11px;color:var(--fg);font:14px var(--body)}
+.seller.edit input:focus{border-color:var(--amber);outline:none}
+.lrow{display:flex;gap:6px;align-items:center}
+.lrow input{flex:1}
+.eacts{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.seller.add-new{display:grid;place-items:center;border-style:dashed;color:var(--mut);font-weight:700;min-height:96px}
+.seller.add-new:hover{color:var(--fg);border-color:var(--amber)}
+@media (max-width:620px){.seller.edit{grid-column:auto}}
+.add{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:20px;display:grid;gap:12px;margin-bottom:22px}
+.add .row{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.add textarea{flex:1 1 420px;min-width:0;min-height:76px;background:var(--ink);border:1px solid var(--line);border-radius:12px;padding:12px;color:var(--fg);font:14px var(--body);resize:vertical}
+.add textarea:focus{border-color:var(--amber);outline:none}
+.hint{font-size:13px;color:var(--mut)}
+
+.bar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:12px}
+.search{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:11px 16px;color:var(--fg);font:14px var(--body);width:min(320px,100%)}
+.search:focus{border-color:var(--amber);outline:none}
+
+.list{border:1px solid var(--line);border-radius:20px;overflow:hidden;background:var(--panel)}
+.item{display:grid;grid-template-columns:6px minmax(0,1fr) 120px 150px 140px auto;align-items:center;gap:16px;padding:14px 16px 14px 0;border-top:1px solid var(--line)}
+.item:first-child{border-top:0}
+.stripe{align-self:stretch;border-radius:0 4px 4px 0}
+.s-aktivny .stripe{background:var(--ok)} .s-predany .stripe{background:var(--sold)} .s-caka .stripe,.s-chyba .stripe{background:var(--wait)}
+.t{min-width:0}
+.t a{color:var(--fg);font-weight:700;text-decoration:none;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.t a:hover{color:var(--amber2)}
+.t small{display:block;color:var(--mut);font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.price{font-weight:700;text-align:right}
+.pill{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;padding:6px 11px;border-radius:999px;white-space:nowrap}
+.p-aktivny{background:color-mix(in srgb,var(--ok) 15%,transparent);color:var(--ok)}
+.p-predany{background:color-mix(in srgb,var(--sold) 15%,transparent);color:var(--sold)}
+.p-caka,.p-chyba{background:color-mix(in srgb,var(--wait) 18%,transparent);color:var(--fg)}
+.when{font-size:12.5px;color:var(--mut)}
+.acts{display:flex;gap:6px}
+.icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--panel2);border:1px solid var(--line);color:var(--mut);cursor:pointer}
+.icon:hover{color:var(--fg);border-color:var(--amber)}
+.icon svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.confirm{display:flex;gap:6px;align-items:center;font-size:12.5px}
+.confirm button{font:700 12px var(--body);padding:7px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--fg);cursor:pointer}
+.confirm .yes{background:var(--sold);border-color:var(--sold)}
+.empty{padding:44px 20px;text-align:center;color:var(--mut)}
+.empty b{display:block;color:var(--fg);font-size:17px;margin-bottom:6px}
+@media (max-width:860px){
+  .item{grid-template-columns:6px minmax(0,1fr) auto;row-gap:8px}
+  .item .price{grid-column:2;text-align:left}
+  .item .st{grid-column:3;grid-row:1}
+  .item .when{grid-column:2}
+  .item .acts{grid-column:3;grid-row:2 / span 2;align-self:end}
+}
+
+.views{display:flex;gap:6px;margin:0 0 22px;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:5px;width:max-content;max-width:100%;overflow-x:auto}
+.views button{font:700 14px/1 var(--body);padding:11px 18px;border-radius:999px;border:0;background:transparent;color:var(--mut);cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:8px}
+.views button[aria-selected="true"]{background:var(--panel2);color:var(--fg);box-shadow:inset 0 0 0 1px var(--amber)}
+.badge{min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--sold);color:#fff;font:800 11.5px/20px var(--body);text-align:center}
+.alert{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:0 0 20px;padding:14px 18px;border-radius:16px;border:1px solid var(--sold);background:color-mix(in srgb,var(--sold) 10%,var(--panel))}
+.alert b{font-weight:800}
+.soldgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.sc{background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;cursor:pointer;text-align:left;color:var(--fg);font:inherit;padding:0}
+.sc:hover{border-color:var(--amber)}
+.sc .ph{aspect-ratio:16/10;background:var(--panel2) center/cover;position:relative}
+.sc .new{position:absolute;left:12px;top:12px;background:var(--sold);color:#fff;font:800 11px/1 var(--body);letter-spacing:.08em;padding:6px 9px;border-radius:999px}
+.sc .bd{padding:14px 16px;display:grid;gap:6px}
+.sc .bd b{font-size:16px;font-weight:800;line-height:1.3}
+.sc .meta{font-size:13px;color:var(--mut)}
+.sc .row{display:flex;justify-content:space-between;gap:10px;font-size:13.5px}
+.sc .row span:last-child{font-weight:700}
+.dlg{border:1px solid var(--line);border-radius:22px;background:var(--panel);color:var(--fg);padding:0;width:min(760px,calc(100vw - 32px));max-height:calc(100dvh - 40px)}
+.dlg::backdrop{background:rgba(0,0,0,.7)}
+.dlg .ph{aspect-ratio:16/9;background:var(--panel2) center/cover}
+.dlg .in{padding:20px 22px;display:grid;gap:14px}
+.dlg dl{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:0}
+.dlg dl div{background:var(--panel2);border-radius:12px;padding:10px 12px}
+.dlg dt{font-size:12px;color:var(--mut)} .dlg dd{margin:2px 0 0;font-weight:700}
+.dlg p{margin:0;color:var(--mut);line-height:1.6}
+.dlg .acts2{display:flex;gap:8px;flex-wrap:wrap}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px 20px}
+.kpi b{display:block;font:900 30px/1 var(--display);font-stretch:112%}
+.kpi span{display:block;margin-top:8px;font-size:13.5px;color:var(--mut);font-weight:600}
+@media (max-width:720px){.kpis{grid-template-columns:1fr 1fr}}
+.scope{display:flex;gap:6px;flex-wrap:wrap}
+.scope button{font:700 13px/1 var(--body);padding:9px 14px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--mut);cursor:pointer}
+.scope button[aria-pressed="true"]{color:var(--on-amber);background:var(--amber);border-color:var(--amber)}
+.charts{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px}
+.chart{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px 20px}
+.chart h3{margin:0 0 14px;font:800 16px/1.2 var(--display);font-stretch:110%}
+.brow{display:grid;grid-template-columns:minmax(90px,36%) 1fr 84px;gap:10px;align-items:center;font-size:13.5px;margin:7px 0}
+.brow .lb{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.brow .tr{display:block;height:12px;border-radius:6px;background:var(--panel2);overflow:hidden}
+.brow .fl{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,var(--amber),var(--amber2))}
+.brow .v{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.note2{font-size:13px;color:var(--mut);margin:14px 0 0}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="amb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#14B47E"/><stop offset="1" stop-color="#45D99B"/></linearGradient>
+    <symbol id="mark" viewBox="0 0 64 64"><rect width="64" height="64" rx="18" fill="#16B57F"/><g transform="translate(8.5 9) scale(.72)"><path d="M14 52 H38 A10 10 0 0 0 38 32 H26 A10 10 0 0 1 26 12 H44" fill="none" stroke="#0d0f13" stroke-width="12" stroke-linejoin="round" stroke-linecap="round"/><path d="M45 3.5 L60 12 L45 20.5 Z" fill="#0d0f13" stroke="#0d0f13" stroke-width="4" stroke-linejoin="round"/><path d="M14 52 H38 A10 10 0 0 0 38 32 H26 A10 10 0 0 1 26 12 H38" fill="none" stroke="#16B57F" stroke-width="2.6" stroke-dasharray="4 5" stroke-linecap="round"/></g></symbol>
+  </defs>
+</svg>
+
+<style>
+.sk-nav{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding-block:14px 0}
+.sk-nav span{font:600 11px/1 var(--body);letter-spacing:.16em;text-transform:uppercase;color:var(--mut);margin-right:6px}
+.sk-nav a{font:600 14px/1 var(--body);text-decoration:none;color:var(--mut);padding:9px 16px;border-radius:999px;border:1px solid var(--line)}
+.sk-nav a:hover{color:var(--fg);border-color:var(--mut)}
+.sk-nav a[aria-current="page"]{background:linear-gradient(135deg,var(--amber),var(--amber2));color:var(--on-amber);border-color:transparent}
+.sk-nav a:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+</style>
+<div class="wrap" id="top">
+<div class="top">
+    <div class="logo"><svg><use href="#mark"/></svg><span><b>splatkuj<span style="color:#16B57F">.sk</span></b><small>ADMIN · INZERÁTY · ANALYTIKA</small></span></div>
+    <div class="runbar">
+      <div class="runinfo" id="runinfo">Automatická kontrola každý deň o 7:50 a 15:50</div>
+      <button class="btn btn-amber" id="runNow" type="button" hidden>Skontrolovať teraz</button>
+    </div>
+  </div>
+
+  <p class="msg" id="msg" hidden></p>
+  <div class="alert" id="soldAlert" hidden><span id="soldAlertText"></span><button class="mini pri" type="button" id="soldAlertBtn">Pozrieť predané</button></div>
+  <div class="views" role="tablist" aria-label="Sekcie">
+    <button role="tab" type="button" data-v="ads" aria-selected="true">Inzeráty</button>
+    <button role="tab" type="button" data-v="sold" aria-selected="false">Predané autá <span class="badge" id="soldBadge" hidden>0</span></button>
+    <button role="tab" type="button" data-v="stats" aria-selected="false">Analytika</button>
+  </div>
+  <section id="v-sold" hidden>
+    <div class="bar"><h2>Predané autá</h2><span class="hint">Inzeráty, ktoré z Bazoša zmizli. Kliknite na auto a uvidíte uložený inzerát.</span></div>
+    <div class="soldgrid" id="soldGrid"></div>
+  </section>
+  <section id="v-stats" hidden>
+    <div class="bar"><h2>Analytika</h2><div class="scope" id="scope" role="group" aria-label="Rozsah"><button type="button" data-s="predany" aria-pressed="true">Predané</button><button type="button" data-s="aktivny" aria-pressed="false">Aktívne</button><button type="button" data-s="all" aria-pressed="false">Všetky</button></div></div>
+    <div class="kpis" id="kpis"></div>
+    <div class="chart" id="reach" style="margin-bottom:14px"><h3>Dosah a kliknutia</h3><div id="reachBody"><p class="mut" style="margin:0">Načítavam…</p></div></div>
+    <div class="charts" id="charts"></div>
+    <p class="note2">Doba predaja = od pridania inzerátu do zoznamu po jeho zmiznutie z Bazoša (presnosť pol dňa, kontrola beží o 7:50 a 15:50).</p>
+  </section>
+  <section id="v-ads">
+
+  <div class="tiles" role="group" aria-label="Filter podľa stavu">
+    <button class="tile" type="button" data-f="all" aria-pressed="true"><b class="num" id="c-all">0</b><span><i class="dot d-all"></i>Všetky inzeráty</span></button>
+    <button class="tile" type="button" data-f="aktivny" aria-pressed="false"><b class="num" id="c-aktivny">0</b><span><i class="dot d-ok"></i>Aktívne na Bazoši</span></button>
+    <button class="tile" type="button" data-f="predany" aria-pressed="false"><b class="num" id="c-predany">0</b><span><i class="dot d-sold"></i>Predané / zmazané</span></button>
+    <button class="tile" type="button" data-f="caka" aria-pressed="false"><b class="num" id="c-caka">0</b><span><i class="dot d-wait"></i>Čaká na kontrolu</span></button>
+  </div>
+
+  <div class="bar"><h2>Predajcovia</h2><span class="hint">Kliknite na predajcu a zobrazia sa len jeho autá. Cez „Upraviť“ zmeníte meno alebo pridáte ďalšie odkazy.</span></div>
+  <div class="sellers" id="sellers"></div>
+
+  <form class="add" id="addForm">
+    <h2>Pridať inzeráty z Bazoša</h2>
+    <div class="row">
+      <textarea id="links" placeholder="Vložte odkazy na inzeráty, každý na nový riadok.&#10;https://auto.bazos.sk/inzerat/123456789/skoda-octavia....php"></textarea>
+      <button class="btn btn-amber" type="submit">Pridať do zoznamu</button>
+    </div>
+    <p class="hint">Pri ďalšej kontrole sa doplní názov, cena a lokalita a zistí sa, či inzerát ešte existuje. Vyhľadávanie podľa telefónneho čísla Bazoš automatom nepovoľuje, preto pridávajte odkazy na konkrétne inzeráty.</p>
+  </form>
+
+  <div class="bar">
+    <h2 id="listTitle">Všetky inzeráty</h2>
+    <input class="search" id="q" type="search" placeholder="Hľadať značku, model, mesto…" aria-label="Hľadať v inzerátoch">
+  </div>
+  <div class="list" id="list"><div class="empty"><b>Načítavam inzeráty…</b></div></div>
+  </section>
+</div>
+<dialog class="dlg" id="dlg" aria-label="Archív predaného inzerátu"></dialog>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const LABEL = {aktivny:'Aktívny', predany:'Predaný / zmazaný', caka:'Čaká na kontrolu', chyba:'Nedá sa overiť'};
+  const TITLES = {all:'Všetky inzeráty', aktivny:'Aktívne na Bazoši', predany:'Predané / zmazané', caka:'Čaká na kontrolu'};
+  let db = null, mcp = null, rows = [], filter = 'all', confirmId = null, cfg = {}, seller = null;
+
+  const fmtDate = iso => { if (!iso) return '—'; const d = new Date(iso); if (isNaN(d)) return '—';
+    return d.toLocaleString('sk-SK',{day:'numeric',month:'numeric',hour:'2-digit',minute:'2-digit'}); };
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  function say(text, kind){ const m=$('msg'); m.textContent=text; m.className='msg'+(kind?' '+kind:''); m.hidden=!text; }
+
+  function render(){
+    const counts = {all:rows.length, aktivny:0, predany:0, caka:0};
+    rows.forEach(r => { const s = r.status === 'chyba' ? 'caka' : r.status; if (counts[s] !== undefined) counts[s]++; });
+    Object.keys(counts).forEach(k => $('c-'+k).textContent = counts[k]);
+    document.querySelectorAll('.tile').forEach(t => t.setAttribute('aria-pressed', String(t.dataset.f === filter)));
+    const srcs = cfg.sources || [];
+    const sName = id => (srcs.find(x => x.id === id) || {}).name || '';
+    $('listTitle').textContent = TITLES[filter] + (seller ? ' · ' + sName(seller) : '');
+    if (!(editId && $('sellers').querySelector('[data-form]')) || forceSellers) renderSellers(srcs);
+    forceSellers = false;
+    const q = $('q').value.trim().toLowerCase();
+    const order = {aktivny:0, caka:1, chyba:1, predany:2};
+    const shown = rows
+      .filter(r => filter === 'all' || r.status === filter || (filter === 'caka' && r.status === 'chyba'))
+      .filter(r => !seller || r.sellerId === seller)
+      .filter(r => !q || [r.title, r.location, r.url].join(' ').toLowerCase().includes(q))
+      .sort((a,b) => (order[a.status] ?? 1) - (order[b.status] ?? 1) || String(b.addedAt).localeCompare(String(a.addedAt)));
+    const list = $('list');
+    if (!db){ list.innerHTML = '<div class="empty"><b>Databáza nie je dostupná</b>Obnovte stránku. Ak to nepomôže, napíšte Claudovi.</div>'; return; }
+    if (!rows.length){ list.innerHTML = '<div class="empty"><b>Zatiaľ žiadne inzeráty</b>Vložte hore odkazy z Bazoša a kliknite na „Pridať do zoznamu“.</div>'; return; }
+    if (!shown.length){ list.innerHTML = '<div class="empty"><b>Nič sa nenašlo</b>Skúste iný filter alebo hľadaný výraz.</div>'; return; }
+    list.innerHTML = shown.map(r => {
+      const st = r.status || 'caka';
+      const title = r.title || ('Inzerát č. ' + r.adId);
+      const sub = [r.needsAds ? '🆕 NOVÉ – čaká na reklamu' : null, r.relistedFrom ? 'znovu vložené' : null, sName(r.sellerId), r.location, r.status === 'predany' && r.soldAt ? 'zmizol ' + fmtDate(r.soldAt) : null, r.note].filter((v,i,a) => v && a.indexOf(v) === i).join(' · ') || r.url;
+      const acts = confirmId === r.adId
+        ? `<div class="confirm">Odstrániť?<button class="yes" data-del="${esc(r.adId)}" type="button">Áno</button><button data-cancel type="button">Nie</button></div>`
+        : `<a class="icon" href="${esc(r.url)}" target="_blank" rel="noopener" title="Otvoriť na Bazoši" aria-label="Otvoriť na Bazoši"><svg viewBox="0 0 24 24"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg></a>
+           <a class="icon" href="/admin/reklamy/#${esc(r.adId)}" title="Reklama k autu" aria-label="Reklama k autu"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 15l5-5 4 4 3-3 6 6"/><circle cx="16" cy="9" r="1.5"/></svg></a>
+           <button class="icon" data-ask="${esc(r.adId)}" type="button" title="Odstrániť zo zoznamu" aria-label="Odstrániť zo zoznamu"><svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>`;
+      return `<div class="item s-${st}"><span class="stripe"></span>
+        <div class="t"><a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(title)}</a><small>${esc(sub)}</small></div>
+        <div class="price num">${esc(r.price || '—')}</div>
+        <div class="st"><span class="pill p-${st}">${LABEL[st] || st}</span></div>
+        <div class="when num">${r.checkedAt ? 'kontrola ' + fmtDate(r.checkedAt) : 'zatiaľ nekontrolované'}</div>
+        <div class="acts">${acts}</div></div>`;
+    }).join('');
+  }
+
+  let editId = null, draft = null, forceSellers = false;
+  const redraw = () => { forceSellers = true; render(); };
+  const linksOf = x => (x.links && x.links.length) ? x.links : (x.url ? [x.url] : []);
+  function renderSellers(srcs){
+    const box = $('sellers');
+    const cards = srcs.map(x => {
+      if (editId === x.id) return editCard(draft);
+      const mine = rows.filter(r => r.sellerId === x.id), act = mine.filter(r => r.status === 'aktivny').length;
+      const ls = linksOf(x);
+      return `<div class="seller" role="button" tabindex="0" data-seller="${esc(x.id)}" aria-pressed="${seller === x.id}">
+        <div class="row2"><b>${esc(x.name)}</b><button class="mini" type="button" data-edit="${esc(x.id)}">Upraviť</button></div>
+        <span class="cnt num">${mine.length} áut · ${act} aktívnych · ${ls.length} ${ls.length === 1 ? 'odkaz' : (ls.length >= 2 && ls.length <= 4 ? 'odkazy' : 'odkazov')}</span>
+        <div class="links">${ls.map((u,i) => `<a href="${esc(u)}" target="_blank" rel="noopener">${i === 0 ? 'Všetky jeho autá na Bazoši' : 'Odkaz ' + (i+1)} ↗</a>`).join('')}</div></div>`;
+    });
+    if (editId === '__new') cards.push(editCard(draft));
+    else cards.push('<button class="seller add-new" type="button" data-new>+ Pridať predajcu</button>');
+    box.innerHTML = cards.join('');
+  }
+  function editCard(d){
+    const mine = d.id && d.id !== '__new' ? rows.filter(r => r.sellerId === d.id).length : 0;
+    return `<form class="seller edit" data-form>
+      <label for="sName">Meno predajcu</label><input id="sName" value="${esc(d.name)}" placeholder="napr. Autobazár Nitra" required>
+      <label>Odkazy na jeho autá (Bazoš, web, Facebook…)</label>
+      ${d.links.map((u,i) => `<div class="lrow"><input data-li="${i}" value="${esc(u)}" placeholder="https://www.bazos.sk/…" aria-label="Odkaz ${i+1}"><button class="mini" type="button" data-rm="${i}" aria-label="Odstrániť odkaz">✕</button></div>`).join('')}
+      <div class="eacts"><button class="mini" type="button" data-addlink>+ Pridať odkaz</button></div>
+      <div class="eacts"><button class="mini pri" type="submit">Uložiť</button><button class="mini" type="button" data-cancel-edit>Zrušiť</button>
+      ${d.id !== '__new' ? (mine ? `<span class="hint">Predajcu s autami (${mine}) nemožno vymazať.</span>` : `<button class="mini" type="button" data-delseller>Vymazať predajcu</button>`) : ''}</div></form>`;
+  }
+  function syncDraft(){
+    const f = $('sellers').querySelector('[data-form]'); if (!f) return;
+    draft.name = f.querySelector('#sName').value;
+    f.querySelectorAll('[data-li]').forEach(inp => draft.links[+inp.dataset.li] = inp.value);
+  }
+  async function saveSources(next, okMsg){
+    if (!db) { say('Databáza nie je dostupná.', 'err'); return false; }
+    try { await db.doc('config/main').update({sources: next}); say(okMsg); return true; }
+    catch (err){ say('Zmenu sa nepodarilo uložiť. Skúste to znova.', 'err'); return false; }
+  }
+
+  function renderRun(){
+    const parts = ['Automatická kontrola každý deň o 7:50 a 15:50'];
+    if (cfg.lastRunAt) parts.push('Posledná: <b>' + esc(fmtDate(cfg.lastRunAt)) + '</b>' + (cfg.lastRunSummary ? ' · ' + esc(cfg.lastRunSummary) : ''));
+    $('runinfo').innerHTML = parts.join('<br>');
+  }
+
+  document.querySelectorAll('.tile').forEach(t => t.addEventListener('click', () => { filter = t.dataset.f; render(); }));
+  $('q').addEventListener('input', render);
+  const pickSeller = e => { if (e.target.closest('a')) return; const c = e.target.closest('[data-seller]'); if (!c) return;
+    if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return; if (e.type === 'keydown') e.preventDefault();
+    seller = seller === c.dataset.seller ? null : c.dataset.seller; render(); };
+  $('sellers').addEventListener('click', async e => {
+    const srcs = cfg.sources || [];
+    if (e.target.closest('[data-new]')){ editId = '__new'; draft = {id:'__new', name:'', links:['']}; redraw(); $('sName')?.focus(); return; }
+    const ed = e.target.closest('[data-edit]');
+    if (ed){ e.stopPropagation(); const x = srcs.find(v => v.id === ed.dataset.edit); editId = x.id; draft = {id:x.id, name:x.name, links:[...linksOf(x)]}; if (!draft.links.length) draft.links=['']; redraw(); return; }
+    if (e.target.closest('[data-addlink]')){ syncDraft(); draft.links.push(''); redraw(); $('sellers').querySelector(`[data-li="${draft.links.length-1}"]`)?.focus(); return; }
+    const rm = e.target.closest('[data-rm]');
+    if (rm){ syncDraft(); draft.links.splice(+rm.dataset.rm, 1); if (!draft.links.length) draft.links=['']; redraw(); return; }
+    if (e.target.closest('[data-cancel-edit]')){ editId = null; draft = null; redraw(); return; }
+    if (e.target.closest('[data-delseller]')){
+      const next = srcs.filter(v => v.id !== editId);
+      if (await saveSources(next, 'Predajca bol vymazaný.')){ if (seller === editId) seller = null; editId = null; draft = null; redraw(); }
+      return;
+    }
+    if (e.target.closest('[data-form]')) return;
+    pickSeller(e);
+  });
+  $('sellers').addEventListener('keydown', e => { if (!e.target.closest('[data-form]')) pickSeller(e); });
+  $('sellers').addEventListener('submit', async e => {
+    e.preventDefault(); syncDraft();
+    const name = draft.name.trim(), links = draft.links.map(u => u.trim()).filter(Boolean);
+    if (!name){ say('Zadajte meno predajcu.', 'warn'); return; }
+    const bad = links.filter(u => !/^https?:\/\/\S+$/i.test(u));
+    if (bad.length){ say('Odkaz musí začínať na https:// (' + bad[0] + ').', 'warn'); return; }
+    const srcs = (cfg.sources || []).map(x => ({...x}));
+    let next;
+    if (draft.id === '__new'){
+      let id = 's' + Date.now().toString(36);
+      next = [...srcs, {id, name, links, url: links[0] || ''}];
+    } else {
+      next = srcs.map(x => x.id === draft.id ? {...x, name, links, url: links[0] || ''} : x);
+    }
+    if (await saveSources(next, draft.id === '__new' ? 'Predajca bol pridaný.' : 'Predajca bol uložený.')){ editId = null; draft = null; redraw(); }
+  });
+  $('list').addEventListener('click', async e => {
+    const ask = e.target.closest('[data-ask]'), del = e.target.closest('[data-del]'), cancel = e.target.closest('[data-cancel]');
+    if (ask){ confirmId = ask.dataset.ask; render(); }
+    if (cancel){ confirmId = null; render(); }
+    if (del && db){
+      const id = del.dataset.del; confirmId = null;
+      try { await db.doc('inzeraty/' + id).delete(); say('Inzerát bol odstránený zo zoznamu.'); }
+      catch (err){ say('Inzerát sa nepodarilo odstrániť. Skúste to znova.', 'err'); render(); }
+    }
+  });
+
+  $('addForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    if (!db){ say('Databáza nie je dostupná, inzeráty sa nedajú uložiť.', 'err'); return; }
+    const found = new Map(), bad = [];
+    $('links').value.split(/\s+/).filter(Boolean).forEach(s => {
+      const m = s.match(/^https?:\/\/([a-z]+\.)?bazos\.sk\/inzerat\/(\d+)\/[^\s?#]*/i);
+      if (m) found.set(m[2], m[0]); else bad.push(s);
+    });
+    if (!found.size){ say('Nenašiel som žiadny odkaz na inzerát. Odkaz musí vyzerať ako https://auto.bazos.sk/inzerat/123456789/nazov.php', 'warn'); return; }
+    const existing = new Set(rows.map(r => r.adId));
+    let added = 0, skipped = 0;
+    for (const [adId, url] of found){
+      if (existing.has(adId)){ skipped++; continue; }
+      try { await db.doc('inzeraty/' + adId).set({adId, url, status:'caka', addedAt:new Date().toISOString()}); added++; }
+      catch (err){ say(err?.code === 'quota_exceeded' ? 'Databáza je plná. Odstráňte staré predané inzeráty.' : 'Niektoré inzeráty sa nepodarilo uložiť. Skúste to znova.', 'err'); return; }
+    }
+    $('links').value = '';
+    const parts = [`Pridané: ${added}`];
+    if (skipped) parts.push(`už v zozname: ${skipped}`);
+    if (bad.length) parts.push(`neplatné odkazy: ${bad.length}`);
+    say(parts.join(' · ') + '. Stav overí najbližšia kontrola, alebo kliknite na „Skontrolovať teraz“.');
+  });
+
+  $('runNow').addEventListener('click', async () => {
+    const btn = $('runNow');
+    if (!mcp){ say('Spustenie kontroly odtiaľto nie je dostupné. Kontrola aj tak prebehne automaticky o 7:50 a 15:50.', 'warn'); return; }
+    if (!cfg.triggerId){ say('Automatická kontrola ešte nie je nastavená. Napíšte Claudovi, nech ju nastaví.', 'warn'); return; }
+    btn.disabled = true; btn.textContent = 'Spúšťam…';
+    try {
+      await mcp.callTool('Claude Code Remote', 'fire_trigger', {trigger_id: cfg.triggerId, text: 'Ručné spustenie z admin stránky.'}, {cache:false});
+      say('Kontrola beží. Výsledky sa tu zobrazia samy, zvyčajne do 5 až 10 minút.');
+    } catch (err){
+      const c = err?.code;
+      if (c === 'server_not_connected' || c === 'needs_reauth') say('Na spustenie je potrebné prepojenie „Claude Code Remote“ v nastaveniach Claude → Konektory. Automatická kontrola beží aj bez neho.', 'warn');
+      else if (c === 'not_in_manifest' || c === 'not_granted') say('Spúšťanie kontroly nie je pre túto stránku povolené. Povoľte ho v ponuke Povolenia artefaktu.', 'warn');
+      else say('Kontrolu sa teraz nepodarilo spustiť (' + (err?.message || c || 'neznáma chyba') + '). Skúste to o chvíľu.', 'err');
+    } finally { btn.disabled = false; btn.textContent = 'Skontrolovať teraz'; }
+  });
+
+
+  // ---------- predané + analytika ----------
+  let view = 'ads', scope = 'predany';
+  const SEEN_KEY = 'skAdmSeenSold';
+  const seenGet = () => { try { return localStorage.getItem(SEEN_KEY) || ''; } catch { return ''; } };
+  const seenSet = v => { try { localStorage.setItem(SEEN_KEY, v); } catch {} };
+  let seenAt = seenGet();
+  const eurN = n => n == null ? '—' : new Intl.NumberFormat('sk-SK').format(Math.round(n)) + ' €';
+  const pnum = r => r.priceNum ?? (Number(String(r.price||'').replace(/[^\d]/g,'')) || null);
+  const days = r => (r.soldAt && r.addedAt) ? Math.max(0.5, (new Date(r.soldAt) - new Date(r.addedAt)) / 864e5) : null;
+  const dFmt = n => n == null ? '—' : (n < 1 ? 'do 1 dňa' : Math.round(n) + (Math.round(n) === 1 ? ' deň' : (Math.round(n) < 5 ? ' dni' : ' dní')));
+  const sold = () => rows.filter(r => r.status === 'predany').sort((a,b) => String(b.soldAt).localeCompare(String(a.soldAt)));
+  const isNew = r => r.soldAt && (!seenAt || r.soldAt > seenAt);
+  function setView(v){ view = v;
+    document.querySelectorAll('.views [data-v]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.v === v)));
+    $('v-ads').hidden = v !== 'ads'; $('v-sold').hidden = v !== 'sold'; $('v-stats').hidden = v !== 'stats';
+    renderExtra();
+    if (v === 'sold'){ const s = sold(); if (s.length){ const latest = s[0].soldAt; setTimeout(() => { if (view === 'sold'){ seenAt = latest; seenSet(latest); renderBadge(); } }, 4000); } }
+  }
+  document.querySelector('.views').addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (b) setView(b.dataset.v); });
+  $('soldAlertBtn').addEventListener('click', () => setView('sold'));
+  function renderBadge(){
+    const n = sold().filter(isNew).length;
+    $('soldBadge').hidden = !n; $('soldBadge').textContent = n;
+    $('soldAlert').hidden = !n || view === 'sold';
+    if (n){ const s = sold().filter(isNew); $('soldAlertText').innerHTML = `<b>Predalo sa ${n === 1 ? 'auto' : n + ' áut'}:</b> ` + esc(s.slice(0,3).map(r => r.carTitle || r.title).join(', ')) + (n > 3 ? ' a ďalšie' : ''); }
+  }
+  function renderSold(){
+    const s = sold(), g = $('soldGrid');
+    if (!s.length){ g.innerHTML = '<div class="empty" style="grid-column:1/-1"><b>Zatiaľ sa nič nepredalo</b>Keď inzerát z Bazoša zmizne, auto sa tu objaví aj s uloženým inzerátom.</div>'; return; }
+    g.innerHTML = s.map(r => `<button class="sc" type="button" data-sold="${esc(r.adId)}">
+      <div class="ph" style="${r.photo ? `background-image:url('${esc(r.photo)}')` : ''}">${isNew(r) ? '<span class="new">NOVÉ</span>' : ''}</div>
+      <div class="bd"><b>${esc(r.carTitle || r.title || 'Inzerát ' + r.adId)}</b>
+        <span class="meta">${esc([r.year, r.km ? new Intl.NumberFormat('sk-SK').format(r.km) + ' km' : null, r.fuel, r.body].filter(Boolean).join(' · '))}</span>
+        <div class="row"><span class="mut">Cena</span><span class="num">${esc(r.price || eurN(pnum(r)))}</span></div>
+        <div class="row"><span class="mut">Predané</span><span class="num">${esc(fmtDate(r.soldAt))}</span></div>
+        <div class="row"><span class="mut">Doba predaja</span><span class="num">${dFmt(days(r))}</span></div>
+        <div class="row"><span class="mut">Predané</span><span>${esc(VIAL[r.soldVia] || 'neoznačené')}</span></div></div></button>`).join('');
+  }
+  $('soldGrid').addEventListener('click', e => { const b = e.target.closest('[data-sold]'); if (b) openSold(rows.find(r => r.adId === b.dataset.sold)); });
+  function openSold(r){
+    if (!r) return; const d = $('dlg'); const srcs = cfg.sources || [];
+    const sn = (srcs.find(x => x.id === r.sellerId) || {}).name || '—';
+    const items = [['Cena', r.price || eurN(pnum(r))], ['Rok', r.year || '—'], ['Najazdené', r.km ? new Intl.NumberFormat('sk-SK').format(r.km) + ' km' : '—'], ['Palivo', r.fuel || '—'], ['Prevodovka', r.gear || '—'], ['Karoséria', r.body || '—'], ['Predajca', sn], ['Lokalita', r.location || '—'], ['V ponuke od', fmtDate(r.addedAt)], ['Zmizol z Bazoša', fmtDate(r.soldAt)], ['Doba predaja', dFmt(days(r))]];
+    d.innerHTML = `<div class="ph" style="${r.photo ? `background-image:url('${esc(r.photo)}')` : ''}"></div><div class="in">
+      <h2>${esc(r.carTitle || r.title)}</h2>${r.title && r.carTitle && r.title !== r.carTitle ? `<span class="mut">Pôvodný názov na Bazoši: ${esc(r.title)}</span>` : ''}
+      <dl>${items.map(([k,v]) => `<div><dt>${k}</dt><dd class="num">${esc(v)}</dd></div>`).join('')}</dl>
+      ${r.desc ? `<p>${esc(r.desc)}</p>` : ''}${r.why ? `<p><b style="color:var(--fg)">Text z reklamy:</b> ${esc(r.why)}</p>` : ''}
+      <div class="chart" style="padding:14px 16px"><h3 style="margin-bottom:10px">Ako sa auto predalo?</h3><div class="scope" data-via="${esc(r.adId)}">${VIA.map(([k,l]) => `<button type="button" data-viak="${k}" aria-pressed="${(r.soldVia||'') === k}">${l}</button>`).join('')}</div>
+        <span class="hint" style="display:block;margin-top:8px">${r.leadAt ? 'Laura k tomuto autu prijala dopyt ' + esc(fmtDate(r.leadAt)) + '.' : 'Ak auto kúpil náš klient na splátky, označte „Cez nás“.'}</span></div>
+      <div class="acts2"><a class="mini" href="${esc(r.url)}" target="_blank" rel="noopener">Pôvodný odkaz na Bazoš ↗</a><a class="mini" href="/admin/reklamy/#${esc(r.adId)}">Reklama k autu</a><button class="mini pri" type="button" data-close>Zavrieť</button></div>
+      <span class="hint">Bazoš po predaji inzerát maže, preto ukladáme jeho kópiu tu.</span></div>`;
+    d.showModal();
+  }
+  const VIA = [['nas','Cez nás (Splatkuj)'],['predajca','Cez predajcu'],['nevieme','Nevieme']];
+  const VIAL = Object.fromEntries(VIA);
+  $('dlg').addEventListener('click', async e => {
+    const vb = e.target.closest('[data-viak]');
+    if (vb && db){ const id = vb.closest('[data-via]').dataset.via;
+      try { await db.doc('inzeraty/' + id).update({soldVia: vb.dataset.viak}); vb.parentElement.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === vb))); }
+      catch { say('Uloženie sa nepodarilo.', 'err'); } return; }
+  });
+  $('dlg').addEventListener('click', e => { if (e.target.closest('[data-close]') || e.target === $('dlg')) $('dlg').close(); });
+  $('scope').addEventListener('click', e => { const b = e.target.closest('[data-s]'); if (!b) return; scope = b.dataset.s;
+    $('scope').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); renderStats(); });
+  function group(list, keyFn, opt = {}){
+    const m = new Map(); list.forEach(r => { const k = keyFn(r); if (k == null || k === '') return; m.set(k, (m.get(k) || 0) + 1); });
+    let arr = [...m.entries()]; arr.sort(opt.sortKey ? (a,b) => opt.sortKey(a[0], b[0]) : (a,b) => b[1] - a[1]);
+    return opt.max ? arr.slice(0, opt.max) : arr;
+  }
+  const yearBand = y => !y ? null : y >= 2023 ? '2023 a novšie' : y >= 2021 ? '2021 – 2022' : y >= 2019 ? '2019 – 2020' : y >= 2016 ? '2016 – 2018' : y >= 2012 ? '2012 – 2015' : 'staršie ako 2012';
+  const YB = ['2023 a novšie','2021 – 2022','2019 – 2020','2016 – 2018','2012 – 2015','staršie ako 2012'];
+  const priceBand = p => !p ? null : p < 10000 ? 'do 10 000 €' : p < 15000 ? '10 – 15 tis. €' : p < 20000 ? '15 – 20 tis. €' : p < 25000 ? '20 – 25 tis. €' : p < 35000 ? '25 – 35 tis. €' : 'nad 35 tis. €';
+  const PB = ['do 10 000 €','10 – 15 tis. €','15 – 20 tis. €','20 – 25 tis. €','25 – 35 tis. €','nad 35 tis. €'];
+  const kmBand = k => !k ? null : k < 50000 ? 'do 50 000 km' : k < 100000 ? '50 – 100 tis. km' : k < 150000 ? '100 – 150 tis. km' : k < 200000 ? '150 – 200 tis. km' : 'nad 200 tis. km';
+  const KB = ['do 50 000 km','50 – 100 tis. km','100 – 150 tis. km','150 – 200 tis. km','nad 200 tis. km'];
+  const byOrder = ord => (a,b) => ord.indexOf(a) - ord.indexOf(b);
+  function chart(title, arr, total){
+    const max = Math.max(1, ...arr.map(x => x[1]));
+    return `<div class="chart"><h3>${esc(title)}</h3>${arr.length ? arr.map(([k,v]) => `<div class="brow"><span class="lb" title="${esc(k)}">${esc(k)}</span><span class="tr"><span class="fl" style="width:${(v/max*100).toFixed(1)}%"></span></span><span class="v">${v}${total ? ` <small class="mut">${Math.round(v/total*100)} %</small>` : ''}</span></div>`).join('') : '<p class="mut" style="margin:0">Zatiaľ bez údajov.</p>'}</div>`;
+  }
+  function renderStats(){
+    const list = rows.filter(r => scope === 'all' || r.status === scope);
+    const n = list.length, sl = rows.filter(r => r.status === 'predany');
+    const ds = sl.map(days).filter(x => x != null);
+    const avgP = list.map(pnum).filter(Boolean); const avg = avgP.length ? avgP.reduce((a,b)=>a+b,0)/avgP.length : null;
+    const now = Date.now(), last30 = sl.filter(r => r.soldAt && now - new Date(r.soldAt) < 30*864e5).length;
+    $('kpis').innerHTML = [
+      [n, scope === 'predany' ? 'predaných áut' : scope === 'aktivny' ? 'aktívnych áut' : 'áut spolu'],
+      [ds.length ? dFmt(ds.reduce((a,b)=>a+b,0)/ds.length) : '—', 'priemerná doba predaja'],
+      [eurN(avg), 'priemerná cena'],
+      [sl.filter(r => r.soldVia === 'nas').length + ' / ' + sl.length, 'predané cez nás'],
+    ].map(([v,l]) => `<div class="kpi"><b class="num">${esc(v)}</b><span>${l}</span></div>`).join('');
+    const models = group(list, r => r.brand && r.model ? r.brand + ' ' + r.model : null, {max:10});
+    const sp = cfg.sources || [], sname = id => (sp.find(x => x.id === id) || {}).name || id;
+    const fast = group(sl.filter(r => days(r) != null), r => r.brand).map(([b]) => { const d = sl.filter(r => r.brand === b).map(days).filter(x => x != null); return [b, d.reduce((a,c)=>a+c,0)/d.length]; }).sort((a,b) => a[1]-b[1]);
+    $('charts').innerHTML = [
+      chart('Ako sa predali (cez nás / cez predajcu)', group(sl, r => VIAL[r.soldVia] || 'Neoznačené'), sl.length),
+      chart('Podľa značky', group(list, r => r.brand), n),
+      chart('Podľa typu karosérie', group(list, r => r.body), n),
+      chart('Podľa ročníka', group(list, r => yearBand(r.year), {sortKey: byOrder(YB)}), n),
+      chart('Podľa ceny', group(list, r => priceBand(pnum(r)), {sortKey: byOrder(PB)}), n),
+      chart('Podľa paliva', group(list, r => r.fuel && r.fuel !== '—' ? r.fuel : null), n),
+      chart('Podľa najazdených km', group(list, r => kmBand(r.km), {sortKey: byOrder(KB)}), n),
+      chart('Najčastejšie modely', models, n),
+      chart('Podľa predajcu', group(list, r => r.sellerId ? sname(r.sellerId) : null), n),
+      `<div class="chart"><h3>Ako rýchlo sa predávajú značky</h3>${fast.length ? fast.map(([b,d]) => `<div class="brow"><span class="lb">${esc(b)}</span><span class="tr"><span class="fl" style="width:${Math.min(100, d / Math.max(...fast.map(x=>x[1])) * 100).toFixed(1)}%"></span></span><span class="v">${dFmt(d)}</span></div>`).join('') : '<p class="mut" style="margin:0">Zobrazí sa po prvých predajoch.</p>'}</div>`,
+    ].join('');
+  }
+  function renderReach(){
+    const m = cfg.metrics; const b = $('reachBody');
+    if (!m){ b.innerHTML = '<p class="mut" style="margin:0">Dosah z Facebooku a Instagramu a kliknutia na odkazy sa tu zobrazia po prepojení účtov. Stav sa aktualizuje pri každej kontrole.</p>'; return; }
+    const cell = (v,l) => `<div class="kpi" style="padding:14px 16px"><b class="num" style="font-size:24px">${esc(v ?? '—')}</b><span>${esc(l)}</span></div>`;
+    b.innerHTML = `<div class="kpis" style="margin:0 0 8px">${cell(m.reach,'dosah za 30 dní')}${cell(m.impressions,'zobrazenia')}${cell(m.linkClicks,'kliknutia na odkaz')}${cell(m.leads,'dopyty od Laury')}</div><span class="hint">${esc(m.note || '')} ${m.updatedAt ? '· aktualizované ' + esc(fmtDate(m.updatedAt)) : ''}</span>`;
+  }
+  function renderExtra(){ renderReach(); renderBadge(); if (view === 'sold') renderSold(); if (view === 'stats') renderStats(); }
+
+  (async () => {
+    db = await claude.use('db').catch(() => null);
+    render();
+    if (db){
+      db.collection('inzeraty').onSnapshot(s => { rows = s.docs.map(d => d.data()); render(); renderExtra(); },
+        () => say('Spojenie s databázou sa prerušilo. Obnovte stránku.', 'err'));
+      db.doc('config/main').onSnapshot(s => { cfg = s.exists ? s.data() : {}; renderRun(); render(); renderExtra(); }, () => {});
+    }
+    mcp = await claude.use('mcp').catch(() => null);
+  })();
+})();
+</script>
+
+</body>
+</html>

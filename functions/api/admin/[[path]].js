@@ -1,0 +1,206 @@
+// API adminu: /api/admin/...
+// Prihlásenie, používatelia a jednoduché úložisko dokumentov (inzeráty, nastavenia, leady) v D1.
+import {
+  json, noDb, schema, currentUser, createSession, sessionCookie, cookieOf, sha256,
+  hashPassword, verifyPassword, passwordProblem, tooMany, failed, clearAttempts, audit, SESSION_DAYS,
+} from '../../_lib/auth.js';
+
+const COLLS = new Set(['inzeraty', 'config', 'leady', 'reklamy']);
+const ID_RE = /^[A-Za-z0-9_.:@+-]{1,120}$/;
+const LOGIN_RE = /^[a-z0-9._-]{3,40}$/;
+
+async function body(request) {
+  try { return await request.json(); } catch { return {}; }
+}
+
+function merge(base, patch) {
+  const out = { ...base };
+  for (const [k, v] of Object.entries(patch || {})) {
+    if (v && typeof v === 'object' && v.__delete__ === true) delete out[k];
+    else out[k] = v;
+  }
+  return out;
+}
+
+export async function onRequest(ctx) {
+  const { request, env, params } = ctx;
+  const path = (params.path || []).join('/');
+  const method = request.method;
+  if (!env.DB) return noDb();
+  await schema(env.DB);
+  const ip = request.headers.get('cf-connecting-ip') || 'x';
+
+  // Zápisy musia prísť z našej stránky (ochrana proti CSRF popri SameSite=Strict).
+  if (method !== 'GET' && request.headers.get('x-sk-admin') !== '1') return json({ ok: false, error: 'Zlá požiadavka.' }, 400);
+
+  const userCount = async () => (await env.DB.prepare('SELECT COUNT(*) AS n FROM users').first()).n;
+
+  // ---------- verejné ----------
+  if (path === 'status' && method === 'GET') {
+    const user = await currentUser(env, request);
+    return json({ ok: true, hasUsers: (await userCount()) > 0, user });
+  }
+
+  if (path === 'setup' && method === 'POST') {
+    if ((await userCount()) > 0) return json({ ok: false, error: 'Prvý účet už existuje. Prihláste sa.' }, 403);
+    if (env.SETUP_KEY) {
+      const b0 = await body(request.clone());
+      if (b0.setupKey !== env.SETUP_KEY) return json({ ok: false, error: 'Nesprávny kľúč na prvé nastavenie.' }, 403);
+    }
+    const b = await body(request);
+    const login = String(b.login || '').trim().toLowerCase(), name = String(b.name || '').trim().slice(0, 60);
+    if (!LOGIN_RE.test(login)) return json({ ok: false, error: 'Prihlasovacie meno: 3 až 40 znakov, malé písmená, číslice, bodka alebo pomlčka.' }, 400);
+    if (!name) return json({ ok: false, error: 'Zadajte svoje meno.' }, 400);
+    const pp = passwordProblem(b.password); if (pp) return json({ ok: false, error: pp }, 400);
+    await env.DB.prepare(`INSERT INTO users (login, name, pass, role, must_change, created_at) VALUES (?, ?, ?, 'owner', 0, ?)`)
+      .bind(login, name, await hashPassword(b.password), new Date().toISOString()).run();
+    await audit(env, login, 'setup', ip);
+    const tok = await createSession(env, login, request);
+    return json({ ok: true }, 200, { 'set-cookie': sessionCookie(tok, SESSION_DAYS * 86400) });
+  }
+
+  if (path === 'login' && method === 'POST') {
+    const b = await body(request);
+    const login = String(b.login || '').trim().toLowerCase();
+    const keys = ['ip:' + ip, 'u:' + login];
+    const wait = await tooMany(env, keys);
+    if (wait) return json({ ok: false, error: `Príliš veľa nesprávnych pokusov. Skúste to znova o ${wait} min.` }, 429);
+    const u = LOGIN_RE.test(login) ? await env.DB.prepare('SELECT login, pass FROM users WHERE login = ?').bind(login).first() : null;
+    const ok = u ? await verifyPassword(String(b.password || ''), u.pass) : (await hashPassword('x'), false);
+    if (!ok) { await failed(env, keys); await audit(env, login, 'login_fail', ip); return json({ ok: false, error: 'Nesprávne meno alebo heslo.' }, 401); }
+    await clearAttempts(env, keys);
+    await env.DB.prepare('UPDATE users SET last_login = ? WHERE login = ?').bind(new Date().toISOString(), login).run();
+    await audit(env, login, 'login', ip);
+    const tok = await createSession(env, login, request);
+    return json({ ok: true }, 200, { 'set-cookie': sessionCookie(tok, SESSION_DAYS * 86400) });
+  }
+
+  if (path === 'logout' && method === 'POST') {
+    const tok = cookieOf(request);
+    if (tok) await env.DB.prepare('DELETE FROM sessions WHERE id = ?').bind(await sha256(tok)).run();
+    return json({ ok: true }, 200, { 'set-cookie': sessionCookie('', 0) });
+  }
+
+  // ---------- len pre prihlásených ----------
+  const me = await currentUser(env, request);
+  if (!me) return json({ ok: false, error: 'Nie ste prihlásený.' }, 401);
+  const owner = me.role === 'owner';
+
+  if (path === 'me' && method === 'GET') return json({ ok: true, user: me });
+
+  if (path === 'password' && method === 'POST') {
+    const b = await body(request);
+    const u = await env.DB.prepare('SELECT pass FROM users WHERE login = ?').bind(me.login).first();
+    if (!(await verifyPassword(String(b.old || ''), u.pass))) return json({ ok: false, error: 'Súčasné heslo nie je správne.' }, 400);
+    const pp = passwordProblem(b.password); if (pp) return json({ ok: false, error: pp }, 400);
+    await env.DB.prepare('UPDATE users SET pass = ?, must_change = 0 WHERE login = ?').bind(await hashPassword(b.password), me.login).run();
+    // odhlási ostatné zariadenia
+    const cur = await sha256(cookieOf(request));
+    await env.DB.prepare('DELETE FROM sessions WHERE login = ? AND id <> ?').bind(me.login, cur).run();
+    await audit(env, me.login, 'password', '');
+    return json({ ok: true });
+  }
+
+  if (path === 'users') {
+    if (!owner) return json({ ok: false, error: 'Iba pre majiteľa účtu.' }, 403);
+    if (method === 'GET') {
+      const r = await env.DB.prepare('SELECT login, name, role, must_change, created_at, last_login FROM users ORDER BY created_at').all();
+      return json({ ok: true, users: r.results });
+    }
+    if (method === 'POST') {
+      const b = await body(request);
+      const login = String(b.login || '').trim().toLowerCase(), name = String(b.name || '').trim().slice(0, 60);
+      if (!LOGIN_RE.test(login)) return json({ ok: false, error: 'Prihlasovacie meno: 3 až 40 znakov, malé písmená, číslice, bodka alebo pomlčka.' }, 400);
+      if (!name) return json({ ok: false, error: 'Zadajte meno.' }, 400);
+      const pp = passwordProblem(b.password); if (pp) return json({ ok: false, error: pp }, 400);
+      const ex = await env.DB.prepare('SELECT 1 FROM users WHERE login = ?').bind(login).first();
+      if (ex) return json({ ok: false, error: 'Také prihlasovacie meno už existuje.' }, 409);
+      await env.DB.prepare(`INSERT INTO users (login, name, pass, role, must_change, created_at) VALUES (?, ?, ?, 'member', 1, ?)`)
+        .bind(login, name, await hashPassword(b.password), new Date().toISOString()).run();
+      await audit(env, me.login, 'user_add', login);
+      return json({ ok: true });
+    }
+  }
+  const um = path.match(/^users\/([a-z0-9._-]{3,40})(\/reset)?$/);
+  if (um) {
+    if (!owner) return json({ ok: false, error: 'Iba pre majiteľa účtu.' }, 403);
+    const login = um[1];
+    if (login === me.login) return json({ ok: false, error: 'Svoj vlastný účet tu meniť nemôžete.' }, 400);
+    if (um[2] && method === 'POST') {
+      const b = await body(request);
+      const pp = passwordProblem(b.password); if (pp) return json({ ok: false, error: pp }, 400);
+      await env.DB.prepare('UPDATE users SET pass = ?, must_change = 1 WHERE login = ?').bind(await hashPassword(b.password), login).run();
+      await env.DB.prepare('DELETE FROM sessions WHERE login = ?').bind(login).run();
+      await audit(env, me.login, 'user_reset', login);
+      return json({ ok: true });
+    }
+    if (!um[2] && method === 'DELETE') {
+      await env.DB.prepare('DELETE FROM sessions WHERE login = ?').bind(login).run();
+      await env.DB.prepare('DELETE FROM users WHERE login = ?').bind(login).run();
+      await audit(env, me.login, 'user_del', login);
+      return json({ ok: true });
+    }
+  }
+
+  if (path === 'log' && method === 'GET') {
+    if (!owner) return json({ ok: false, error: 'Iba pre majiteľa účtu.' }, 403);
+    const r = await env.DB.prepare('SELECT * FROM log ORDER BY at DESC LIMIT 200').all();
+    return json({ ok: true, log: r.results });
+  }
+
+  // Hromadný zápis (prenos dát a automatická kontrola): {docs:[{coll,id,data,mode:'set'|'merge'|'delete'}]}
+  if (path === 'bulk' && method === 'POST') {
+    const b = await body(request);
+    const docs = Array.isArray(b.docs) ? b.docs.slice(0, 500) : [];
+    const now = Date.now(); const stmts = [];
+    for (const d of docs) {
+      if (!COLLS.has(d.coll) || !ID_RE.test(String(d.id || ''))) continue;
+      if (d.mode === 'delete') { stmts.push(env.DB.prepare('DELETE FROM docs WHERE coll = ? AND id = ?').bind(d.coll, d.id)); continue; }
+      let data = d.data || {};
+      if (d.mode === 'merge') {
+        const ex = await env.DB.prepare('SELECT data FROM docs WHERE coll = ? AND id = ?').bind(d.coll, d.id).first();
+        data = merge(ex ? JSON.parse(ex.data) : {}, data);
+      }
+      stmts.push(env.DB.prepare('INSERT INTO docs (coll, id, data, updated) VALUES (?, ?, ?, ?) ON CONFLICT(coll, id) DO UPDATE SET data = excluded.data, updated = excluded.updated')
+        .bind(d.coll, d.id, JSON.stringify(data), now));
+    }
+    if (stmts.length) await env.DB.batch(stmts);
+    await audit(env, me.login, 'bulk', `${stmts.length} zápisov`);
+    return json({ ok: true, written: stmts.length });
+  }
+
+  // Dokumenty: GET docs/<coll>, GET/PUT/PATCH/DELETE doc/<coll>/<id>
+  const lm = path.match(/^docs\/([a-z]+)$/);
+  if (lm && method === 'GET') {
+    if (!COLLS.has(lm[1])) return json({ ok: false, error: 'Neznáma kolekcia.' }, 404);
+    const r = await env.DB.prepare('SELECT id, data, updated FROM docs WHERE coll = ?').bind(lm[1]).all();
+    const max = r.results.reduce((m, x) => Math.max(m, x.updated), 0);
+    return json({ ok: true, rev: `${r.results.length}:${max}`, docs: r.results.map((x) => ({ id: x.id, data: JSON.parse(x.data) })) });
+  }
+  const dm = path.match(/^doc\/([a-z]+)\/([A-Za-z0-9_.:@+-]{1,120})$/);
+  if (dm) {
+    const [, coll, id] = dm;
+    if (!COLLS.has(coll)) return json({ ok: false, error: 'Neznáma kolekcia.' }, 404);
+    const cur = await env.DB.prepare('SELECT data FROM docs WHERE coll = ? AND id = ?').bind(coll, id).first();
+    if (method === 'GET') return json({ ok: true, exists: !!cur, data: cur ? JSON.parse(cur.data) : null });
+    if (method === 'DELETE') {
+      await env.DB.prepare('DELETE FROM docs WHERE coll = ? AND id = ?').bind(coll, id).run();
+      await audit(env, me.login, 'delete', `${coll}/${id}`);
+      return json({ ok: true });
+    }
+    if (method === 'PUT' || method === 'PATCH') {
+      const b = await body(request);
+      if (!b || typeof b !== 'object' || Array.isArray(b)) return json({ ok: false, error: 'Zlé dáta.' }, 400);
+      if (method === 'PATCH' && !cur) return json({ ok: false, error: 'Záznam neexistuje.' }, 404);
+      const data = method === 'PATCH' ? merge(JSON.parse(cur.data), b) : b;
+      const s = JSON.stringify(data);
+      if (s.length > 200000) return json({ ok: false, error: 'Záznam je príliš veľký.' }, 413);
+      await env.DB.prepare('INSERT INTO docs (coll, id, data, updated) VALUES (?, ?, ?, ?) ON CONFLICT(coll, id) DO UPDATE SET data = excluded.data, updated = excluded.updated')
+        .bind(coll, id, s, Date.now()).run();
+      await audit(env, me.login, method === 'PUT' ? 'set' : 'update', `${coll}/${id} ${Object.keys(b).join(',')}`);
+      return json({ ok: true });
+    }
+  }
+
+  return json({ ok: false, error: 'Nenájdené.' }, 404);
+}

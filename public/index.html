@@ -151,7 +151,7 @@ dialog.det::backdrop{background:rgb(0 0 0/.7);backdrop-filter:blur(4px)}
 .deq{border-top:1px solid var(--line);padding:10px 0}.deq summary{cursor:pointer;font-weight:700;font-size:15px}.deq summary small{color:var(--mut);font-weight:600;margin-left:6px}
 .deq ul{margin:8px 0 0;padding-left:18px;columns:2 220px;font-size:14px;color:var(--mut)}.deq li{break-inside:avoid;margin:2px 0}.dpop p{color:var(--mut);font-size:14px;line-height:1.6;margin:8px 0 0}
 .det .gal{position:relative;aspect-ratio:4/3;max-height:62vh;width:100%;background:#000 center/contain no-repeat}
-.det .nav{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:46px;border-radius:50%;border:0;background:color-mix(in srgb,var(--ink) 75%,transparent);color:var(--fg);font-size:22px;cursor:pointer}
+.det .gnav{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:46px;padding:0;border-radius:50%;border:0;background:color-mix(in srgb,var(--ink) 75%,transparent);color:var(--fg);cursor:pointer;display:grid;place-items:center}.gnav svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
 .det .prev{left:12px}.det .next{right:12px}
 .det .close{position:absolute;top:12px;right:12px;width:42px;height:42px;border-radius:50%;border:0;background:color-mix(in srgb,var(--ink) 75%,transparent);color:var(--fg);font-size:22px;cursor:pointer}
 .det .thumbs{display:flex;gap:8px;padding:10px 20px 0;overflow-x:auto}
@@ -388,7 +388,7 @@ footer{border-top:1px solid var(--line);padding-block:40px;color:var(--mut);font
   </section>
 
   <dialog class="det" id="det" aria-label="Detail vozidla">
-    <div class="gal" id="dGal"><button class="nav prev" id="dPrev" type="button" aria-label="Predchádzajúca fotka">‹</button><button class="nav next" id="dNext" type="button" aria-label="Ďalšia fotka">›</button><button class="close" id="dClose" type="button" aria-label="Zavrieť">×</button><span class="wmk" id="dWmk" hidden><svg viewBox="0 0 64 64"><rect width="64" height="64" rx="18" fill="#0B0F0D"/><g transform="translate(8.5 9) scale(.72)"><path d="M14 52 H38 A10 10 0 0 0 38 32 H26 A10 10 0 0 1 26 12 H44" fill="none" stroke="#16B57F" stroke-width="12" stroke-linejoin="round" stroke-linecap="round"/><path d="M45 3.5 L60 12 L45 20.5 Z" fill="#16B57F" stroke="#16B57F" stroke-width="4" stroke-linejoin="round"/></g></svg>splatkuj<i>.sk</i></span><span class="pcount" id="dCount"></span></div>
+    <div class="gal" id="dGal"><button class="gnav prev" id="dPrev" type="button" aria-label="Predchádzajúca fotka"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><button class="gnav next" id="dNext" type="button" aria-label="Ďalšia fotka"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button><button class="close" id="dClose" type="button" aria-label="Zavrieť">×</button><span class="wmk" id="dWmk" hidden><svg viewBox="0 0 64 64"><rect width="64" height="64" rx="18" fill="#0B0F0D"/><g transform="translate(8.5 9) scale(.72)"><path d="M14 52 H38 A10 10 0 0 0 38 32 H26 A10 10 0 0 1 26 12 H44" fill="none" stroke="#16B57F" stroke-width="12" stroke-linejoin="round" stroke-linecap="round"/><path d="M45 3.5 L60 12 L45 20.5 Z" fill="#16B57F" stroke="#16B57F" stroke-width="4" stroke-linejoin="round"/></g></svg>splatkuj<i>.sk</i></span><span class="pcount" id="dCount"></span></div>
     <div class="thumbs" id="dThumbs"></div>
     <div class="body">
       <div><h3 id="dTitle"></h3><p class="mut" id="dSub"></p><p class="desc" id="dDesc"></p><ul id="dEq"></ul><div id="dMore"></div></div>
@@ -757,6 +757,18 @@ dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-f
 .skc-head{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--panel);border-bottom:1px solid var(--line)}
 .skc-ava{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--brand2));display:grid;place-items:center;color:var(--on-brand);flex:none}
 .skc-ava{font:800 18px/1 var(--display)}
+.lauw{position:absolute;inset:0;border-radius:50%;overflow:hidden;pointer-events:none}
+.lauw:empty{display:none}
+.lau{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.6);transform-origin:50% 33%}
+.skc-ava{position:relative;width:44px;height:44px}
+.skc-ava .on{position:absolute;right:-1px;bottom:-1px;width:12px;height:12px;border-radius:50%;background:#3ecf8e;border:2px solid var(--panel);z-index:2}
+.skc-fab .lauw{inset:0}
+.skc-fab:has(img.lau) svg{position:absolute;left:-4px;bottom:-4px;width:26px;height:26px;padding:5px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--brand2));color:var(--on-brand);border:2px solid var(--ink);z-index:2}
+.skc-fab:has(img.lau){background:var(--panel);box-shadow:0 0 0 3px var(--brand),0 14px 34px -10px color-mix(in srgb,var(--brand) 70%,transparent)}
+.skc-fab .dot{z-index:3}
+.skc-teaser .tava{position:relative;float:left;width:42px;height:42px;margin:0 10px 4px 0}
+.skc-teaser .tava:not(:has(img)){display:none}
+
 .skc-head b{display:block;font-size:15px;line-height:1.2}
 .skc-head small{color:var(--brand2);font-size:12.5px;display:flex;align-items:center;gap:6px}
 .skc-head small:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--brand2)}
@@ -793,13 +805,14 @@ dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-f
 @media (prefers-reduced-motion:reduce){.skc-panel,.skc-teaser,.skc-typing i{animation:none}}
 </style>
 <button class="skc-fab" id="skcFab" type="button" aria-label="Otvoriť chat s Laurou">
+  <span class="lauw"><img class="lau" src="/api/laura/foto" alt="" onerror="this.remove()"></span>
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M8.5 12h.01M12 12h.01M15.5 12h.01"/></svg>
   <span class="dot" id="skcDot" hidden>1</span>
 </button>
-<div class="skc-teaser" id="skcTeaser" hidden role="button" tabindex="0"><button class="x" type="button" aria-label="Zavrieť">×</button><b>Dobrý deň, som Laura 👋</b>Hľadáte auto na splátky? Pomôžem vám vybrať auto a vypočítať splátku za minútu.</div>
+<div class="skc-teaser" id="skcTeaser" hidden role="button" tabindex="0"><button class="x" type="button" aria-label="Zavrieť">×</button><span class="tava"><span class="lauw"><img class="lau" src="/api/laura/foto" alt="" onerror="this.remove()"></span></span><b>Dobrý deň, som Laura 👋</b>Hľadáte auto na splátky? Pomôžem vám vybrať auto a vypočítať splátku za minútu.</div>
 <section class="skc-panel" id="skcPanel" hidden aria-label="Chat s Laurou zo Splatkuj.sk">
   <div class="skc-head">
-    <div class="skc-ava">L</div>
+    <div class="skc-ava">L<span class="lauw"><img class="lau" src="/api/laura/foto" alt="" onerror="this.remove()"><video class="lau" id="skcVid" muted loop playsinline preload="none" aria-hidden="true" hidden></video></span><i class="on"></i></div>
     <div><b>Laura</b><small>Splatkuj.sk · online</small></div>
     <button class="x" id="skcClose" type="button" aria-label="Zavrieť chat">×</button>
   </div>
@@ -1009,6 +1022,14 @@ dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-f
     const txt = `${intro}\nMeno: ${lead.name}\nTelefón: ${lead.phone}${lead.car ? '\nAuto: ' + lead.car : ''}${links}${extra}${src}`;
     try { $('f-msg').value = (lead.car||'') + links + extra + src; } catch {}
     try { $('f-name').value = lead.name; $('f-phone').value = lead.phone; } catch {}
+    // uloženie dopytu do adminu (len na splatkuj.sk)
+    if (/^https:$/.test(location.protocol) && /splatkuj\.sk$|pages\.dev$/.test(location.hostname)) {
+      const ex = {}; String(extra).split('\n').filter(Boolean).forEach(l => { const i = l.indexOf(': '); if (i > 0) ex[l.slice(0,i)] = l.slice(i+2); });
+      fetch('/api/lead', {method:'POST', headers:{'content-type':'application/json'}, keepalive:true, body: JSON.stringify({
+        meno: lead.name, tel: lead.phone, zaujem: lead.zaujem || 'financovanie', auto: lead.car || '', autoId: curCar ? String(curCar.id) : '',
+        odkaz: curCar ? 'https://splatkuj.sk/#auto-' + SK.slug(curCar) : '', inzerat: curCar && curCar.url || '', zdroj: lead.zdroj || '',
+        poistenie: lead.poistenie || '', udaje: ex, text: txt })}).catch(() => {});
+    }
     await bot(`Výborne, máme všetko 👍\n\n<b>${esc(lead.name)}</b> · ${esc(lead.phone)}${lead.car ? '\n' + esc(lead.car) : ''}\n\nPošlite nám to jedným klikom a ozveme sa vám čo najskôr – zvyčajne ešte v ten istý deň.`, 900);
     chips([['💬 Poslať cez WhatsApp', 'https://wa.me/' + PHONE_INT + '?text=' + encodeURIComponent(txt), 'main'], ['✉️ Poslať SMS', 'sms:+' + PHONE_INT + '?&body=' + encodeURIComponent(txt)], ['📞 Zavolať ' + PHONE, 'tel:+' + PHONE_INT]]); }
   const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -1067,7 +1088,8 @@ ${cars}`; }
   }
 
   // ---------- otvorenie / zatvorenie ----------
-  function openP(noGreet){ panel.hidden = false; teaser.hidden = true; $('skcDot').hidden = true; fab.setAttribute('aria-expanded','true'); store.set('skc-seen','1');
+  function openP(noGreet){ try { const v = document.getElementById('skcVid'); if (v && v.parentElement.querySelector('img.lau') && !matchMedia('(prefers-reduced-motion:reduce)').matches) { if (!v.src) { v.src = '/api/laura/video'; v.addEventListener('playing', () => { v.hidden = false; }, {once:true}); } v.play().catch(() => {}); } } catch {}
+    panel.hidden = false; teaser.hidden = true; $('skcDot').hidden = true; fab.setAttribute('aria-expanded','true'); store.set('skc-seen','1');
     if (!started){ started = true; if (!noGreet) greet(); else bot('Dobrý deň 👋 Som <b>Laura</b> zo Splatkuj.sk.', 200); } setTimeout(() => { if (matchMedia('(min-width:521px)').matches) input.focus(); }, 300); }
   function closeP(){ panel.hidden = true; fab.setAttribute('aria-expanded','false'); }
   fab.onclick = () => panel.hidden ? openP() : closeP();

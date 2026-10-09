@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Prihlásenie · Splatkuj Admin</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@800&family=Figtree:wght@400;600;700&display=swap">
+<style>
+:root{--ink:#0d0e11;--panel:#16181d;--line:#2a2e37;--fg:#f3f4f6;--mut:#9ca2ad;--brand:#14B47E;--brand2:#45D99B;--on:#03140D;--err:#f0616d;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;min-height:100dvh;display:grid;place-items:center;background:radial-gradient(900px 500px at 50% -10%,#123a2a 0%,var(--ink) 60%);color:var(--fg);font:15px/1.5 Figtree,system-ui,sans-serif;padding:16px}
+.card{width:min(400px,100%);background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:28px 24px;display:grid;gap:14px}
+.logo{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.logo svg{width:40px;height:40px}
+.logo b{font:800 20px/1 Unbounded,system-ui;letter-spacing:-.04em}
+.logo i{font-style:normal;color:var(--brand)}
+h1{font:700 20px/1.2 Figtree,system-ui;margin:0}
+p{margin:0;color:var(--mut);font-size:14px}
+label{font-size:13px;font-weight:600;color:var(--mut);display:grid;gap:6px}
+input{width:100%;background:var(--ink);border:1px solid var(--line);border-radius:12px;padding:12px 14px;color:var(--fg);font:15px Figtree,system-ui}
+input:focus{outline:none;border-color:var(--brand)}
+button{font:700 15px/1 Figtree,system-ui;padding:14px;border-radius:999px;border:0;cursor:pointer;background:linear-gradient(135deg,var(--brand),var(--brand2));color:var(--on)}
+button[disabled]{opacity:.6;cursor:default}
+.err{color:var(--err);font-size:14px;font-weight:600}
+.hint{font-size:12.5px}
+</style>
+</head>
+<body>
+<form class="card" id="f" autocomplete="on">
+  <div class="logo"><svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="18" fill="#16B57F"/><g transform="translate(8.5 9) scale(.72)"><path d="M14 52 H38 A10 10 0 0 0 38 32 H26 A10 10 0 0 1 26 12 H44" fill="none" stroke="#0d0f13" stroke-width="12" stroke-linejoin="round" stroke-linecap="round"/><path d="M45 3.5 L60 12 L45 20.5 Z" fill="#0d0f13" stroke="#0d0f13" stroke-width="4" stroke-linejoin="round"/></g></svg><b>splatkuj<i>.sk</i></b></div>
+  <h1 id="h">Prihlásenie do adminu</h1>
+  <p id="sub">Len pre tím Splatkuj.sk.</p>
+  <label id="lName" hidden>Vaše meno<input id="name" autocomplete="name" placeholder="napr. Ľubomír"></label>
+  <label>Prihlasovacie meno<input id="login" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
+  <label>Heslo<input id="pw" type="password" autocomplete="current-password" required></label>
+  <label id="lPw2" hidden>Heslo znova<input id="pw2" type="password" autocomplete="new-password"></label>
+  <span class="hint" id="rules" hidden>Aspoň 10 znakov, písmená aj číslice.</span>
+  <span class="err" id="err" role="alert" hidden></span>
+  <button id="go" type="submit">Prihlásiť sa</button>
+</form>
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  let mode = 'login';
+  const api = (p, b) => fetch('/api/admin/' + p, { method: b ? 'POST' : 'GET', headers: { 'content-type': 'application/json', 'x-sk-admin': '1' }, body: b ? JSON.stringify(b) : undefined, credentials: 'same-origin' }).then((r) => r.json().catch(() => ({ ok: false, error: 'Server neodpovedá.' })));
+  const err = (t) => { $('err').textContent = t || ''; $('err').hidden = !t; };
+  api('status').then((j) => {
+    if (j.user) { location.href = '/admin/'; return; }
+    if (j.ok === false) { err(j.error); $('go').disabled = true; return; }
+    if (!j.hasUsers) {
+      mode = 'setup';
+      $('h').textContent = 'Vytvorte prvý účet';
+      $('sub').textContent = 'Tento účet bude majiteľ – môže pridať ďalších ľudí (napr. kolegyňu).';
+      $('lName').hidden = $('lPw2').hidden = $('rules').hidden = false;
+      $('pw').autocomplete = 'new-password'; $('go').textContent = 'Vytvoriť účet';
+    }
+  });
+  $('f').addEventListener('submit', async (e) => {
+    e.preventDefault(); err('');
+    const login = $('login').value.trim().toLowerCase(), password = $('pw').value;
+    if (mode === 'setup' && password !== $('pw2').value) return err('Heslá sa nezhodujú.');
+    $('go').disabled = true;
+    const j = await api(mode, mode === 'setup' ? { login, password, name: $('name').value.trim() } : { login, password });
+    $('go').disabled = false;
+    if (j.ok) location.href = '/admin/'; else { err(j.error || 'Prihlásenie sa nepodarilo.'); $('pw').value = ''; $('pw').focus(); }
+  });
+})();
+</script>
+</body>
+</html>
