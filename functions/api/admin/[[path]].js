@@ -2,7 +2,7 @@
 // Prihlásenie, používatelia a jednoduché úložisko dokumentov (inzeráty, nastavenia, leady) v D1.
 import {
   json, noDb, schema, currentUser, createSession, sessionCookie, cookieOf, sha256,
-  hashPassword, verifyPassword, passwordProblem, tooMany, failed, clearAttempts, audit, SESSION_DAYS,
+  hashPassword, verifyPassword, passwordProblem, tooMany, failed, clearAttempts, audit, SESSION_DAYS, newRecoveryCode, normCode,
 } from '../../_lib/auth.js';
 import { fotoKey, fetchBazos, bazosInzerat } from '../../_lib/foto.js';
 
@@ -76,6 +76,28 @@ export async function onRequest(ctx) {
     return json({ ok: true }, 200, { 'set-cookie': sessionCookie(tok, SESSION_DAYS * 86400) });
   }
 
+  // Zabudnuté heslo: prihlasovacie meno + záchranný kód -> nové heslo
+  if (path === 'reset' && method === 'POST') {
+    const b = await body(request);
+    const login = String(b.login || '').trim().toLowerCase();
+    const keys = ['ip:' + ip, 'u:' + login];
+    const wait = await tooMany(env, keys);
+    if (wait) return json({ ok: false, error: `Príliš veľa nesprávnych pokusov. Skúste to znova o ${wait} min.` }, 429);
+    const u = LOGIN_RE.test(login) ? await env.DB.prepare('SELECT login, recovery FROM users WHERE login = ?').bind(login).first() : null;
+    const code = normCode(b.code);
+    if (!u || !u.recovery || code.length !== 16 || (await sha256('rc:' + code)) !== u.recovery) {
+      await failed(env, keys); await audit(env, login, 'reset_fail', ip);
+      return json({ ok: false, error: 'Prihlasovacie meno alebo záchranný kód nie je správny.' }, 401);
+    }
+    const pp = passwordProblem(b.password); if (pp) return json({ ok: false, error: pp }, 400);
+    await env.DB.prepare('UPDATE users SET pass = ?, must_change = 0, recovery = NULL WHERE login = ?').bind(await hashPassword(b.password), login).run();
+    await env.DB.prepare('DELETE FROM sessions WHERE login = ?').bind(login).run();
+    await clearAttempts(env, keys);
+    await audit(env, login, 'reset', ip);
+    const tok = await createSession(env, login, request);
+    return json({ ok: true }, 200, { 'set-cookie': sessionCookie(tok, SESSION_DAYS * 86400) });
+  }
+
   if (path === 'logout' && method === 'POST') {
     const tok = cookieOf(request);
     if (tok) await env.DB.prepare('DELETE FROM sessions WHERE id = ?').bind(await sha256(tok)).run();
@@ -100,6 +122,17 @@ export async function onRequest(ctx) {
     await env.DB.prepare('DELETE FROM sessions WHERE login = ? AND id <> ?').bind(me.login, cur).run();
     await audit(env, me.login, 'password', '');
     return json({ ok: true });
+  }
+
+  if (path === 'recovery' && method === 'GET') {
+    const u = await env.DB.prepare('SELECT recovery FROM users WHERE login = ?').bind(me.login).first();
+    return json({ ok: true, has: !!(u && u.recovery) });
+  }
+  if (path === 'recovery' && method === 'POST') {
+    const code = newRecoveryCode();
+    await env.DB.prepare('UPDATE users SET recovery = ? WHERE login = ?').bind(await sha256('rc:' + normCode(code)), me.login).run();
+    await audit(env, me.login, 'recovery_new', '');
+    return json({ ok: true, code });
   }
 
   if (path === 'users') {

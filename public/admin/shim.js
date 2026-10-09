@@ -86,6 +86,7 @@
   window.SKme = api('me').then((j) => {
     const u = j.user; bar.querySelector('#skWho').innerHTML = `Prihlásený: <b>${u.name.replace(/[<>&]/g, '')}</b>`;
     if (u.mustChange && here !== '/admin/ucet') location.href = '/admin/ucet/?zmena=1';
+    if (here !== '/admin/ucet') api('recovery').then((r) => { if (!r.has) { const a = document.createElement('a'); a.href = '/admin/ucet/'; a.textContent = '⚠ Vytvorte si záchranný kód'; a.style.cssText = 'color:#f2b84b;border-color:#f2b84b'; bar.querySelector('.sp').after(a); } }).catch(() => {});
     return u;
   });
 })();

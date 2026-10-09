@@ -64,6 +64,7 @@ export async function schema(db) {
     db.prepare(`CREATE TABLE IF NOT EXISTS log (
       at TEXT NOT NULL, login TEXT, action TEXT NOT NULL, detail TEXT)`),
   ]);
+  try { await db.prepare(`ALTER TABLE users ADD COLUMN recovery TEXT`).run(); } catch {}
   ready = true;
 }
 
@@ -132,3 +133,12 @@ export async function audit(env, login, action, detail = '') {
 }
 
 export const noDb = () => json({ ok: false, error: 'Databáza ešte nie je pripojená (chýba D1 väzba DB).' }, 503);
+
+// Záchranný kód na obnovu zabudnutého hesla (zobrazí sa len raz, ukladá sa len jeho odtlačok).
+export function newRecoveryCode() {
+  const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const b = new Uint8Array(16); crypto.getRandomValues(b);
+  const c = [...b].map((x) => A[x % A.length]).join('');
+  return c.match(/.{4}/g).join('-');
+}
+export const normCode = (c) => String(c || '').toUpperCase().replace(/[^A-Z0-9]/g, '');

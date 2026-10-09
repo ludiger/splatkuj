@@ -52,6 +52,14 @@ td .acts{display:flex;gap:6px;flex-wrap:wrap}
     <span class="msg" id="pwMsg" role="status"></span>
   </form>
 
+  <section class="card" id="rcCard">
+    <h2>Záchranný kód pre zabudnuté heslo</h2>
+    <p class="hint" id="rcInfo">Ak zabudnete heslo, týmto kódom si na prihlasovacej stránke nastavíte nové. Kód sa zobrazí len raz – odfoťte si ho alebo uložte do správcu hesiel. Každý kód platí len na jedno použitie.</p>
+    <button class="pri" type="button" id="rcGo">Vytvoriť záchranný kód</button>
+    <div id="rcOut" hidden style="font:800 22px/1.3 ui-monospace,Menlo,monospace;letter-spacing:.06em;background:var(--ink);border:1px dashed var(--brand);border-radius:12px;padding:14px;text-align:center"></div>
+    <span class="msg" id="rcMsg" role="status"></span>
+  </section>
+
   <section class="card" id="usersCard" hidden>
     <h2>Ľudia s prístupom</h2>
     <div class="tbl"><table><thead><tr><th>Meno</th><th>Prihlasovacie meno</th><th>Rola</th><th>Naposledy</th><th></th></tr></thead><tbody id="users"></tbody></table></div>
@@ -89,9 +97,16 @@ td .acts{display:flex;gap:6px;flex-wrap:wrap}
     } catch (err) { msg('pwMsg', err.message); }
   });
 
+  try { const r = await SKapi('recovery'); if (r.has) { $('rcGo').textContent = 'Vytvoriť nový kód (starý prestane platiť)'; msg('rcMsg', 'Záchranný kód máte vytvorený.', true); } else { $('rcCard').classList.add('warn'); } } catch {}
+  $('rcGo').addEventListener('click', async () => {
+    try { const r = await SKapi('recovery', { method: 'POST', body: '{}' }); $('rcOut').textContent = r.code; $('rcOut').hidden = false; $('rcCard').classList.remove('warn');
+      msg('rcMsg', 'Uložte si ho teraz – po opustení stránky sa už nezobrazí.', true); $('rcGo').textContent = 'Vytvoriť nový kód (starý prestane platiť)'; }
+    catch (err) { msg('rcMsg', err.message); }
+  });
+
   if (me.role !== 'owner') return;
   $('usersCard').hidden = $('logCard').hidden = false;
-  const LBL = { login: 'prihlásenie', login_fail: 'nesprávne heslo', setup: 'vytvorenie účtu', password: 'zmena hesla', user_add: 'pridaný človek', user_del: 'odobraný človek', user_reset: 'nové heslo pre', set: 'zápis', update: 'úprava', delete: 'zmazanie', bulk: 'hromadný zápis' };
+  const LBL = { login: 'prihlásenie', login_fail: 'nesprávne heslo', setup: 'vytvorenie účtu', password: 'zmena hesla', user_add: 'pridaný človek', user_del: 'odobraný človek', user_reset: 'nové heslo pre', reset: 'obnova hesla kódom', reset_fail: 'zlý záchranný kód', recovery_new: 'nový záchranný kód', set: 'zápis', update: 'úprava', delete: 'zmazanie', bulk: 'hromadný zápis' };
   async function load() {
     const { users } = await SKapi('users');
     $('users').innerHTML = users.map((u) => `<tr><td>${esc(u.name)}</td><td>${esc(u.login)}</td><td>${u.role === 'owner' ? 'majiteľ' : 'kolega'}${u.must_change ? ' · čaká na zmenu hesla' : ''}</td><td>${fmt(u.last_login)}</td>

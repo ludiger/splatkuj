@@ -26,6 +26,8 @@ button{font:700 15px/1 Figtree,system-ui;padding:14px;border-radius:999px;border
 button[disabled]{opacity:.6;cursor:default}
 .err{color:var(--err);font-size:14px;font-weight:600}
 .hint{font-size:12.5px}
+.lnk{color:var(--mut);font-size:13px;text-align:center;text-decoration:underline}
+.lnk:hover{color:var(--fg)}
 </style>
 </head>
 <body>
@@ -35,11 +37,14 @@ button[disabled]{opacity:.6;cursor:default}
   <p id="sub">Len pre tím Splatkuj.sk.</p>
   <label id="lName" hidden>Vaše meno<input id="name" autocomplete="name" placeholder="napr. Ľubomír"></label>
   <label>Prihlasovacie meno<input id="login" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
+  <label id="lCode" hidden>Záchranný kód<input id="code" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX-XXXX-XXXX"></label>
   <label>Heslo<input id="pw" type="password" autocomplete="current-password" required></label>
   <label id="lPw2" hidden>Heslo znova<input id="pw2" type="password" autocomplete="new-password"></label>
   <span class="hint" id="rules" hidden>Aspoň 10 znakov, písmená aj číslice.</span>
   <span class="err" id="err" role="alert" hidden></span>
   <button id="go" type="submit">Prihlásiť sa</button>
+  <a href="#" id="forgot" class="lnk">Zabudli ste heslo?</a>
+  <p class="hint" id="forgotHelp" hidden>Kolegovia: napíšte majiteľovi účtu, nastaví vám nové heslo v sekcii Účet.<br>Majiteľ: zadajte záchranný kód, ktorý ste si uložili v sekcii Účet.</p>
 </form>
 <script>
 (() => {
@@ -55,15 +60,26 @@ button[disabled]{opacity:.6;cursor:default}
       $('h').textContent = 'Vytvorte prvý účet';
       $('sub').textContent = 'Tento účet bude majiteľ – môže pridať ďalších ľudí (napr. kolegyňu).';
       $('lName').hidden = $('lPw2').hidden = $('rules').hidden = false;
-      $('pw').autocomplete = 'new-password'; $('go').textContent = 'Vytvoriť účet';
+      $('pw').autocomplete = 'new-password'; $('go').textContent = 'Vytvoriť účet'; $('forgot').hidden = true;
     }
+  });
+  $('forgot').addEventListener('click', (e) => {
+    e.preventDefault(); err('');
+    mode = mode === 'reset' ? 'login' : 'reset';
+    const r = mode === 'reset';
+    $('h').textContent = r ? 'Obnova hesla' : 'Prihlásenie do adminu';
+    $('lCode').hidden = $('lPw2').hidden = $('rules').hidden = $('forgotHelp').hidden = !r;
+    $('pw').previousSibling.textContent = r ? 'Nové heslo' : 'Heslo';
+    $('pw').autocomplete = r ? 'new-password' : 'current-password';
+    $('go').textContent = r ? 'Nastaviť nové heslo' : 'Prihlásiť sa';
+    $('forgot').textContent = r ? 'Späť na prihlásenie' : 'Zabudli ste heslo?';
   });
   $('f').addEventListener('submit', async (e) => {
     e.preventDefault(); err('');
     const login = $('login').value.trim().toLowerCase(), password = $('pw').value;
-    if (mode === 'setup' && password !== $('pw2').value) return err('Heslá sa nezhodujú.');
+    if ((mode === 'setup' || mode === 'reset') && password !== $('pw2').value) return err('Heslá sa nezhodujú.');
     $('go').disabled = true;
-    const j = await api(mode, mode === 'setup' ? { login, password, name: $('name').value.trim() } : { login, password });
+    const j = await api(mode, mode === 'setup' ? { login, password, name: $('name').value.trim() } : mode === 'reset' ? { login, password, code: $('code').value } : { login, password });
     $('go').disabled = false;
     if (j.ok) location.href = '/admin/'; else { err(j.error || 'Prihlásenie sa nepodarilo.'); $('pw').value = ''; $('pw').focus(); }
   });
