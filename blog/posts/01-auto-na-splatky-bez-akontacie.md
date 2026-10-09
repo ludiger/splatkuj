@@ -15,7 +15,7 @@ Výška mesačnej splátky závisí od troch vecí:
 - **doba splácania** – najčastejšie 4 až 8 rokov,
 - **úroková sadzba** – závisí od auta, vášho príjmu a financujúcej spoločnosti.
 
-Príklad: auto za 18 500 € pri 0 % akontácii, splácané 96 mesiacov s orientačným úrokom 9,9 % p. a., vychádza približne na 280 € mesačne. Ak dáte 20 % akontáciu (3 700 €), splátka klesne približne na 224 €. Presnú sumu si vypočítate v našej [kalkulačke](/#kalkulacka).
+Príklad: auto za 18 500 € pri 0 % akontácii, splácané 96 mesiacov, vychádza orientačne približne na 280 € mesačne. Ak dáte 20 % akontáciu (3 700 €), splátka klesne približne na 224 €. Presnú sumu si vypočítate v našej [kalkulačke](/#kalkulacka).
 
 ## Kedy sa 0 % akontácia oplatí
 
