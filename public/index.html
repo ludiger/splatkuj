@@ -897,8 +897,20 @@ video.lau{transform:scale(1.6);transform-origin:50% 33%}
     kombi:/combi|avant|touring|variant|allroad|shooting|alltrack|superb|octavia.*combi/i,
     '7':/multivan|galaxy|touran|sharan|transporter|santa fe|allspace|tarraco|kodiaq/i,
     el:/elektro|hybrid/i };
+  const TYPN = {suv:'SUV', kombi:'kombi', '7':'7-miestne autá a vany', el:'elektro a hybridy'};
+  const isT = (c,t) => !t || (t==='el' ? RX.el.test(c.fuel) : RX[t].test(c.title) || (t==='7' && /7[- ]miest/i.test(why(c))));
+  const typeOf = c => Object.keys(RX).filter(t => isT(c,t)).map(t => TYPN[t]).join(', ') || '—';
+  async function showAll(t, skip){
+    const list = SK.CARS.filter(c => isT(c,t)).sort((x,y) => x.price - y.price).filter(c => !(skip||[]).includes(c));
+    if (!list.length){ await bot('Takéto auto teraz v ponuke nemáme, ale financujeme autá od <b>akéhokoľvek predajcu</b> – pošlite mi odkaz.'); return chips([['🔗 Poslať odkaz na auto', elsewhere,'main'],['📞 Zavolajte mi', askName]]); }
+    await bot(skip ? `Ďalšie ${TYPN[t] || 'autá'}:` : `Všetky ${TYPN[t] || 'autá'} v našej ponuke (${list.length}), od najlacnejšieho:`);
+    const shown = list.slice(0,12); for (const c of shown){ await wait(150); carCard(c); }
+    const rest = list.length - shown.length, seen = [...(skip||[]), ...shown];
+    await wait(300); await bot(rest ? `Ukázala som ${shown.length}, ďalších ${rest} vám rada ukážem. Ktoré sa vám páči? 🙂` : 'Ktoré sa vám páči? Kliknite na <b>Mám záujem</b> a pripravíme vám presnú ponuku 🙂', 400);
+    chips([...(rest ? [[`➕ Ukázať ďalšie (${rest})`, () => showAll(t, seen), 'main']] : []), ['📋 Pozrieť na stránke', () => { closeP(); document.getElementById('ponuka')?.scrollIntoView({behavior:'smooth'}); }], ['💶 Vybrať podľa rozpočtu', findBudget], ['📞 Zavolajte mi', askName]]);
+  }
   async function setT(t){ pick.t = t;
-    const ok = c => !t || (t==='el' ? RX.el.test(c.fuel) : RX[t].test(c.title) || (t==='7' && /7[- ]miest/i.test(why(c))));
+    const ok = c => isT(c,t);
     const mid = Math.min((pick.a+pick.b)/2, pick.a+150);
     let list = SK.CARS.filter(c => ok(c) && pay(c.price) >= pick.a && pay(c.price) <= pick.b);
     let note = '';
@@ -909,7 +921,8 @@ video.lau{transform:scale(1.6);transform-origin:50% 33%}
     await bot(note || `Vybrala som pre vás ${top.length === 1 ? 'toto auto' : top.length + ' autá'} z našej ponuky (splátka pri 0 % akontácii, 96 mesiacov):`);
     for (const c of top){ await wait(250); carCard(c); }
     await wait(300); await bot('Kliknite na <b>Mám záujem</b> a ozveme sa vám s presnou ponukou. Alebo si pozrite ďalšie autá.', 500);
-    chips([['📋 Celá ponuka', () => { closeP(); document.getElementById('ponuka')?.scrollIntoView({behavior:'smooth'}); }], ['🔄 Iný rozpočet', findBudget], ['🔗 Auto mám inde', elsewhere]]); }
+    const more = SK.CARS.filter(ok).length - top.length;
+    chips([...(more > 0 ? [[`📋 Ukázať všetky ${t ? TYPN[t] : 'autá'} (${more + top.length})`, () => showAll(t, top), 'main']] : []), ['🔄 Iný rozpočet', findBudget], ['🔗 Auto mám inde', elsewhere]]); }
 
   // ---------- konkrétne auto z ponuky ----------
   const carLine = c => `${c.title}, ${c.year}, ${c.km}, cena ${eur(c.price)}, splátka od ${eur(pay(c.price))}/mes.`;
@@ -1062,6 +1075,8 @@ video.lau{transform:scale(1.6);transform-origin:50% 33%}
     if (step === 'ico'){ const d = t.replace(/\D/g,''); if (d.length !== 8) return bot('IČO má 8 číslic, napr. 12345678. Skúste ho prosím napísať znova, alebo kliknite na „Doplním neskôr“.'); log.querySelectorAll('.skc-chips[data-live]').forEach(x=>x.remove()); return gotIco(d); }
     if (step === 'akont'){ lead.akontacia = t.trim().slice(0,40); step = null; return qualify(akontNext); }
     if (step === 'price' || step === 'linkprice'){ const p = num(t); if (!p) return bot('Napíšte prosím cenu ako číslo, napr. 18500.'); return showPay(p, step === 'linkprice'); }
+    { const w = t.toLowerCase(); const k = /kombi|combi/.test(w) ? 'kombi' : /\bsuv/.test(w) ? 'suv' : /elektr|hybrid/.test(w) ? 'el' : /7[ -]?miest|sedem|\bvan|rodinn/.test(w) ? '7' : null;
+      if (k && /všetk|vsetk|celú|celu|ponuk|ukáž|ukaz|zobraz|aké máte|ake mate|máte|mate|chcem/.test(w)) return showAll(k); }
     if (/https?:\/\//i.test(t)) return gotLink(t);
     if (/^\s*\d[\d\s.,]{3,}\s*(€|eur)?\s*$/i.test(t) && num(t)) return showPay(num(t));
     if (ai) return askAI(t);
@@ -1075,11 +1090,11 @@ video.lau{transform:scale(1.6);transform-origin:50% 33%}
 
   // ---------- AI odpovede (keď je k dispozícii) ----------
   function rules(){
-    const cars = SK.CARS.map(c => `${bid(c)} | ${c.title} | ${c.year} | ${c.km} | ${c.fuel} | ${c.gear} | cena ${c.price} € | splátka ${Math.round(pay(c.price))} €/mes`).join('\n');
-    return `Voláš sa Laura a si šarmantná, veselá a priateľská chat asistentka (o sebe hovor v ženskom rode). Máš rada autá a je to z teba cítiť: klienta úprimne pochváliš za výber auta (konkrétne – priestor, úspornosť, výbava, značka), občas pridáš jemný vtip alebo emoji, ale nikdy nie si vtieravá, neflirtuješ, nekomentuješ vzhľad ani osobný život a vždy ostaneš profesionálna. Klientom vykáš. Pracuješ pre Splatkuj.sk (predtým Autá za babku) – sprostredkovanie financovania áut na Slovensku. Odpovedaj VŽDY po slovensky, stručne (max 3–4 vety), ľudsky, bez markdown nadpisov.
+    const cars = SK.CARS.map(c => `${bid(c)} | ${c.title} | typ: ${typeOf(c)} | ${c.year} | ${c.km} | ${c.fuel} | ${c.gear} | cena ${c.price} € | splátka ${Math.round(pay(c.price))} €/mes`).join('\n');
+    return `Voláš sa Laura a si šarmantná, veselá a priateľská chat asistentka (o sebe hovor v ženskom rode). Máš rada autá a je to z teba cítiť: klienta úprimne pochváliš za výber auta (konkrétne – priestor, úspornosť, výbava, značka), občas pridáš jemný vtip alebo emoji, ale nikdy nie si vtieravá, neflirtuješ, nekomentuješ vzhľad ani osobný život a vždy ostaneš profesionálna. Klientom VŽDY vykáš (nikdy netykaj, ani keď ti tykajú). Rozhovor už prebieha – znova sa nepredstavuj ani nezdrav, rovno odpovedz. Pracuješ pre Splatkuj.sk (predtým Autá za babku) – sprostredkovanie financovania áut na Slovensku. Odpovedaj VŽDY po slovensky, stručne (max 3–4 vety), ľudsky, bez markdown nadpisov.
 FAKTY (nič iné nesľubuj): podmienka financovania sú čisté registre (úverové aj exekučné), pri exekúcii financovať nevieme; nerobíme notárske zmluvy; schválenie zvyčajne do 30 minút; financovanie už od 0 % akontácie; úver aj leasing; pre FO, SZČO aj firmy; auto od akéhokoľvek predajcu (bazár, autosalón, súkromná osoba); vybavenie online po celom Slovensku; odpoveď zvyčajne do 24 h; splátku, celkovú sumu a poplatky povieme vopred; 6 rokov skúseností, prefinancované vozidlá za viac ako 8 mil. €; telefón ${PHONE}. Orientačné výpočty: 96 mesiacov, úrok 9,9 % p.a. – vždy uveď, že sú orientačné. Presné podmienky schválenia, úrok či výsledok posúdenia NIKDY nesľubuj – odkáž na špecialistu.
-Ak sa hodí odporučiť autá z ponuky, uveď max 3 a na samostatný riadok napíš ich ID v tvare [[ID]]. Ak chce klient ponuku alebo hovor, povedz mu, nech klikne na „Zavolajte mi“.
-PONUKA (ID | auto | rok | km | palivo | prevodovka | cena | splátka pri 0 % akontácii):
+Ak sa hodí odporučiť autá z ponuky, napíš ich ID na samostatné riadky v tvare [[ID]] (autá sa klientovi zobrazia ako karty, preto ich v texte neopisuj): bežne max 3, ale keď klient chce vidieť všetky autá nejakého typu, uveď všetky zodpovedajúce (max 12). Ak chce klient ponuku alebo hovor, povedz mu, nech klikne na „Zavolajte mi“.
+PONUKA (ID | auto | typ | rok | km | palivo | prevodovka | cena | splátka pri 0 % akontácii):
 ${cars}`; }
   async function askAI(t){
     aiTurns.push({role:'user', content:t}); if (aiTurns.length > 10) aiTurns = aiTurns.slice(-10); if (aiTurns[0].role !== 'user') aiTurns.shift();
@@ -1090,7 +1105,7 @@ ${cars}`; }
         onText: ({text}) => { if (!m){ ty.remove(); m = el('div','skc-m bot'); log.append(m); } m.textContent = text.replace(/\[\[[^\]]+\]\]/g,'').trim(); scroll(); } });
       aiTurns.push({role:'assistant', content:text});
       const ids = [...text.matchAll(/\[\[([^\]]+)\]\]/g)].map(x => x[1].trim());
-      for (const id of ids.slice(0,3)){ const c = SK.CARS.find(c => bid(c) === id); if (c){ await wait(200); carCard(c); } }
+      for (const id of ids.slice(0,12)){ const c = SK.CARS.find(c => bid(c) === id); if (c){ await wait(200); carCard(c); } }
       chips([['📞 Zavolajte mi', askName, 'main'], ['🚗 Vybrať auto podľa rozpočtu', findBudget], ['❓ Časté otázky', faqMenu]]);
     } catch (e) {
       ty.remove(); aiTurns.pop();
