@@ -856,12 +856,12 @@ video.lau{transform:scale(1.6);transform-origin:50% 33%}
     d.querySelector('b').textContent = c.title; d.querySelector('p').textContent = why(c) || `${c.year} · ${c.km} · ${c.fuel}`;
     d.querySelector('[data-a=det]').onclick = () => { SK.openCar(c); };
     d.querySelector('[data-a=want]').onclick = async () => { log.querySelectorAll('.skc-chips[data-live]').forEach(x=>x.remove()); me('Mám záujem o ' + c.title); lead.car = carLine(c); curCar = c;
-      await bot(`Výborná voľba! 👍 <b>${esc(c.title)}</b> stojí <b>${eur(c.price)}</b>, splátka od <b>${eur(pay(c.price))} / mes.</b> bez akontácie (96 mesiacov).`); askName(); };
+      await bot(praise(c)); await bot(`<b>${esc(c.title)}</b> stojí <b>${eur(c.price)}</b>, splátka od <b>${eur(pay(c.price))} / mes.</b> bez akontácie (96 mesiacov).`); askName(); };
     log.append(d); scroll(); }
 
   // ---------- hlavné menu ----------
   async function greet(){
-    await bot('Dobrý deň 👋 Som <b>Laura</b>, virtuálna asistentka <b>Splatkuj.sk</b>. Pomôžem vám nájsť auto na splátky a vypočítať, koľko by ste mesačne platili.', 500);
+    await bot('Dobrý deň 👋 Som <b>Laura</b>, virtuálna asistentka <b>Splatkuj.sk</b>. Autá sú moja veľká záľuba – pomôžem vám nájsť to pravé na splátky a vypočítať, koľko by ste mesačne platili.', 500);
     await bot('S čím vám môžem pomôcť?', 600);
     menu();
   }
@@ -875,7 +875,21 @@ video.lau{transform:scale(1.6);transform-origin:50% 33%}
 
   // ---------- hľadanie auta ----------
   let pick = {};
-  async function findBudget(){ await bot('Super! Akú mesačnú splátku si viete pohodlne dovoliť?');
+  // Laurina osobnosť: šarmantná, pozitívna, každého pochváli za výber (bez flirtovania)
+  const pickOne = a => a[Math.floor(Math.random() * a.length)];
+  function praise(c){
+    const t = (c.title + ' ' + (c.sub||'') + ' ' + (c.fuel||'')).toLowerCase(), y = parseInt(String(c.year).slice(-4)) || 0;
+    const opts = [];
+    if (/elektr|iv |e-tron|ev\b|hybrid/.test(t)) opts.push('Tichá, úsporná a moderná – s týmto autom budete o krok pred ostatnými ⚡', 'Elektrina namiesto benzínky? Peňaženka vám poďakuje ⚡');
+    if (/suv|kodiaq|karoq|tiguan|x3|x5|q5|q7|sportage|tucson|touareg|tarraco|ateca|xd3/.test(t)) opts.push('SUV je skvelá voľba – vyššie sedenie, priestor a pocit istoty na každej ceste 🚙', 'S týmto SUV zvládnete mesto aj chatu na horách. Výborný výber!');
+    if (/combi|kombi|variant|touring|avant|sw\b|break/.test(t)) opts.push('Kombi je kráľ praktickosti – kufor na dovolenku aj na veľký nákup 🧳', 'Rozumná a praktická voľba. Takéto autá sa predávajú najrýchlejšie!');
+    if (/bmw|audi|mercedes|porsche|alpina|lexus|volvo|jaguar|land rover/.test(t)) opts.push('Máte vkus! Toto je auto, pri ktorom sa ľudia otočia 😉', 'Prémiová trieda – tu sa naozaj nebudete mať za čo hanbiť ✨');
+    if (y >= 2021) opts.push('Takmer nové auto za cenu ojazdeného – to je šikovný ťah 👌');
+    if (/dsg|automat/.test(t)) opts.push('A automat k tomu – v kolóne si poďakujete 🙂');
+    opts.push('Výborný výber – na tomto aute je vidieť, že viete, čo chcete 👌', 'Dobré oko! Toto auto patrí k tomu najlepšiemu, čo máme v ponuke ✨', 'Krásne auto. Už si viem predstaviť, ako s ním prídete domov 🚗');
+    return pickOne(opts);
+  }
+  async function findBudget(){ await bot('Super, to je moja obľúbená časť! 😊 Akú mesačnú splátku si viete pohodlne dovoliť?');
     chips([['do 200 €', () => setB(0,200)], ['200 – 300 €', () => setB(200,300)], ['300 – 400 €', () => setB(300,400)], ['400 – 550 €', () => setB(400,550)], ['viac ako 550 €', () => setB(550,9999)]]); }
   async function setB(a,b){ pick = {a,b}; await bot('A aký typ auta hľadáte?');
     chips([['SUV', () => setT('suv')], ['Kombi', () => setT('kombi')], ['7 miest / van', () => setT('7')], ['Elektro / hybrid', () => setT('el')], ['Je mi to jedno', () => setT('')]]); }
@@ -904,7 +918,8 @@ video.lau{transform:scale(1.6);transform-origin:50% 33%}
     chips([['✅ Chcem presnú ponuku', askName, 'main'], ['❓ Mám otázku k autu', faqMenu], ['🚗 Ukážte mi iné autá', findBudget]]); }
   let curCar = null;
   async function fromAd(c){ openP(true); lead.car = carLine(c); curCar = c; lead.zdroj = 'reklama na sieti';
-    await bot(`Dobrý deň 👋 Som <b>Laura</b> zo Splatkuj.sk. Vidím, že vás zaujalo auto <b>${esc(c.title)}</b> – dobrý výber! 🙂`, 600);
+    await bot(`Dobrý deň 👋 Som <b>Laura</b> zo Splatkuj.sk. Vidím, že vás zaujalo auto <b>${esc(c.title)}</b>.`, 600);
+    await bot(praise(c), 500);
     carCard(c);
     await bot(`Cena: <b>${eur(c.price)}</b>\nSplátka bez akontácie: <b>${eur(pay(c.price))} / mes.</b>\nS 20 % akontáciou: <b>${eur(pay(c.price,20))} / mes.</b>\n<small>Orientačne pri 96 mesiacoch.</small>`, 700);
     await bot('Aké máte k tomuto autu otázky? Napíšte mi alebo vyberte nižšie.', 500);
@@ -931,7 +946,7 @@ video.lau{transform:scale(1.6);transform-origin:50% 33%}
     await bot('Výborne – financujeme autá od <b>akéhokoľvek predajcu</b> (bazár, autosalón aj súkromná osoba).');
     await bot('Vložte sem odkaz na inzerát (Bazoš, Autobazar.eu…) alebo napíšte model a cenu auta.'); input.focus(); }
   async function gotLink(t){ const bid0 = (t.match(/inzerat\/(\d{9})/)||[])[1]; const own = bid0 && SK.CARS.find(c => bid(c) === bid0);
-    if (own){ await bot('Toto auto máme aj v našej ponuke 🙂'); return carIntro(own); }
+    if (own){ await bot('Toto auto máme aj v našej ponuke – máte dobrý nos 🙂'); return carIntro(own); }
     lead.car = t; const p = num(t);
     if (p) return showPay(p, true);
     step = 'linkprice'; await bot('Ďakujem! Aká je cena auta v eurách? (stačí číslo, napr. 18500)'); input.focus(); }
@@ -1014,7 +1029,7 @@ video.lau{transform:scale(1.6);transform-origin:50% 33%}
     chips(['2023 a novšie','2020 – 2022','2016 – 2019','2012 – 2015','staršie ako 2012','Ešte neviem'].map(o => [o, () => { lead.rok = o; step = null; askName(); }])); input.focus(); }
   async function askName(){ if (lead.car && !curCar && !/https?:\/\//.test(lead.car) && !lead.rok) return askYear(); if (lead.typ) return askName2(); return qualify(0); }
   async function askName2(){ step = 'name'; await bot(lead.name ? 'Potvrďte prosím vaše meno:' : 'Ďakujem! Ako sa voláte?'); input.focus(); }
-  async function askPhone(){ step = 'phone'; await bot(`Ďakujem, ${esc(lead.name.split(' ')[0])}. Na aké telefónne číslo vám môžeme zavolať?`); input.setAttribute('inputmode','tel'); input.focus(); }
+  async function askPhone(){ step = 'phone'; await bot(`Teší ma, ${esc(lead.name.split(' ')[0])} 🙂 Na aké telefónne číslo vám môžeme zavolať?`); input.setAttribute('inputmode','tel'); input.focus(); }
   async function finish(){ step = null; input.removeAttribute('inputmode');
     const extra = [['Ročník',lead.rok],['Typ',lead.typ],['Pobyt',lead.pobyt],['Príjem',lead.prijem],['Odkedy',lead.odkedy],['IČO',lead.ico],['Firma',lead.firma],['Firma v registri',/^\d{8}$/.test(lead.ico||'') ? 'https://www.finstat.sk/' + lead.ico : ''],['Poznámka',lead.pozn],['Exekúcie',lead.exekucie],['Registre',lead.registre],['Akontácia',lead.akontacia],['Doba',lead.doba]].filter(x=>x[1]).map(([a,b])=>`\n${a}: ${b}`).join('');
     const links = curCar ? `\nOdkaz: https://splatkuj.sk/#auto-${SK.slug(curCar)}` + (curCar.url ? `\nInzerát: ${curCar.url}` : '') : '';
@@ -1061,7 +1076,7 @@ video.lau{transform:scale(1.6);transform-origin:50% 33%}
   // ---------- AI odpovede (keď je k dispozícii) ----------
   function rules(){
     const cars = SK.CARS.map(c => `${bid(c)} | ${c.title} | ${c.year} | ${c.km} | ${c.fuel} | ${c.gear} | cena ${c.price} € | splátka ${Math.round(pay(c.price))} €/mes`).join('\n');
-    return `Voláš sa Laura a si priateľská chat asistentka (o sebe hovor v ženskom rode) firmy Splatkuj.sk (predtým Autá za babku) – sprostredkovanie financovania áut na Slovensku. Odpovedaj VŽDY po slovensky, stručne (max 3–4 vety), ľudsky, bez markdown nadpisov.
+    return `Voláš sa Laura a si šarmantná, veselá a priateľská chat asistentka (o sebe hovor v ženskom rode). Máš rada autá a je to z teba cítiť: klienta úprimne pochváliš za výber auta (konkrétne – priestor, úspornosť, výbava, značka), občas pridáš jemný vtip alebo emoji, ale nikdy nie si vtieravá, neflirtuješ, nekomentuješ vzhľad ani osobný život a vždy ostaneš profesionálna. Klientom vykáš. Pracuješ pre Splatkuj.sk (predtým Autá za babku) – sprostredkovanie financovania áut na Slovensku. Odpovedaj VŽDY po slovensky, stručne (max 3–4 vety), ľudsky, bez markdown nadpisov.
 FAKTY (nič iné nesľubuj): podmienka financovania sú čisté registre (úverové aj exekučné), pri exekúcii financovať nevieme; nerobíme notárske zmluvy; schválenie zvyčajne do 30 minút; financovanie už od 0 % akontácie; úver aj leasing; pre FO, SZČO aj firmy; auto od akéhokoľvek predajcu (bazár, autosalón, súkromná osoba); vybavenie online po celom Slovensku; odpoveď zvyčajne do 24 h; splátku, celkovú sumu a poplatky povieme vopred; 6 rokov skúseností, prefinancované vozidlá za viac ako 8 mil. €; telefón ${PHONE}. Orientačné výpočty: 96 mesiacov, úrok 9,9 % p.a. – vždy uveď, že sú orientačné. Presné podmienky schválenia, úrok či výsledok posúdenia NIKDY nesľubuj – odkáž na špecialistu.
 Ak sa hodí odporučiť autá z ponuky, uveď max 3 a na samostatný riadok napíš ich ID v tvare [[ID]]. Ak chce klient ponuku alebo hovor, povedz mu, nech klikne na „Zavolajte mi“.
 PONUKA (ID | auto | rok | km | palivo | prevodovka | cena | splátka pri 0 % akontácii):
