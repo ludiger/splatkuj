@@ -1,22 +1,20 @@
-// GET /api/foto/<bazosId>/<n>  -> fotka č. n k inzerátu z Bazoša (uložená v cache Cloudflare na 30 dní)
-// GET /api/foto/<bazosId>/<n>/t -> náhľad
-export async function onRequestGet({ params, request }) {
+// GET /api/foto/<bazosId>/<n>    -> fotka č. n k inzerátu (1200×900, najvyššia kvalita, akú Bazoš má)
+// GET /api/foto/<bazosId>/<n>/t  -> náhľad
+// Ak je pripojený R2 bucket FOTO, fotka sa pri prvom zobrazení natrvalo uloží a ostane aj po zmazaní inzerátu.
+import { fotoKey, fetchBazos } from '../../_lib/foto.js';
+
+const IMG = { 'content-type': 'image/jpeg', 'cache-control': 'public, max-age=2592000, immutable' };
+
+export async function onRequestGet({ params, env, waitUntil }) {
   const [id, n, t] = params.path || [];
   if (!/^\d{9}$/.test(id || '') || !/^\d{1,2}$/.test(n || '')) return new Response('Bad request', { status: 400 });
-  const dir = t === 't' ? `${n}t` : n;
-  const src = `https://www.bazos.sk/img/${dir}/${id.slice(-3)}/${id}.jpg`;
-  const cache = caches.default;
-  const key = new Request(new URL(request.url).toString());
-  let res = await cache.match(key);
-  if (res) return res;
-  const r = await fetch(src, {
-    headers: { 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36', referer: 'https://www.bazos.sk/' },
-    cf: { cacheTtl: 2592000, cacheEverything: true },
-  });
-  if (!r.ok || !(r.headers.get('content-type') || '').startsWith('image/')) return new Response('Not found', { status: 404 });
-  res = new Response(r.body, {
-    headers: { 'content-type': r.headers.get('content-type'), 'cache-control': 'public, max-age=2592000, immutable' },
-  });
-  await cache.put(key, res.clone());
-  return res;
+  const thumb = t === 't';
+  if (env.FOTO) {
+    const o = await env.FOTO.get(fotoKey(id, n, thumb));
+    if (o) return new Response(o.body, { headers: IMG });
+  }
+  const buf = await fetchBazos(id, n, thumb);
+  if (!buf) return new Response('Not found', { status: 404 });
+  if (env.FOTO) waitUntil(env.FOTO.put(fotoKey(id, n, thumb), buf, { httpMetadata: { contentType: 'image/jpeg' } }));
+  return new Response(buf, { headers: IMG });
 }

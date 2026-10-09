@@ -4,6 +4,7 @@ import {
   json, noDb, schema, currentUser, createSession, sessionCookie, cookieOf, sha256,
   hashPassword, verifyPassword, passwordProblem, tooMany, failed, clearAttempts, audit, SESSION_DAYS,
 } from '../../_lib/auth.js';
+import { fotoKey, fetchBazos, bazosInzerat } from '../../_lib/foto.js';
 
 const COLLS = new Set(['inzeraty', 'config', 'leady', 'reklamy']);
 const ID_RE = /^[A-Za-z0-9_.:@+-]{1,120}$/;
@@ -146,6 +147,40 @@ export async function onRequest(ctx) {
     if (!owner) return json({ ok: false, error: 'Iba pre majiteľa účtu.' }, 403);
     const r = await env.DB.prepare('SELECT * FROM log ORDER BY at DESC LIMIT 200').all();
     return json({ ok: true, log: r.results });
+  }
+
+  // Trvalá záloha fotiek inzerátu do R2: POST archiv/<bazosId>  (po dávkach, vracia koľko ešte ostáva)
+  const am = path.match(/^archiv\/(\d{9})$/);
+  if (am && method === 'POST') {
+    if (!env.FOTO) return json({ ok: false, error: 'Úložisko fotiek (R2 bucket FOTO) ešte nie je pripojené.' }, 503);
+    const id = am[1];
+    const row = await env.DB.prepare('SELECT data FROM docs WHERE coll = ? AND id = ?').bind('inzeraty', id).first();
+    const doc = row ? JSON.parse(row.data) : {};
+    let nums = Array.isArray(doc.fotky) ? doc.fotky : null;
+    if (!nums || !nums.length) {
+      const slug = ((doc.url || '').match(/inzerat\/\d+\/([^/?#]+\.php)/) || [])[1];
+      const info = slug ? await bazosInzerat(id, slug) : null;
+      if (!info) return json({ ok: false, error: 'Inzerát na Bazoši už nie je, fotky sa nedajú stiahnuť.', gone: true }, 404);
+      nums = info.nums.length ? info.nums : [1];
+      if (row) {
+        doc.fotky = nums; doc.fotkyAt = new Date().toISOString();
+        await env.DB.prepare('UPDATE docs SET data = ?, updated = ? WHERE coll = ? AND id = ?').bind(JSON.stringify(doc), Date.now(), 'inzeraty', id).run();
+      }
+    }
+    let saved = 0, have = 0, missing = 0, budget = 20;
+    for (const n of nums) {
+      for (const t of [false, true]) {
+        if (await env.FOTO.head(fotoKey(id, n, t))) { have++; continue; }
+        if (budget <= 0) continue;
+        budget--;
+        const buf = await fetchBazos(id, n, t);
+        if (!buf) { missing++; continue; }
+        await env.FOTO.put(fotoKey(id, n, t), buf, { httpMetadata: { contentType: 'image/jpeg' } });
+        saved++;
+      }
+    }
+    const total = nums.length * 2;
+    return json({ ok: true, photos: nums.length, saved, have, missing, remaining: Math.max(0, total - have - saved - missing) });
   }
 
   // Hromadný zápis (prenos dát a automatická kontrola): {docs:[{coll,id,data,mode:'set'|'merge'|'delete'}]}

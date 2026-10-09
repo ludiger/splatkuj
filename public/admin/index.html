@@ -163,6 +163,7 @@ h2{font-size:20px;font-weight:800}
 .brow .fl{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,var(--amber),var(--amber2))}
 .brow .v{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
 .note2{font-size:13px;color:var(--mut);margin:14px 0 0}
+.fst{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:6px}.fst img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;display:block}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -233,6 +234,11 @@ h2{font-size:20px;font-weight:800}
     <input class="search" id="q" type="search" placeholder="Hľadať značku, model, mesto…" aria-label="Hľadať v inzerátoch">
   </div>
   <div class="list" id="list"><div class="empty"><b>Načítavam inzeráty…</b></div></div>
+  </section>
+  <section class="add" id="fotoBox" style="margin-top:22px">
+    <h2>Záloha fotiek vo vysokej kvalite</h2>
+    <p class="hint" id="fotoInfo">Uloží všetky fotky ku každému autu (1200×900, najvyššia kvalita, akú Bazoš má) natrvalo na náš server. Ostanú aj keď predajca inzerát zmaže.</p>
+    <div class="row"><button class="btn btn-amber" type="button" id="fotoGo">Stiahnuť fotky všetkých áut</button><span class="hint" id="fotoProg" role="status"></span></div>
   </section>
 </div>
 <dialog class="dlg" id="dlg" aria-label="Archív predaného inzerátu"></dialog>
@@ -463,13 +469,13 @@ h2{font-size:20px;font-weight:800}
   }
   $('soldGrid').addEventListener('click', e => { const b = e.target.closest('[data-sold]'); if (b) openSold(rows.find(r => r.adId === b.dataset.sold)); });
   function openSold(r){
-    if (!r) return; const d = $('dlg'); const srcs = cfg.sources || [];
+    if (!r) return; const d = $('dlg'); const srcs = cfg.sources || []; if ((r.fotky||[]).length) r = {...r, photo: '/api/foto/' + r.adId + '/' + r.fotky[0]};
     const sn = (srcs.find(x => x.id === r.sellerId) || {}).name || '—';
     const items = [['Cena', r.price || eurN(pnum(r))], ['Rok', r.year || '—'], ['Najazdené', r.km ? new Intl.NumberFormat('sk-SK').format(r.km) + ' km' : '—'], ['Palivo', r.fuel || '—'], ['Prevodovka', r.gear || '—'], ['Karoséria', r.body || '—'], ['Predajca', sn], ['Lokalita', r.location || '—'], ['V ponuke od', fmtDate(r.addedAt)], ['Zmizol z Bazoša', fmtDate(r.soldAt)], ['Doba predaja', dFmt(days(r))]];
     d.innerHTML = `<div class="ph" style="${r.photo ? `background-image:url('${esc(r.photo)}')` : ''}"></div><div class="in">
       <h2>${esc(r.carTitle || r.title)}</h2>${r.title && r.carTitle && r.title !== r.carTitle ? `<span class="mut">Pôvodný názov na Bazoši: ${esc(r.title)}</span>` : ''}
       <dl>${items.map(([k,v]) => `<div><dt>${k}</dt><dd class="num">${esc(v)}</dd></div>`).join('')}</dl>
-      ${r.desc ? `<p>${esc(r.desc)}</p>` : ''}${r.why ? `<p><b style="color:var(--fg)">Text z reklamy:</b> ${esc(r.why)}</p>` : ''}
+      ${r.desc ? `<p>${esc(r.desc)}</p>` : ''}${(r.fotky||[]).length ? `<div class="fst">${r.fotky.map(n => `<a href="/api/foto/${esc(r.adId)}/${n}" target="_blank" rel="noopener"><img loading="lazy" src="/api/foto/${esc(r.adId)}/${n}/t" alt="Fotka ${n}"></a>`).join('')}</div>` : ''}${r.why ? `<p><b style="color:var(--fg)">Text z reklamy:</b> ${esc(r.why)}</p>` : ''}
       <div class="chart" style="padding:14px 16px"><h3 style="margin-bottom:10px">Ako sa auto predalo?</h3><div class="scope" data-via="${esc(r.adId)}">${VIA.map(([k,l]) => `<button type="button" data-viak="${k}" aria-pressed="${(r.soldVia||'') === k}">${l}</button>`).join('')}</div>
         <span class="hint" style="display:block;margin-top:8px">${r.leadAt ? 'Laura k tomuto autu prijala dopyt ' + esc(fmtDate(r.leadAt)) + '.' : 'Ak auto kúpil náš klient na splátky, označte „Cez nás“.'}</span></div>
       <div class="acts2"><a class="mini" href="${esc(r.url)}" target="_blank" rel="noopener">Pôvodný odkaz na Bazoš ↗</a><a class="mini" href="/admin/reklamy/#${esc(r.adId)}">Reklama k autu</a><button class="mini pri" type="button" data-close>Zavrieť</button></div>
@@ -549,6 +555,34 @@ h2{font-size:20px;font-weight:800}
     }
     mcp = await claude.use('mcp').catch(() => null);
   })();
+})();
+</script>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  let running = false;
+  $('fotoGo').addEventListener('click', async () => {
+    if (running) return; running = true; $('fotoGo').disabled = true;
+    try {
+      const { docs } = await SKapi('docs/inzeraty');
+      const list = docs.map((d) => d.data).filter((r) => r.status !== 'predany' || (r.fotky || []).length);
+      let done = 0, photos = 0, gone = 0, err = '';
+      for (const r of list) {
+        for (let k = 0; k < 6; k++) {
+          try {
+            const j = await SKapi('archiv/' + r.adId, { method: 'POST', body: '{}' });
+            if (k === 0) photos += j.photos;
+            if (!j.remaining) break;
+          } catch (e) { if (/nie je pripojené/.test(e.message)) { err = e.message; break; } gone++; break; }
+        }
+        if (err) break;
+        done++; $('fotoProg').textContent = `${done} / ${list.length} áut · ${photos} fotiek`;
+      }
+      $('fotoProg').textContent = err || `Hotovo: ${done} áut, ${photos} fotiek uložených.` + (gone ? ` ${gone} inzerátov už na Bazoši nie je.` : '');
+    } catch (e) { $('fotoProg').textContent = 'Nepodarilo sa: ' + e.message; }
+    running = false; $('fotoGo').disabled = false;
+  });
 })();
 </script>
 

@@ -24,6 +24,43 @@ HEAD = '''<!doctype html>
 '''
 
 
+FOTO_PANEL = '''  <section class="add" id="fotoBox" style="margin-top:22px">
+    <h2>Záloha fotiek vo vysokej kvalite</h2>
+    <p class="hint" id="fotoInfo">Uloží všetky fotky ku každému autu (1200×900, najvyššia kvalita, akú Bazoš má) natrvalo na náš server. Ostanú aj keď predajca inzerát zmaže.</p>
+    <div class="row"><button class="btn btn-amber" type="button" id="fotoGo">Stiahnuť fotky všetkých áut</button><span class="hint" id="fotoProg" role="status"></span></div>
+  </section>
+'''
+FOTO_SCRIPT = '''
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  let running = false;
+  $('fotoGo').addEventListener('click', async () => {
+    if (running) return; running = true; $('fotoGo').disabled = true;
+    try {
+      const { docs } = await SKapi('docs/inzeraty');
+      const list = docs.map((d) => d.data).filter((r) => r.status !== 'predany' || (r.fotky || []).length);
+      let done = 0, photos = 0, gone = 0, err = '';
+      for (const r of list) {
+        for (let k = 0; k < 6; k++) {
+          try {
+            const j = await SKapi('archiv/' + r.adId, { method: 'POST', body: '{}' });
+            if (k === 0) photos += j.photos;
+            if (!j.remaining) break;
+          } catch (e) { if (/nie je pripojené/.test(e.message)) { err = e.message; break; } gone++; break; }
+        }
+        if (err) break;
+        done++; $('fotoProg').textContent = `${done} / ${list.length} áut · ${photos} fotiek`;
+      }
+      $('fotoProg').textContent = err || `Hotovo: ${done} áut, ${photos} fotiek uložených.` + (gone ? ` ${gone} inzerátov už na Bazoši nie je.` : '');
+    } catch (e) { $('fotoProg').textContent = 'Nepodarilo sa: ' + e.message; }
+    running = false; $('fotoGo').disabled = false;
+  });
+})();
+</script>
+'''
+
+
 def wrap(html):
     m = re.search(r'<title>.*?</title>', html)
     title = m.group(0) if m else '<title>Splatkuj Admin</title>'
@@ -50,6 +87,14 @@ def admin(src):
     # odkaz na reklamu aj v archíve predaného auta
     h = h.replace('<a class="mini" href="${esc(r.url)}" target="_blank" rel="noopener">Pôvodný odkaz na Bazoš ↗</a>',
                   '<a class="mini" href="${esc(r.url)}" target="_blank" rel="noopener">Pôvodný odkaz na Bazoš ↗</a><a class="mini" href="/admin/reklamy/#${esc(r.adId)}">Reklama k autu</a>')
+    # galéria uložených fotiek v archíve predaného auta
+    old_desc = "${r.desc ? `<p>${esc(r.desc)}</p>` : ''}"
+    assert old_desc in h, 'admin: desc anchor'
+    h = h.replace(old_desc, old_desc + "${(r.fotky||[]).length ? `<div class=\"fst\">${r.fotky.map(n => `<a href=\"/api/foto/${esc(r.adId)}/${n}\" target=\"_blank\" rel=\"noopener\"><img loading=\"lazy\" src=\"/api/foto/${esc(r.adId)}/${n}/t\" alt=\"Fotka ${n}\"></a>`).join('')}</div>` : ''}", 1)
+    h = h.replace("const d = $('dlg'); const srcs = cfg.sources || [];", "const d = $('dlg'); const srcs = cfg.sources || []; if ((r.fotky||[]).length) r = {...r, photo: '/api/foto/' + r.adId + '/' + r.fotky[0]};", 1)
+    h = h.replace('</style>', '.fst{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:6px}.fst img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;display:block}\n</style>', 1)
+    h = h.replace('</div>\n<dialog class="dlg" id="dlg"', FOTO_PANEL + '</div>\n<dialog class="dlg" id="dlg"', 1)
+    h = h + FOTO_SCRIPT
     (OUT).mkdir(parents=True, exist_ok=True)
     (OUT / 'index.html').write_text(wrap(h))
 
