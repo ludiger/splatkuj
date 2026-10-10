@@ -116,3 +116,4 @@ Formát: dátum – čo pribudlo alebo sa zmenilo (kto).
 - **10. 10. 2026** – Web: rozšírené zoradenie (cena, rok, km, výkon, palivo – oboma smermi), počet vozidiel na výšku dvoch riadkov filtrov (Claude).
 - **10. 10. 2026** – Admin → Inzeráty: klik na auto otvorí náš inzerát na webe, ikonka ↗ pôvodný inzerát (Bazoš / web predajcu); web vie otvoriť detail auta odkazom `#detail-<číslo>` (Claude).
 - **10. 10. 2026** – Kontaktný formulár na webe funguje: dopyt sa uloží do adminu → Dopyty (zdroj „kontaktný formulár“, kraj, typ financovania) a príde upozornenie na Telegram; tlačidlo „Mám záujem“ v detaile auta vloží do formulára aj odkaz na auto (Claude).
+- **10. 10. 2026** – Kontaktný formulár: po odoslaní sa formulár nahradí výrazným potvrdením „Dopyt sme prijali“ (✓, meno, telefón), tlačidlo počas odosielania ukazuje „Odosielam…“ (Claude).

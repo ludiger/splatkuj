@@ -244,6 +244,10 @@ form label{display:grid;gap:8px;font-size:14px;font-weight:600;min-width:0}
 form input,form select,form textarea{background:var(--ink);border:1px solid var(--line);border-radius:12px;padding:14px;color:var(--fg);font:16px var(--body);width:100%}
 form input:focus,form select:focus,form textarea:focus{border-color:var(--brand);outline:none}
 form textarea{min-height:96px;resize:vertical}
+.done{grid-column:1/-1;text-align:center;display:grid;gap:12px;justify-items:center;padding:24px 8px}
+.done i{width:64px;height:64px;border-radius:50%;background:var(--brand);color:var(--on-brand);display:grid;place-items:center;font:800 32px/1 var(--display);font-style:normal}
+.done h3{font:800 26px/1.2 var(--display)}
+.done p{color:var(--mut);max-width:42ch}
 .ok{grid-column:1/-1;background:color-mix(in srgb,var(--brand) 14%,transparent);border:1px solid var(--brand);padding:14px;border-radius:12px;font-size:14px}
 @media (max-width:860px){.contact{grid-template-columns:1fr}}
 @media (max-width:480px){form{grid-template-columns:1fr}}
@@ -800,7 +804,7 @@ dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-f
     if ((phone.match(/\d/g) || []).length < 9) { say('Prosím, zadajte telefónne číslo, na ktorom vás zastihneme.', 1); $('f-phone').focus(); return; }
     const car = formCar && msg.includes(carLink(formCar)) ? formCar : null;
     const udaje = { Kraj: $('f-region').value, 'Typ financovania': $('f-type').value };
-    btn.disabled = true; say('Odosielam…');
+    btn.disabled = true; const bt = btn.textContent; btn.textContent = 'Odosielam…'; ok.hidden = true;
     try {
       const r = await fetch('/api/lead', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
         meno: name, tel: phone, zaujem: 'financovanie', auto: car ? `${car.title}, ${car.year}, ${fmt(car.price)}` : msg.slice(0, 300),
@@ -808,9 +812,14 @@ dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-f
         text: `Dobrý deň, mám záujem o financovanie auta.\nMeno: ${name}\nTelefón: ${phone}\nKraj: ${udaje.Kraj}\nTyp financovania: ${udaje['Typ financovania']}${msg ? '\nSpráva: ' + msg : ''}` }) });
       const j = await r.json().catch(() => ({}));
       if (!r.ok || !j.ok) throw new Error(j.error || r.status);
-      f.reset(); formCar = null; say('Ďakujeme, dopyt sme prijali. Ozveme sa vám čo najskôr – zvyčajne ešte v ten istý deň.');
+      f.reset(); formCar = null; ok.hidden = true;
+      [...f.children].forEach(x => { x.dataset.was = x.hidden ? '1' : ''; x.hidden = true; });
+      const d = document.createElement('div'); d.className = 'done'; d.setAttribute('role', 'status');
+      d.innerHTML = `<i>✓</i><h3>Dopyt sme prijali</h3><p>Ďakujeme, ${esc2(name.split(' ')[0])}. Ozveme sa vám na číslo <b>${esc2(phone)}</b> čo najskôr – zvyčajne ešte v ten istý deň.</p><button type="button" class="btn btn-ghost">Poslať ďalší dopyt</button>`;
+      d.querySelector('button').onclick = () => { d.remove(); [...f.children].forEach(x => { x.hidden = x.dataset.was === '1'; }); };
+      f.appendChild(d); f.scrollIntoView({ behavior: 'smooth', block: 'center' });
     } catch (err) { say('Dopyt sa nepodarilo odoslať. Skúste to prosím znova alebo nám zavolajte na 0903 427 088.', 1); }
-    btn.disabled = false; });
+    btn.disabled = false; btn.textContent = bt; });
   $('dChat').addEventListener('click', () => { const c = cur; det.close(); window.SKchat?.car(c); });
   window.SK = {CARS, openCar, photo, monthly, slug};
   detailLink(false);
