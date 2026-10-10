@@ -233,7 +233,7 @@ export async function onRequest(ctx) {
   if (path === 'notify-test' && method === 'POST') {
     const t = String(env.NTFY_TOPIC || '');
     const res = notifyEnabled(env) ? await notify(env, { title: 'Skúška upozornenia', message: 'Ak toto vidíte, upozornenia na nové dopyty fungujú. ✅', click: 'https://www.splatkuj.sk/admin/dopyty/', tags: ['white_check_mark'] }) : { sent: false };
-    return json({ ok: true, enabled: notifyEnabled(env), ...res, topicLen: t.length, topicOk: /^[-_A-Za-z0-9]{1,64}$/.test(t), topicTrimmed: t === t.trim() });
+    return json({ ok: true, enabled: notifyEnabled(env), ...res, topicLen: t.length, topicOk: /^[-_A-Za-z0-9]{1,64}$/.test(t), topicTrimmed: t === t.trim(), token: !!env.NTFY_TOKEN });
   }
 
   // Autá z vlastných webov predajcov (napr. Cooldrive) – web sa číta na serveri, adresy fotiek ostávajú v databáze.

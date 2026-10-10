@@ -27,7 +27,8 @@ Legenda: **VY** = robí majiteľ, **CLAUDE** = robí Claude, **SPOLU** = spoloč
 - [x] CLAUDE – Po pridaní: redeploy a test /api/chat – funguje (10. 10. 2026). Kľúč je v organizácii Splatkuj na platform.claude.com, scope Default workspace, bez expirácie; Laura hovorí v ženskom rode.
 - [x] CLAUDE – Notifikácia o novom dopyte: kód hotový (`functions/_lib/notify.js`, push cez ntfy; v upozornení nie sú osobné údaje zákazníka, len záujem, auto a odkaz na /admin/dopyty). Stav: GET /api/lead → `notify: true/false`.
 - [ ] VY – Zapnúť upozornenia: do telefónu nainštalovať aplikáciu ntfy, odoberať novú tému s dlhým náhodným názvom (napr. splatkuj- + 20 náhodných znakov) a ten istý názov pridať v Cloudflare (Pages → splatkuj → Settings → Variables and Secrets) ako secret `NTFY_TOPIC`. Názov témy neposielať do chatu.
-- [ ] CLAUDE – Po pridaní: redeploy a skúšobný dopyt.
+- [ ] VY – NTFY_TOPIC je v Cloudflare, ale ntfy.sh bez prihlásenia odmieta správy z Cloudflare (429). Treba bezplatný účet na ntfy.sh → Account → Access tokens → token pridať v Cloudflare ako secret `NTFY_TOKEN` a tému odoberať v aplikácii prihlásený tým istým účtom.
+- [ ] CLAUDE – Po pridaní: redeploy a test (POST /api/admin/notify-test).
 
 ## 2b. Predajcovia, kontrola cien a dávkové spracovanie (10. 10. 2026)
 - [x] CLAUDE – Noví predajcovia v admine: Martin Trenčín, Autoslovakia (Tomáš, Levice), Predajca Nitra, Viktor (B. Bystrica). Ich 75 áut je zapísaných v admine s needsAds=true (bez fotiek, reklám a webu).
