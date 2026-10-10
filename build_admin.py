@@ -26,7 +26,7 @@ HEAD = '''<!doctype html>
 
 FOTO_PANEL = '''  <section class="add" id="fotoBox" style="margin-top:22px">
     <h2>Záloha fotiek vo vysokej kvalite</h2>
-    <p class="hint" id="fotoInfo">Uloží všetky fotky ku každému autu (1200×900, najvyššia kvalita, akú Bazoš má) natrvalo na náš server. Ostanú aj keď predajca inzerát zmaže.</p>
+    <p class="hint" id="fotoInfo">Uloží všetky fotky ku každému autu (1200×900, najvyššia kvalita, akú Bazoš má) na náš server. Ostanú aj keď predajca inzerát zmaže. 7 dní po predaji sa fotky auta automaticky zmažú a ostane len jedna ako náhľad.</p>
     <div class="row"><button class="btn btn-amber" type="button" id="fotoGo">Stiahnuť fotky všetkých áut</button><span class="hint" id="fotoProg" role="status"></span></div>
   </section>
 '''
