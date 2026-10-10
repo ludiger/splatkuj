@@ -150,6 +150,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 .fbar .filters input{flex:1 1 170px}
 .filters select{-webkit-appearance:none;appearance:none;padding-right:34px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%239ca2ad' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;cursor:pointer}
 @media (max-width:900px){.fbar{flex-direction:column-reverse;align-items:stretch}.fbar .stock{align-self:flex-end}}
+@media (max-width:640px){.fbar{gap:12px}.fbar .filters{display:grid;grid-template-columns:1fr 1fr;gap:8px}.fbar .filters input{grid-column:1/-1}.fbar .filters select{width:100%;font-size:14px;padding:11px 30px 11px 12px;background-position:right 10px center}.fbar .filters select:last-child{grid-column:1/-1}.fbar .stock{align-self:stretch;display:flex;justify-content:space-between;align-items:center;padding:10px 16px;text-align:left}.fbar .stock small{margin:0}.fbar .stock b{font-size:22px}}
 .stock{flex:none;background:linear-gradient(135deg,var(--brand),var(--brand2));color:var(--on-brand);border-radius:14px;padding:9px 18px;line-height:1.05;text-align:center}
 .stock small{display:block;font:700 10px/1 var(--body);letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px}
 .stock b{font:900 26px/1.1 var(--display)} .stock b span{font-size:14px}

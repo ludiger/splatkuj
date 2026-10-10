@@ -10,7 +10,9 @@ const decode = (s) => s.replace(/&(#x?[0-9a-f]+|\w+);/gi, (m, e) => {
 const lines = (h) => decode(h.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, '')
   .replace(/<(br|\/p|\/div|\/td|\/th|\/li|\/tr|\/h\d|\/span|\/strong|\/b)\b[^>]*>/gi, '\n').replace(/<[^>]+>/g, ''))
   .split('\n').map((s) => s.replace(/\s+/g, ' ').trim()).filter(Boolean);
-const after = (L, lab) => { const i = L.indexOf(lab); return i >= 0 ? L[i + 1] || '' : ''; };
+// hodnota za názvom údaja; niektoré stránky Cooldrive majú pred hodnotou „- “
+const after = (L, ...labs) => { for (const lab of labs) { const i = L.indexOf(lab); if (i >= 0) return String(L[i + 1] || '').replace(/^-\s*/, ''); } return ''; };
+const SPEC = ['Palivo', 'Rok výroby', 'Objem motora', 'Kilometre', 'Dvere', 'Prevodovka', 'Výkon (kW)', 'Výkon', 'Pohon', 'Karoséria'];
 const num = (s) => +(String(s || '').replace(/\D/g, '')) || 0;
 
 async function get(url) {
@@ -44,17 +46,18 @@ export const SITES = {
       const mark = (h1.match(/VIN:\s*([A-HJ-NPR-Z0-9]{11,17})/i) || [])[1] || '';
       const title = h1.replace(/VIN:.*$/i, '').trim();
       const pi = L.findIndex((s) => /^\d{1,3}(?:[.\s]\d{3})*\s*EUR$/.test(s));
-      const j = L.findIndex((s) => /^VÝBAVA/.test(s));
+      // výbava: za nadpisom VÝBAVA, alebo (iný formát stránky) hneď za poslednou hodnotou technických údajov
+      let j = L.findIndex((s) => /^VÝBAVA/.test(s));
+      if (j < 0) { const k = Math.max(...SPEC.map((x) => L.indexOf(x))); if (k >= 0) j = k + 1; }
       const eq = [];
-      if (j >= 0) for (const s of L.slice(j + 1)) { if (s.length > 60 || /^[A-ZÁČĎÉÍĽĹŇÓÔŔŠŤÚÝŽ ?!]{6,}$/.test(s)) break; eq.push(s); }
+      if (j >= 0) for (const s of L.slice(j + 1)) { if (s.length > 60 || /^[A-ZÁČĎÉÍĽĹŇÓÔŔŠŤÚÝŽ ?!]{6,}$/.test(s) || /^(STAV VOZIDLA|Zavolať|Napísať)/.test(s)) break; if (!/^-/.test(s)) eq.push(s); }
       const imgs = [...new Set([...h.matchAll(/\/storage\/gallery\/[^"'\s]+?\/zoom\/[^"'\s]+?\.jpe?g/gi)].map((m) => this.origin + m[0]))];
-      const spec = ['Palivo', 'Rok výroby', 'Objem motora', 'Kilometre', 'Dvere', 'Prevodovka', 'Výkon (kW)', 'Pohon', 'Karoséria']
-        .map((k) => [k, after(L, k)]).filter(([, v]) => v);
+      const spec = SPEC.filter((k) => k !== 'Výkon (kW)').map((k) => [k, k === 'Výkon' ? after(L, 'Výkon (kW)', 'Výkon') : after(L, k)]).filter(([, v]) => v);
       const gearS = after(L, 'Prevodovka'), pohon = after(L, 'Pohon');
       return {
         id: this.id(url), url, title, mark,
         price: pi >= 0 ? num(L[pi]) : null,
-        yearText: after(L, 'Rok výroby'), km: num(after(L, 'Kilometre')), kw: num((after(L, 'Výkon (kW)').match(/(\d+)\s*kW/) || [])[1]),
+        yearText: after(L, 'Rok výroby'), km: num(after(L, 'Kilometre')), kw: num((after(L, 'Výkon (kW)', 'Výkon').match(/(\d+)\s*kW/) || [])[1]),
         fuel: after(L, 'Palivo'), gear: /autom|dsg|tronic|cvt/i.test(gearS) ? 'Automat' : (gearS ? 'Manuál' : ''),
         drive: /4x4|awd|4wd|quattro|xdrive|4motion/i.test(pohon) ? '4x4' : /zadn/i.test(pohon) ? 'Zadný' : /predn/i.test(pohon) ? 'Predný' : '—',
         body: after(L, 'Karoséria'), imgs, eq,
