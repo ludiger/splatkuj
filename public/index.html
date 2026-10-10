@@ -144,7 +144,12 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 .filters input{flex:0 1 380px}
 @media (max-width:640px){.filters input{flex:1 1 100%}}
 .filters input:focus,.filters select:focus{border-color:var(--brand);outline:none}
-.stock{display:table;margin:0 auto 18px;background:linear-gradient(135deg,var(--brand),var(--brand2));color:var(--on-brand);border-radius:14px;padding:9px 18px;line-height:1.05;text-align:center}
+.fbar{display:flex;align-items:center;gap:16px;margin:0 0 22px}
+.fbar .filters{flex:1;justify-content:flex-start;margin:0}
+.fbar .filters input{flex:1 1 220px}
+.filters select{-webkit-appearance:none;appearance:none;padding-right:34px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%239ca2ad' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;cursor:pointer}
+@media (max-width:900px){.fbar{flex-direction:column-reverse;align-items:stretch}.fbar .stock{align-self:flex-end}}
+.stock{flex:none;background:linear-gradient(135deg,var(--brand),var(--brand2));color:var(--on-brand);border-radius:14px;padding:9px 18px;line-height:1.05;text-align:center}
 .stock small{display:block;font:700 10px/1 var(--body);letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px}
 .stock b{font:900 26px/1.1 var(--display)} .stock b span{font-size:14px}
 /* detail */
@@ -376,7 +381,7 @@ footer{border-top:1px solid var(--line);padding-block:40px;color:var(--mut);font
         <div><span class="eyebrow">Aktuálna ponuka</span><h2>Preverené autá, pripravené na splátky</h2></div>
         <p>Vyberte si z ponuky preverených áut. Financovanie pripravíme ku každému vozidlu.</p>
       </div>
-      <div class="stock" aria-live="polite"><small>Aktuálny počet vozidiel</small><b class="num" id="fCount"></b></div>
+      <div class="fbar">
       <div class="filters">
         <input id="fQ" type="search" placeholder="Hľadať model, napr. Kodiaq" aria-label="Hľadať model">
         <select id="fBrand" aria-label="Značka"></select>
@@ -384,6 +389,8 @@ footer{border-top:1px solid var(--line);padding-block:40px;color:var(--mut);font
         <select id="fMax" aria-label="Maximálna cena"><option value="">Akákoľvek cena</option><option value="10000">do 10 000 €</option><option value="15000">do 15 000 €</option><option value="20000">do 20 000 €</option><option value="25000">do 25 000 €</option><option value="30000">do 30 000 €</option></select>
         <select id="fPay" aria-label="Maximálna mesačná splátka"><option value="">Akákoľvek splátka</option><option value="100">splátka do 100 €</option><option value="150">splátka do 150 €</option><option value="200">splátka do 200 €</option><option value="250">splátka do 250 €</option><option value="300">splátka do 300 €</option><option value="400">splátka do 400 €</option><option value="500">splátka do 500 €</option></select>
         <select id="fSort" aria-label="Zoradiť"><option value="">Odporúčané</option><option value="pa">Najlacnejšie</option><option value="pd">Najdrahšie</option><option value="y">Najnovšie</option></select>
+      </div>
+        <div class="stock" aria-live="polite"><small>Aktuálny počet vozidiel</small><b class="num" id="fCount"></b></div>
       </div>
       <div class="cars" id="cars"></div>
       <div style="text-align:center;margin-top:24px"><button class="btn btn-ghost" id="more" type="button">Zobraziť ďalšie autá</button></div>
