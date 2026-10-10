@@ -842,6 +842,18 @@ video.lau{transform:scale(1.6);transform-origin:50% 33%}
   const log = $('skcLog'), panel = $('skcPanel'), fab = $('skcFab'), teaser = $('skcTeaser'), input = $('skcInput');
   let started = false, step = null, lead = {}, ai = null, aiTurns = [];
   window.claude?.use?.('sample').then(s => { ai = s; }).catch(()=>{});
+  // na www.splatkuj.sk odpovedá Laura cez náš server (/api/chat), keď je v Cloudflare nastavený API kľúč
+  if (/^https:$/.test(location.protocol) && /splatkuj\.sk$|pages\.dev$/.test(location.hostname)) {
+    fetch('/api/chat').then(r => r.json()).then(j => { if (!j.enabled || ai) return;
+      ai = async (msgs, o) => {
+        const r = await fetch('/api/chat', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({messages: msgs})});
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok || !d.ok) { const e = new Error(d.error || 'chyba'); e.code = d.code === 'disabled' ? 'capability_disabled' : (d.code || 'error'); if (d.error) e.text = d.error; throw e; }
+        o && o.onText && o.onText({text: d.text});
+        return {text: d.text};
+      };
+    }).catch(() => {});
+  }
 
   const scroll = () => requestAnimationFrame(() => { log.scrollTop = log.scrollHeight; });
   function el(tag, cls, html){ const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
