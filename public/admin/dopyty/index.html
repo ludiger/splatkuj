@@ -132,7 +132,7 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
   // ---------- postup hovoru a krokov pre každú fázu ----------
   const SCRIPT = {
     novy: { t: 'Prvý hovor – zavolať do 15 minút', s: [
-      'Predstaviť sa: <q>Dobrý deň, tu {ja} zo Splatkuj.sk, volám k vašej žiadosti o financovanie {auto}. Máte chvíľku?</q>',
+      'Predstaviť sa: <q>Dobrý deň, tu {ja} zo Splatkuj.sk. Počujeme sa? Volám k vašej žiadosti o financovanie {auto}. Volám správne?</q>',
       'Overiť auto: je stále v predaji, od koho (bazár / súkromná osoba), cena, rok, km',
       'Overiť zdroj príjmu a výšku (zamestnanec – nástup a príjem, SZČO/firma – IČO a fakturácia, dôchodca)',
       'Opýtať sa na exekúcie a omeškania (registre) – pri exekúcii slušne ukončiť, financovať nevieme',
@@ -251,7 +251,7 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
     return `<div class="call">
       ${know.length ? `<h5>Čo už vieme zo žiadosti</h5><dl>${know.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>` : ''}
       <h5>1. Úvod (prvých 15 sekúnd)</h5>
-      <p class="say">Dobrý deň, tu ${ja} zo Splatkuj.sk. Volám ohľadom vašej žiadosti o financovanie${auto ? ' auta ' + auto : ' auta'}. Je pri telefóne ${esc(r.meno || '')}? Máte teraz 3 minúty?</p>
+      <p class="say">Dobrý deň, tu ${ja} zo Splatkuj.sk. Počujeme sa? Volám k vašej žiadosti o financovanie ${auto || 'auta'}. Volám správne?</p>
       <p class="tip">Ak nemá čas: „Kedy vám môžem zavolať?“ → zapíšte Ďalší krok s termínom.</p>
       <h5>2. Overenie auta</h5>
       <p class="say">${auto ? `Auto ${auto} je stále v predaji? Kupujete ho od autobazára alebo od súkromnej osoby?` : 'Máte už vybrané konkrétne auto? Pošlete mi prosím odkaz na inzerát.'}</p>
