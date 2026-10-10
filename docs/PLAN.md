@@ -27,8 +27,9 @@ Legenda: **VY** = robí majiteľ, **CLAUDE** = robí Claude, **SPOLU** = spoloč
 - [x] CLAUDE – Po pridaní: redeploy a test /api/chat – funguje (10. 10. 2026). Kľúč je v organizácii Splatkuj na platform.claude.com, scope Default workspace, bez expirácie; Laura hovorí v ženskom rode.
 - [x] CLAUDE – Notifikácia o novom dopyte: kód hotový (`functions/_lib/notify.js`, push cez ntfy; v upozornení nie sú osobné údaje zákazníka, len záujem, auto a odkaz na /admin/dopyty). Stav: GET /api/lead → `notify: true/false`.
 - [x] CLAUDE – Upozornenia prestavené na Telegram (bezplatné ntfy.sh odmieta správy z Cloudflare – denný limit podľa zdieľanej IP). Kód: `functions/_lib/notify.js`, test: POST /api/admin/notify-test, číslo chatu: POST /api/admin/telegram-setup.
-- [ ] VY – Telegram: bot cez @BotFather → token do Cloudflare ako secret `TELEGRAM_BOT_TOKEN`; botovi napísať „/start“.
-- [ ] CLAUDE – Zistiť číslo chatu, nastaviť `TELEGRAM_CHAT_ID` (pridá majiteľ v Cloudflare) a otestovať; potom z Cloudflare zmazať NTFY_TOPIC a NTFY_TOKEN.
+- [x] VY – Telegram: bot cez @BotFather, `TELEGRAM_BOT_TOKEN` (secret) a `TELEGRAM_CHAT_ID` (text) sú v Cloudflare.
+- [x] CLAUDE – Telegram otestovaný 10. 10. 2026 (notify-test aj skúšobný dopyt).
+- [ ] VY – V Cloudflare zmazať NTFY_TOPIC a NTFY_TOKEN (ntfy sa nepoužíva); v admine → Dopyty zmazať dva skúšobné dopyty „TEST“.
 
 ## 2b. Predajcovia, kontrola cien a dávkové spracovanie (10. 10. 2026)
 - [x] CLAUDE – Noví predajcovia v admine: Martin Trenčín, Autoslovakia (Tomáš, Levice), Predajca Nitra, Viktor (B. Bystrica). Ich 75 áut je zapísaných v admine s needsAds=true (bez fotiek, reklám a webu).
