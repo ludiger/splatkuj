@@ -1,6 +1,6 @@
 # Prompt naplánovanej úlohy „Autá – kontrola, nové a predané“
 
-Spúšťa sa denne o 7:35 a 15:35 (Europe/Bratislava). Úloha musí bežať na počítači majiteľa
+Spúšťa sa raz denne o 7:52 (Europe/Bratislava). Úloha musí bežať na počítači majiteľa
 (potrebuje Claude v Chrome, kde je majiteľ prihlásený do www.splatkuj.sk/admin).
 Nižšie je presný text, ktorý sa vloží ako prompt úlohy.
 

@@ -11,7 +11,7 @@ Splatkuj.sk je sprostredkovateľ financovania ojazdených áut (predtým značka
   - zdroj: `src/admin.html` (inzeráty), `src/ads.html` (reklamy), `public/admin/dopyty`, `public/admin/ucet`, `public/admin/shim.js`
   - `python3 build_admin.py` zostaví `public/admin/…`
 - **Funkcie** (`functions/`): `api/admin` (prihlásenie, dáta), `api/lead` (dopyty od Laury), `api/chat` (Laura cez Claude API – kľúč `ANTHROPIC_API_KEY` ako secret v Cloudflare), `api/foto` (fotky z Bazoša + trvalá záloha v R2 `splatkuj-fotky`, väzba `FOTO`), `api/inzerat` (detail inzerátu), `api/firma` (register firiem RPO), `api/laura` (fotka/video Laury).
-- **Automatika** – naplánovaná úloha v Claude 2× denne (7:35, 15:35), prompt je v `automation/PROMPT.md`, nástroje v `automation/tools`, dáta v `automation/data`, prenos do repozitára `tools/sync_repo.py`.
+- **Automatika** – naplánovaná úloha v Claude 1× denne (7:52), prompt je v `automation/PROMPT.md`, nástroje v `automation/tools`, dáta v `automation/data`, prenos do repozitára `tools/sync_repo.py`.
 - E-mail info@splatkuj.sk – Cloudflare Email Routing → preposiela sa do Gmailu majiteľa.
 
 ## Pravidlá (od majiteľa)

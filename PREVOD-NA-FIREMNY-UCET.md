@@ -15,7 +15,7 @@ Web www.splatkuj.sk, admin a jeho prihlásenia, databáza, fotky (R2), doména, 
 4. **Počítač**: v Claude desktop aplikácii a v rozšírení Claude v Chrome sa odhlás zo súkromného účtu a prihlás firemným.
    V Chrome ostaň prihlásený na www.splatkuj.sk/admin (automatika ide cez toto prihlásenie).
 5. **Konektory** v novom účte (podľa potreby): Gmail alebo firemná pošta, Google Drive, Higgsfield, Windsor.ai.
-6. **Automatika**: v novom účte požiadaj Clauda: „Nastav naplánovanú úlohu podľa automation/PROMPT.md, denne 7:35 a 15:35, na tomto počítači.“
+6. **Automatika**: v novom účte požiadaj Clauda: „Nastav naplánovanú úlohu podľa automation/PROMPT.md, denne o 7:52, na tomto počítači.“
    Potom v starom (súkromnom) účte úlohu vypni, aby nebežali dve naraz.
 7. **Kontrola**: nechaj prvý beh prebehnúť (príde push notifikácia) a pozri admin → Inzeráty.
 

@@ -175,7 +175,7 @@ h2{font-size:20px;font-weight:800}
   <div class="top">
     <div class="logo"><svg><use href="#mark"/></svg><span><b>splatkuj<span style="color:#16B57F">.sk</span></b><small>ADMIN · INZERÁTY · ANALYTIKA</small></span></div>
     <div class="runbar">
-      <div class="runinfo" id="runinfo">Automatická kontrola každý deň o 7:35 a 15:35</div>
+      <div class="runinfo" id="runinfo">Automatická kontrola každý deň o 7:52</div>
       <button class="btn btn-amber" id="runNow" type="button">Skontrolovať teraz</button>
     </div>
   </div>
@@ -196,7 +196,7 @@ h2{font-size:20px;font-weight:800}
     <div class="kpis" id="kpis"></div>
     <div class="chart" id="reach" style="margin-bottom:14px"><h3>Dosah a kliknutia</h3><div id="reachBody"><p class="mut" style="margin:0">Načítavam…</p></div></div>
     <div class="charts" id="charts"></div>
-    <p class="note2">Doba predaja = od pridania inzerátu do zoznamu po jeho zmiznutie z Bazoša (presnosť pol dňa, kontrola beží o 7:35 a 15:35).</p>
+    <p class="note2">Doba predaja = od pridania inzerátu do zoznamu po jeho zmiznutie z Bazoša (presnosť jeden deň, kontrola beží o 7:52).</p>
   </section>
   <section id="v-ads">
 
@@ -321,7 +321,7 @@ h2{font-size:20px;font-weight:800}
   }
 
   function renderRun(){
-    const parts = ['Automatická kontrola každý deň o 7:35 a 15:35'];
+    const parts = ['Automatická kontrola každý deň o 7:52'];
     if (cfg.lastRunAt) parts.push('Posledná: <b>' + esc(fmtDate(cfg.lastRunAt)) + '</b>' + (cfg.lastRunSummary ? ' · ' + esc(cfg.lastRunSummary) : ''));
     $('runinfo').innerHTML = parts.join('<br>');
   }
@@ -401,7 +401,7 @@ h2{font-size:20px;font-weight:800}
 
   $('runNow').addEventListener('click', async () => {
     const btn = $('runNow');
-    if (!mcp){ say('Spustenie kontroly odtiaľto nie je dostupné. Kontrola aj tak prebehne automaticky o 7:35 a 15:35.', 'warn'); return; }
+    if (!mcp){ say('Spustenie kontroly odtiaľto nie je dostupné. Kontrola aj tak prebehne automaticky o 7:52.', 'warn'); return; }
     if (!cfg.triggerId){ say('Automatická kontrola ešte nie je nastavená. Napíšte Claudovi, nech ju nastaví.', 'warn'); return; }
     btn.disabled = true; btn.textContent = 'Spúšťam…';
     try {
