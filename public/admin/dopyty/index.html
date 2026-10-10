@@ -106,6 +106,10 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
 .wk .src div{background:var(--panel2);border-radius:10px;padding:8px 10px;font-size:13px}.wk .src b{font:800 18px/1 Archivo;display:block;margin-bottom:2px}
 .odk{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--mut)}.odk select{background:var(--ink);border:1px solid var(--line);border-radius:9px;padding:6px 9px;color:var(--fg);font:13.5px Figtree}
 .odk.need select{border-color:var(--amber)}
+.tm{font:800 13px/1 Figtree;padding:6px 10px;border-radius:999px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tm.ok{background:rgba(20,180,126,.16);color:var(--brand2)} .tm.warn{background:rgba(242,184,75,.16);color:var(--amber)} .tm.over{background:var(--red);color:#fff;animation:blink 1.2s infinite}
+.tm.done{background:var(--panel2);color:var(--mut);font-weight:700} .tm.done.late{color:var(--amber)}
+@keyframes blink{50%{opacity:.6}}
 .flash{outline:2px solid var(--brand);outline-offset:2px}
 </style>
 </head>
@@ -163,7 +167,7 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
   const LOST_R = ['Exekúcia / registre', 'Nízky príjem', 'Zamietla banka / leasing', 'Kúpil inde / za hotovosť', 'Auto predané', 'Neodpovedá', 'Iné'];
   // ---------- postup hovoru a krokov pre každú fázu ----------
   const SCRIPT = {
-    novy: { t: 'Prvý hovor – zavolať do 15 minút', s: [
+    novy: { t: 'Prvý hovor – osloviť do 30 minút (pozri časomieru)', s: [
       'Predstaviť sa: <q>Dobrý deň, tu {ja} zo Splatkuj.sk. Počujeme sa? Volám k vašej žiadosti o financovanie {auto}. Volám správne?</q>',
       'Overiť auto: je stále v predaji, od koho (bazár / súkromná osoba), cena, rok, km',
       'Overiť zdroj príjmu a výšku (zamestnanec – nástup a príjem, SZČO/firma – IČO a fakturácia, dôchodca)',
@@ -273,7 +277,22 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
   const dueOf = (r) => { if (!r.dalsiKrokDatum || !OPEN.includes(stOf(r))) return ''; const d = String(r.dalsiKrokDatum).slice(0, 10), t = today(); return d < t ? 'over' : d === t ? 'today' : 'later'; };
   const dueTxt = (r) => { const k = dueOf(r); return k ? `<span class="due ${k}">${k === 'over' ? '⚠ po termíne ' : k === 'today' ? '⏰ dnes ' : '📅 '}${esc(fmtD(r.dalsiKrokDatum))}${r.dalsiKrok ? ' – ' + esc(r.dalsiKrok) : ''}</span>` : ''; };
   // nový dopyt bez kontaktu viac ako 30 min = urgentný
-  const urgent = (r) => stOf(r) === 'novy' && Date.now() - Date.parse(r.prijate) > 30 * 60e3;
+  const urgent = (r) => stOf(r) === 'novy' && !contactAt(r) && Date.now() - Date.parse(r.prijate) > LIMIT;
+  // ---------- časomiera oslovenia: do 30 minút od prijatia ----------
+  const LIMIT = 30 * 60e3;
+  // čas prvého oslovenia: uložený prvyKontaktAt, inak prvá aktivita (okrem zmeny poverenia), inak prvý posun z „Nový dopyt“
+  const contactAt = (r) => r.prvyKontaktAt || arr(r.aktivity).filter((a) => a.typ && !/Prevzal|Odkiaľ/.test(a.typ)).map((a) => a.cas).sort()[0] || '';
+  const dur = (ms) => { const m = Math.round(Math.abs(ms) / 60e3); return m < 60 ? m + ' min' : m < 1440 ? Math.floor(m / 60) + ' h ' + (m % 60) + ' min' : Math.floor(m / 1440) + ' d ' + Math.floor((m % 1440) / 60) + ' h'; };
+  const tmTxt = (start) => { const left = Date.parse(start) + LIMIT - Date.now();
+    if (left <= 0) return ['over', '⚠ po termíne +' + dur(left)];
+    const m = Math.floor(left / 60e3), sec = Math.floor(left / 1000) % 60;
+    return [left < 10 * 60e3 ? 'warn' : 'ok', `⏱ osloviť do ${m}:${String(sec).padStart(2, '0')}`]; };
+  const timer = (r) => { const c = contactAt(r);
+    if (c) { const d = Date.parse(c) - Date.parse(r.prijate); if (r.rucne || isNaN(d)) return '';
+      return `<span class="tm done${d > LIMIT ? ' late' : ''}" title="Čas od prijatia dopytu po prvé oslovenie">✓ oslovený za ${dur(d)}</span>`; }
+    if (stOf(r) !== 'novy') return '';
+    const [k, t] = tmTxt(r.prijate); return `<span class="tm ${k}" data-tm="${esc(r.prijate)}" role="timer">${t}</span>`; };
+  setInterval(() => document.querySelectorAll('[data-tm]').forEach((el) => { const [k, t] = tmTxt(el.dataset.tm); el.className = 'tm ' + k; el.textContent = t; }), 1000);
 
   const FILTERS = {
     open: ['Rozpracované', (r) => OPEN.includes(stOf(r))],
@@ -296,6 +315,10 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
       ['open', n((r) => OPEN.includes(stOf(r))), 'Rozpracované obchody', ''],
       ['win', won, 'Uzavreté tento mesiac', 'good'],
       ['all', conv + ' %', 'Úspešnosť (uzavreté / ukončené)', ''],
+      ...(() => { const c = rows.filter((r) => !r.rucne && Date.parse(r.prijate) > Date.now() - 30 * 864e5 && contactAt(r)).map((r) => Date.parse(contactAt(r)) - Date.parse(r.prijate)).filter((d) => d >= 0);
+        if (!c.length) return [['all', '—', 'Oslovené do 30 min (30 dní)', '']];
+        const ok = Math.round(100 * c.filter((d) => d <= LIMIT).length / c.length), med = c.sort((a, b) => a - b)[Math.floor(c.length / 2)];
+        return [['all', ok + ' %', `Oslovené do 30 min · medián ${dur(med)} (30 dní)`, ok >= 90 ? 'good' : ok >= 60 ? 'warn' : 'bad']]; })(),
     ];
     $('kpi').innerHTML = K.map(([f, v, l, c]) => `<button type="button" class="${c}" data-f="${f}" aria-pressed="false"><b>${v}</b><span>${l}</span></button>`).join('');
   }
@@ -317,7 +340,7 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
     const cols = ST.filter(([, , g]) => g !== 'lost');
     const lost = list.filter((r) => STG[stOf(r)] === 'lost');
     $('out').innerHTML = `<div class="board">${cols.map(([k, l]) => { const c = list.filter((r) => stOf(r) === k);
-      return `<div class="col"><h3>${l} <b>${c.length}</b></h3>${c.map((r) => `<button type="button" class="card" data-open="${esc(r.leadId)}"><b>${esc(r.meno)}</b><small>${esc(r.auto || ZA[r.zaujem] || '')}</small>${dueTxt(r)}${r.riesi ? `<small>👤 ${esc(r.riesi)}</small>` : ''}</button>`).join('')}</div>`; }).join('')}
+      return `<div class="col"><h3>${l} <b>${c.length}</b></h3>${c.map((r) => `<button type="button" class="card" data-open="${esc(r.leadId)}"><b>${esc(r.meno)}</b><small>${esc(r.auto || ZA[r.zaujem] || '')}</small>${timer(r)}${dueTxt(r)}${r.riesi ? `<small>👤 ${esc(r.riesi)}</small>` : ''}</button>`).join('')}</div>`; }).join('')}
       <div class="col"><h3>Stratené <b>${lost.length}</b></h3>${lost.slice(0, 30).map((r) => `<button type="button" class="card" data-open="${esc(r.leadId)}"><b>${esc(r.meno)}</b><small>${esc(STL[stOf(r)])}${r.dovod ? ' · ' + esc(r.dovod) : ''}</small></button>`).join('')}</div></div>`;
   }
   // ---------- call skript (personalizovaný podľa dopytu) ----------
@@ -366,7 +389,7 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
     const stepI = ST.findIndex(([k]) => k === st);
     return `<article class="ld g-${g}" data-id="${esc(r.leadId)}">
       <div class="hd"><b>${esc(r.meno)}</b>${tel ? `<a href="tel:${esc(tel)}">📞 ${esc(r.tel)}</a>` : ''}${tel ? `<a href="https://wa.me/${esc(tel.replace(/^\+/, '').replace(/^0/, '421'))}" target="_blank" rel="noopener">WhatsApp</a>` : ''}${r.email ? `<a href="mailto:${esc(r.email)}">${esc(r.email)}</a>` : ''}
-        ${r.marketing === 'ano' ? `<span class="tag mk" title="Súhlas so zasielaním ponúk: ${esc(fmt(r.marketingAt))}">📧 súhlas</span>` : ''}<span class="tag${st === 'novy' ? ' new' : ''}">${STL[st]}</span><span class="tag">${esc(ZA[r.zaujem] || r.zaujem || '')}</span>${r.riesi ? `<span class="tag own">👤 ${esc(r.riesi)}</span>` : ''}${urgent(r) ? '<span class="tag" style="color:var(--amber)">⚠ čaká > 30 min</span>' : ''}<span class="when">${fmt(r.prijate)}</span></div>
+        ${r.marketing === 'ano' ? `<span class="tag mk" title="Súhlas so zasielaním ponúk: ${esc(fmt(r.marketingAt))}">📧 súhlas</span>` : ''}<span class="tag${st === 'novy' ? ' new' : ''}">${STL[st]}</span><span class="tag">${esc(ZA[r.zaujem] || r.zaujem || '')}</span>${r.riesi ? `<span class="tag own">👤 ${esc(r.riesi)}</span>` : ''}${timer(r)}<span class="when">${fmt(r.prijate)}</span></div>
       ${r.auto ? `<div class="car">🚗 ${esc(r.auto)}${r.odkaz ? `<a href="${esc(r.odkaz)}" target="_blank" rel="noopener">na webe ↗</a>` : ''}${r.inzerat ? `<a href="${esc(r.inzerat)}" target="_blank" rel="noopener">pôvodný inzerát ↗</a>` : ''}</div>` : ''}
       ${srcSel(r)}
       ${dueTxt(r) ? `<div>${dueTxt(r)}</div>` : ''}
@@ -438,6 +461,7 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
     const stb = t.closest('[data-st]');
     if (stb && r) { const ns = stb.dataset.st, os = stOf(r); if (ns === os) return;
       const d = { stav: ns, aktivity: log(r, '🔀 Fáza', `${STL[os]} → ${STL[ns]}`) };
+      if (!r.prvyKontaktAt) d.prvyKontaktAt = contactAt(r) || new Date().toISOString();
       if (!r.riesi) d.riesi = myName();
       if (ns === 'uzavrete') d.uzavreteAt = new Date().toISOString();
       if (STG[ns] === 'lost' || ns === 'uzavrete') { d.dalsiKrokDatum = ''; }
@@ -447,7 +471,7 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
     if (inb) { const d = new Date(); d.setDate(d.getDate() + +inb.dataset.in); const v = d.toISOString().slice(0, 10); const art = t.closest('article'); art.querySelector('[data-nextd]').value = v;
       return save(id, { dalsiKrokDatum: v, dalsiKrok: art.querySelector('[data-next]').value.trim().slice(0, 200) }); }
     if (t.closest('[data-addact]')) { const art = t.closest('article'), inp = art.querySelector('[data-act]'), txt = inp.value.trim(); if (!txt) { inp.focus(); return; }
-      return save(id, { aktivity: log(r, art.querySelector('[data-typ]').value, txt), ...(r.riesi ? {} : { riesi: myName() }) }); }
+      return save(id, { aktivity: log(r, art.querySelector('[data-typ]').value, txt), ...(r.riesi ? {} : { riesi: myName() }), ...(r.prvyKontaktAt ? {} : { prvyKontaktAt: contactAt(r) || new Date().toISOString() }) }); }
     const del = t.closest('[data-del]');
     if (del) { if (!del.dataset.sure) { del.dataset.sure = '1'; del.textContent = 'Naozaj zmazať?'; del.classList.add('sure'); setTimeout(() => { if (del.isConnected) { delete del.dataset.sure; del.textContent = 'Zmazať'; del.classList.remove('sure'); } }, 4000); return; }
       del.disabled = true; try { await db.doc('leady/' + id).delete(); rows = rows.filter((x) => x.leadId !== id); render(); } catch (err) { del.disabled = false; alertBox('Zmazanie sa nepodarilo: ' + err.message); } }
@@ -472,7 +496,7 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
     const id = new Date().toISOString().replace(/[-:T.Z]/g, '').slice(0, 14) + '-' + Math.random().toString(16).slice(2, 8);
     const now = new Date().toISOString();
     const doc = { leadId: id, meno: v.meno, tel: v.tel, email: v.email, zaujem: v.zaujem, zdroj: v.zdroj + ' (ručne)', odkial: v.odkial || (/Facebook/.test(v.zdroj) ? 'Facebook' : /Instagram/.test(v.zdroj) ? 'Instagram' : /Odporúčanie/.test(v.zdroj) ? 'Odporúčanie' : ''), auto: v.auto, odkaz: /^https?:\/\//.test(v.odkaz) ? v.odkaz : '',
-      poznamka: v.poznamka, stav: 'novy', prijate: now, riesi: myName(), rucne: true,
+      poznamka: v.poznamka, stav: 'novy', prijate: now, prvyKontaktAt: now, riesi: myName(), rucne: true,
       aktivity: [{ cas: now, kto: myName(), typ: '✍️ Zadané ručne', text: v.zdroj + (v.poznamka ? ' – ' + v.poznamka.slice(0, 300) : '') }], upravil: myName(), upravene: now };
     try { await db.doc('leady/' + id).set(doc); rows.push(doc); af.reset(); af.hidden = true; openId = id; filter = 'all'; render(); }
     catch (err) { alertBox('Uloženie sa nepodarilo: ' + err.message); }

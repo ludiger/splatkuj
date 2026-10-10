@@ -106,7 +106,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
   await env.DB.prepare('INSERT INTO docs (coll, id, data, updated) VALUES (?, ?, ?, ?) ON CONFLICT(coll, id) DO UPDATE SET data = excluded.data, updated = excluded.updated')
     .bind('konverzacie', cid, JSON.stringify(conv), Date.now()).run();
   if (newLead && notifyEnabled(env)) {
-    const p = notify(env, { title: 'Nový dopyt z ' + kanal, message: leadMessage(newLead), click: 'https://www.splatkuj.sk/admin/dopyty/#' + newLead.leadId, tags: ['bell'] });
+    const p = notify(env, { title: 'Nový dopyt z ' + kanal, message: leadMessage(newLead) + '\n⏱ Osloviť do ' + new Date(Date.now() + 30 * 60e3).toLocaleTimeString('sk-SK', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Bratislava' }), click: 'https://www.splatkuj.sk/admin/dopyty/#' + newLead.leadId, tags: ['bell'] });
     if (typeof waitUntil === 'function') waitUntil(p); else await p;
   }
   return say(reply);
