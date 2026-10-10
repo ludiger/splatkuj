@@ -19,10 +19,11 @@ Splatkuj.sk je sprostredkovateľ financovania ojazdených áut (predtým značka
 - `docs/PLAN.md` – plán a stav úloh (čo je hotové, čo ďalej). Po dokončení bodu ho odškrtni.
 - `docs/laura-scenar.md` – scenár rozhovoru Laury.
 - `docs/zasady-znacky.md` – 12 princípov budovania značky (Žltá kniha), podľa nich overovať rozhodnutia o značke.
-- `docs/strategia-znacky.md` (+ PDF) – strategický základ značky.
+- `docs/strategia-znacky.md` (+ PDF) – strategický základ značky. **Záväzný – riadime sa ním (pozri Pravidlá).**
 - `PREVOD-NA-FIREMNY-UCET.md` – postup prechodu na firemný účet Claude.
 
 ## Pravidlá (od majiteľa)
+- **`docs/strategia-znacky.md` (+ PDF) je záväzný dokument – „biblia“ firmy (rozhodnutie majiteľa 10. 10. 2026).** Každú úlohu, návrh aj rozhodnutie o webe, Laure, reklamách, značke a raste porovnaj s ním. Dodržuj poradie fáz a ich brány (ďalšia fáza až keď platí podmienka predchádzajúcej). Ak požiadavka ide proti dokumentu, upozorni na to a nechaj rozhodnúť majiteľa; zmenu dokumentu rob len na jeho pokyn. Stav fáz sleduj v `docs/PLAN.md` (sekcia Strategický plán).
 - Nové autá od sledovaných predajcov spracovať bez pýtania (fotky, reklamy, video, web).
 - Pole `sellerId` pri existujúcich autách nikdy nemeniť.
 - Na webe ani u Laury nikde neuvádzať úrokovú sadzbu (percento úroku).

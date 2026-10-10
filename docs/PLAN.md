@@ -5,6 +5,55 @@ Pri práci na pláne: vždy si najprv prečítaj CLAUDE.md, potom tento súbor; 
 
 Legenda: **VY** = robí majiteľ, **CLAUDE** = robí Claude, **SPOLU** = spoločne.
 
+## Strategický plán – záväzný (podľa docs/strategia-znacky.md)
+
+Majiteľ 10. 10. 2026: tento dokument je naša biblia a riadime sa ním. Fázy idú v poradí, každá má bránu – ďalšia začne až keď platí jej podmienka. Web, admin a reklamy medzitým bežia ďalej.
+
+### Fáza 1 · Základ (čísla) – PRÁVE TERAZ
+- [ ] VY – Skutočné čísla za posledné 3 mesiace (dopyty, žiadosti, schválenia, prefinancovaná suma) a za 12 mesiacov (počet a hodnota áut).
+- [ ] CLAUDE – Pole **Zdroj zákazníka** pri každom dopyte (Bazoš, Facebook, Instagram, odporúčanie, web, Laura) – automaticky z webu/Laury, ručne pri ručnom dopyte.
+- [ ] CLAUDE – **Týždenný prehľad 5 čísel** v admine (dopyty, žiadosti, schválenia, uzavreté, prefinancovaná suma) + v pondelňajšej notifikácii.
+- [ ] VY – Financujúce spoločnosti a ich podmienky (max. vek auta, doba, akontácia).
+- [ ] VY – Kto okrem majiteľa pomáha a s čím; čo berie zákazníkov konkurencia.
+- Brána: čísla sú v admine a každý nový dopyt má zdroj.
+
+### Fáza 2 · Služba
+- [ ] SPOLU – Prejsť mapu služby (kapitola 5) a opraviť ju podľa reality.
+- [ ] VY – 5 až 8 kontaktov na zákazníkov; CLAUDE – otázky na rozhovory.
+- [ ] CLAUDE – Postup na 1 stranu pre každý krok služby (časť už je v call skripte CRM).
+- [ ] CLAUDE – Šablóny SMS a e-mailov podľa stavu žiadosti (prijatá, chýbajú podklady, schválená, zmluva).
+- [x] E-mail info@splatkuj.sk. [ ] VY – firemné telefónne číslo.
+- [ ] VY – Rozhodnutie: vykanie všade, alebo tykanie na sieťach.
+- Brána: mapa služby a šablóny schválené.
+
+### Fáza 3 · Identita
+- [x] Logo, wordmark Unbounded 800, rebranding príspevok/story/e-mail, merch, polep Tesla (návrhy).
+- [ ] SPOLU – A/B test farieb na Facebooku (#16B57F vs. odporúčaná #0A9B6C) a 5-sekundový test s 5–10 ľuďmi.
+- [ ] CLAUDE – Brand book (logo, farby, typografia Archivo/Figtree, tón, príklady použitia).
+- Brána: farba rozhodnutá, brand book schválený.
+
+### Fáza 4 · Design system
+- [ ] CLAUDE – Design system v Claude Design (nadpisy, tlačidlá, formuláre, karty, stavy).
+- [ ] CLAUDE – Šablóny: repost inzerátu, banner, cenovka, reklama, zmluva, hlavička dokumentu, tlačoviny.
+- [ ] CLAUDE – Prefarbiť web, admin a reklamy podľa design systemu.
+
+### Fáza 5 · Rast
+- [x] Doména splatkuj.sk a web pre verejnosť (Cloudflare Pages namiesto Netlify).
+- [ ] Automatické postovanie reklám na FB a IG (pozri bod 3).
+- [ ] Program recenzií po odovzdaní auta – cieľ 150 recenzií s hodnotením 4,8+.
+- [ ] Partnerstvá s predajcami z Bazoša (stránka Spolupráca).
+- [ ] Prvý kolega na prvý kontakt a doklady pri ~10 autách mesačne.
+
+### Prechod autazababku.sk → splatkuj.sk
+- [x] Web beží na splatkuj.sk, otestovaný na mobile.
+- [ ] Presmerovanie 301 všetkých stránok autazababku.sk, doménu ponechať aspoň 2 roky.
+- [ ] Premenovať Google profil na Splatkuj (recenzie zostanú).
+- [ ] Premenovať FB stránku a IG profil (nezakladať nové).
+- [ ] Presmerovať reklamy Google a FB, upraviť texty.
+- [ ] Zjednotiť telefón a e-mail (web, Bazoš, Google, zmluvy).
+- [ ] 3–6 mesiacov „Splatkuj, predtým Autá za babku“ (texty pripravené v návrhoch rebrandingu).
+- [ ] Informovať financujúce spoločnosti a predajcov.
+
 ## Hotové
 - [x] Web www.splatkuj.sk (Cloudflare Pages) s autami od sledovaných predajcov, kalkulačka (96 mesiacov), Laura (fotka + video).
 - [x] Reklamy, videá a texty pre každé auto (galéria www.splatkuj.sk/admin/reklamy).
