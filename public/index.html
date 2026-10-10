@@ -63,7 +63,7 @@ header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:co
 .ticks{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:30px;font-size:14px;font-weight:600;color:var(--mut)}
 .ticks span:before{content:'✓';color:var(--brand);margin-right:8px;font-weight:800}
 .shot{position:relative;min-width:0}
-.shot .ph{aspect-ratio:4/3.3;border-radius:28px;background:url(img/hero.jpg) 50% 60%/cover;box-shadow:0 40px 80px -30px #000;max-width:100%}
+.shot .ph{aspect-ratio:4/3.3;border-radius:28px;background:url(img/hero.jpg?v=2) 50% 50%/cover;box-shadow:0 40px 80px -30px #000;max-width:100%}
 .shot .ph{position:relative}.shot .ph:after{content:'';position:absolute;inset:0;border-radius:28px;background:linear-gradient(180deg,transparent 70%,color-mix(in srgb,var(--ink) 55%,transparent))}
 .float{position:relative;margin:-34px 0 0 -22px;width:max-content;max-width:calc(100% + 22px);z-index:2;display:flex;align-items:stretch;border-radius:20px;overflow:hidden;box-shadow:0 24px 50px -18px #000}
 .float .a{background:linear-gradient(135deg,var(--brand),var(--brand2));color:var(--on-brand);padding:14px 20px}
@@ -333,11 +333,11 @@ footer{border-top:1px solid var(--line);padding-block:40px;color:var(--mut);font
         <div class="ticks"><span>Splátka a poplatky vopred</span><span>Auto od akéhokoľvek predajcu</span><span>Žiadne malé písmo</span><span>Pre FO, SZČO aj firmy</span></div>
       </div>
       <div class="shot">
-        <div class="ph" role="img" aria-label="Škoda Kodiaq RS vystavená v showroome"></div>
-        <div class="chip-top">✓ Nová generácia RS</div>
+        <div class="ph" role="img" aria-label="Sivá Tesla Model Y s polepom Splatkuj.sk na diaľnici D1, v pozadí Vysoké Tatry"></div>
+        <div class="chip-top">✓ Auto na splátky bez prekvapení</div>
         <div class="float">
-          <div class="a"><small>Splátka od</small><b class="num" data-hero-pay>— <span>€/mes.</span></b></div>
-          <div class="b"><small>Škoda Kodiaq RS 2026</small><b class="num">49 800 €</b></div>
+          <div class="a"><small>Akontácia už od</small><b class="num">0 <span>%</span></b></div>
+          <div class="b"><small>Auto od akéhokoľvek predajcu</small><b>Vybavíte online, po celom Slovensku</b></div>
         </div>
       </div>
     </div>
@@ -697,7 +697,6 @@ dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-f
   update();
   // example installment for the listed car: 0 % down, 96 months, 9.9 % p.a.
   const pay = p => eur(monthly(p, 0, 96, 9.9).m).replace(' €','');
-  document.querySelectorAll('[data-hero-pay]').forEach(el => el.innerHTML = pay(49800) + ' <span>€/mes.</span>');
   const CARS = [
     {id:'cupra', title:'Cupra Formentor 1.5 TSI', sub:'110 kW · DSG · biela metalíza', price:19500, year:'5/2023', km:'85 000 km', power:'110 kW', fuel:'Benzín', gear:'Automat DSG', drive:'Predný', photos:6,
      tags:['Virtual Cockpit','Full-LED','ACC','360° senzory','Samoparkovanie','Beats audio'],
