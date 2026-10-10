@@ -45,7 +45,7 @@ Legenda: **VY** = robí majiteľ, **CLAUDE** = robí Claude, **SPOLU** = spoloč
 
 ## 2c. Úpravy z druhej stránky kolegu (vrátime sa k tomu)
 - [x] Spôsob predaja („Ako sa auto predalo?“ – cez nás / cez predajcu) – už je v admine v časti Predané a v analytike.
-- [ ] CLAUDE – Analytika: prepínač, ktorý skryje predané autá, aby sa ukazovali len údaje o autách na predaj.
+- [x] Analytika: prepínač Predané / Aktívne / Všetky už v admine je (zobrazí len autá na predaj).
 - [ ] SPOLU – Kalkulačka podľa ročníka auta: maximálna doba splácania podľa veku auta (napr. pri aute 2017 sa nedá zvoliť 8 rokov), akontácia predvolene 0 %. Treba presné pravidlo (max. vek auta na konci splácania alebo tabuľka ročník → max. doba) a súhlas majiteľa – dnes je na webe všade 96 mesiacov.
 - [ ] VY – Poslať PDF s postupom k API (bez kľúča); kľúč vložiť len v Cloudflare ako secret (pozri bod 2).
 

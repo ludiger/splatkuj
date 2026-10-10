@@ -1,0 +1,115 @@
+# Splatkuj.sk – čo všetko systém má a dokáže
+
+Prehľad všetkých funkcií webu, Laury, adminu a automatiky. **Pri každej novej alebo zmenenej funkcii sa tento
+dokument aktualizuje a na koniec sa doplní záznam do časti „Denník zmien“** (pravidlo je aj v CLAUDE.md).
+Plán a otvorené úlohy sú v `docs/PLAN.md`.
+
+Posledná aktualizácia: 10. 10. 2026
+
+---
+
+## 1. Web pre zákazníkov – www.splatkuj.sk
+
+**Aktuálna ponuka áut**
+- Všetky aktívne autá od sledovaných predajcov (Bazoš aj vlastné weby predajcov).
+- Zelený údaj **Aktuálny počet vozidiel** vpravo od filtrov (mení sa podľa filtra).
+- **Filtre:** vyhľadávanie modelu, značka, palivo, cena do, **splátka do** (100–500 €/mes.), zoradenie (odporúčané, najlacnejšie, najdrahšie, najnovšie). Na mobile v dvoch stĺpcoch.
+- **Karta auta:** fotka, „splátka od“, rok, km, výkon, palivo, výbava (štítky).
+- **Detail auta:** galéria všetkých fotiek, technické údaje, výbava zoskupená podľa kategórií, popis od predajcu, odkaz na pôvodný inzerát, tlačidlo na chat s Laurou.
+- Autá, ktoré automatika ešte plne nespracovala, sa na webe zobrazujú hneď (fotky zo zálohy cez `/api/foto`). Po spracovaní ich nahradí plná verzia s vybranými fotkami a pečiatkou Splatkuj.
+- Predané autá z webu zmiznú samy, zmenená cena sa prepíše sama.
+- Priame odkazy na auto: `splatkuj.sk/#auto-<názov>-<číslo>` (používajú reklamy a newsletter).
+
+**Kalkulačka splátok** – cena, akontácia, doba splácania; predvolene 96 mesiacov a 0 % akontácia; výpočet je orientačný, úroková sadzba sa nikde nezobrazuje.
+
+**Služby** – kúpa auta na splátky, predaj vozidla, poistenie vozidla.
+
+**Ďalšie časti** – blog (`blog/posts`), sekcia „Našli ste auto inde?“, kontaktný formulár, cookies so súhlasom (nevyhnutné / analytické / marketingové), Ochrana osobných údajov (vrátane e-mailových ponúk so súhlasom), prihlásenie do adminu (ikona v hlavičke a odkaz v pätičke).
+
+## 2. Laura – virtuálna asistentka na webe
+
+- Chat v pravom dolnom rohu, vždy vyká, je šarmantná a pozitívna, nikdy neflirtuje, chváli len to, čo auto naozaj má, o sebe hovorí v ženskom rode.
+- **AI odpovede** cez Claude API (`/api/chat`, model claude-haiku-4-5), kľúč `ANTHROPIC_API_KEY` v Cloudflare. Ochrana kreditu: 40 správ z jednej IP za hodinu, 600 správ denne, krátke odpovede. Neuvádza úrokovú sadzbu ani RPMN, nesľubuje schválenie úveru.
+- **Scenáre:** výber auta z ponuky, výpočet splátky, auto z iného inzerátu (odkaz), predaj auta, poistenie, časté otázky, otázky na príjem, IČO (dohľadanie firmy v registri cez `/api/firma`), ročník vozidla.
+- Na konci zbiera meno a telefón, potom **dobrovoľný súhlas s e-mailovými ponukami** (nič nie je predvolené) a e-mail. Uloží znenie a čas súhlasu.
+- Dopyt sa uloží do adminu (`/api/lead`) a zákazník ho môže poslať aj cez WhatsApp, SMS alebo zavolať.
+- Scenár rozhovoru: `docs/laura-scenar.md`.
+
+## 3. Upozornenia majiteľovi
+
+- **Telegram:** pri každom novom dopyte príde správa „Nový dopyt od Laury“ (záujem, auto, zdroj, odkaz do adminu). **Bez mena a telefónu zákazníka** – tie sú len v admine.
+- Nastavenie: `TELEGRAM_BOT_TOKEN` (secret) a `TELEGRAM_CHAT_ID` (text) v Cloudflare. Test: tlačidlo/volanie `POST /api/admin/notify-test`.
+- **Ranná notifikácia automatiky** (push z Claude): čo pribudlo, čo sa predalo, zmeny cien, koľko áut čaká; v pondelok aj pripomienka newslettera.
+
+## 4. Admin – www.splatkuj.sk/admin
+
+Prihlásenie menom a heslom (majiteľ a kolegyňa), záchranné kódy, záznam prihlásení a zmien.
+
+- **Inzeráty:** zoznam všetkých áut (aktívne, predané, čakajúce na kontrolu, nové za 7 dní), predajcovia (filtrovanie, úprava mena a odkazov), pridanie inzerátov z Bazoša.
+- **Predané autá:** uložená kópia inzerátu, doba predaja, **„Ako sa auto predalo?“** (cez nás / cez predajcu).
+- **Analytika:** prepínač Predané / Aktívne / Všetky, dosah a kliknutia, grafy (napr. ako sa autá predali).
+- **Reklamy** (`/admin/reklamy`): galéria reklám (príspevok, story) a videí ku každému autu.
+- **Dopyty** (`/admin/dopyty`): dopyty od Laury, stavy (Nový, Volali sme, Schválené, Zamietnuté, Nedvíha), poznámky, štítok „📧 súhlas“, **export pre e-mail marketing (CSV, len so súhlasom)**, **export všetkých dopytov (Excel)**, zmazanie dopytu (len majiteľ, s potvrdením).
+- **Newsletter** (`/admin/newsletter`): týždenný e-mail sa zostaví sám – nové autá, autá so zníženou cenou, výber týždňa (téma sa strieda), počet predaných; náhľad, kopírovanie HTML a predmetu, stiahnutie .html, nastavenie značky odhlásenia (Mailchimp `*|UNSUB|*`).
+- **Účet** (`/admin/ucet`): zmena hesla, záchranný kód, ľudia s prístupom, posledné prihlásenia a zmeny.
+- Fotky: trvalá záloha v R2 (`splatkuj-fotky`); 7 dní po predaji sa zmažú všetky fotky okrem jednej (náhľad).
+
+## 5. Automatika – naplánovaná úloha „Autá – kontrola, nové a predané“
+
+Beží **každý deň o 7:52** na Mac mini (potrebuje Chrome s rozšírením Claude a prihlásenie do adminu). Prompt: `automation/PROMPT.md`.
+
+1. **Kontrola všetkých aktívnych áut** – či inzerát ešte existuje a aká je cena (trvá pár sekúnd, robí to server).
+   - zmiznutý inzerát → auto ide medzi predané a stiahne sa z webu,
+   - zmenená cena → prepíše sa v admine, na webe aj v galérii reklám (poistka: zmena o viac ako 50 % sa neprepíše, len sa ohlási).
+2. **Nové autá** od všetkých predajcov sa zapíšu do adminu **hneď všetky** (aj pri novom predajcovi celý jeho inzerát naraz) a hneď sú na webe.
+3. **Plné spracovanie** (výber fotiek, pečiatka, reklamy, video, web) najviac 12 áut za deň, najprv tie, ktoré čakajú najdlhšie.
+4. **Znovu vložené autá** (predajca zmaže a znovu vloží inzerát) sa rozpoznajú a neberú sa ako predaj.
+5. Preskakujú sa diely a príslušenstvo a autá pod 2 500 €.
+6. Na záver jedna notifikácia a zápis do adminu (lastRunAt, súhrn).
+
+## 6. Predajcovia (zdroje áut)
+
+- **Bazoš – profil predajcu** (hodnotenie.php) alebo **hľadanie podľa telefónu** (search.php); jeden predajca môže mať viac odkazov.
+- **Vlastný web predajcu** – zatiaľ **Cooldrive** (cooldrive.sk, 5 cenových kategórií). Web číta priamo server (`/api/admin/web/list|detail|import`), auto sa spoznáva podľa **VIN**; čísla áut 91xxxxxxx.
+- Aktuálny zoznam predajcov je v admine (config/main → sources). K 10. 10. 2026: Juro Šipoš, Jožko, Denis, Peter, Matúš, Erik, Tibor Ferenczi, Audi Predajca Andrej, Martin Trenčín, Autoslovakia (Tomáš, Levice), Predajca Nitra, Viktor (B. Bystrica), Cooldrive (Fiľakovo), JD Autobazár (Myjava), Zoltan (Nitra).
+
+## 7. Server (Cloudflare Pages Functions)
+
+| Adresa | Čo robí |
+|---|---|
+| `/api/admin/…` | prihlásenie, používatelia, dáta adminu, záloha fotiek (`archiv`), upratanie fotiek (`cleanup`), weby predajcov (`web/…`), newsletter, test upozornení, nastavenie Telegramu |
+| `/api/lead` | uloženie dopytu od Laury + upozornenie; GET = stav upozornení |
+| `/api/chat` | Laura cez Claude API; GET = či je zapnutá |
+| `/api/ponuka` | autá z adminu, ktoré ešte čakajú na spracovanie (web ich zobrazí hneď) |
+| `/api/inzerat/<id>` | čerstvý stav inzerátu: existuje?, cena, počet fotiek, popis |
+| `/api/foto/<id>/<n>` | fotka auta (z R2 zálohy, inak z Bazoša alebo z webu predajcu) |
+| `/api/firma` | dohľadanie firmy podľa IČO (register RPO) |
+| `/api/laura` | fotka a video Laury |
+
+Tajné údaje sú len v Cloudflare (Pages → splatkuj → Settings → Variables and Secrets): `ANTHROPIC_API_KEY`, `TELEGRAM_BOT_TOKEN`; ďalej `TELEGRAM_CHAT_ID`. Nikdy nie v repozitári ani v chate.
+
+## 8. Súkromie a pravidlá
+
+- Do upozornení a newslettera sa nedávajú osobné údaje zákazníkov.
+- E-mail marketing len kontaktom so súhlasom; v každom e-maile odkaz na odhlásenie.
+- Na webe, u Laury ani v e-mailoch sa neuvádza úroková sadzba.
+- Splátky: 96 mesiacov, 0 % akontácia, orientačný výpočet.
+- Značka: zelená #16B57F, písmo Unbounded 800 pre logo.
+
+---
+
+## Denník zmien
+
+Formát: dátum – čo pribudlo alebo sa zmenilo (kto).
+
+- **10. 10. 2026** – Prechod na firemný účet Claude; naplánovaná úloha raz denne o 7:52 (Claude).
+- **10. 10. 2026** – Upozornenia o nových dopytoch cez Telegram (bez osobných údajov), diagnostika `notify-test` (Claude).
+- **10. 10. 2026** – Laura s AI zapnutá (Claude API, kľúč vo workspace Default); Laura hovorí v ženskom rode (Claude).
+- **10. 10. 2026** – Kontrola zmeny ceny pri každej rannej kontrole (Bazoš aj weby predajcov), prepis ceny na webe a v reklamách; poistka pri zmene o viac ako 50 % (Claude).
+- **10. 10. 2026** – Podpora áut z vlastných webov predajcov – Cooldrive (čítanie na serveri, VIN, fotky cez `/api/foto`) (Claude).
+- **10. 10. 2026** – Noví predajcovia: Martin Trenčín, Autoslovakia, Predajca Nitra, Viktor, Cooldrive, JD Autobazár, Zoltan (Claude).
+- **10. 10. 2026** – Všetky aktívne autá z adminu sú hneď na webe (`/api/ponuka`); pri novom predajcovi sa stiahnu všetky inzeráty naraz, plné spracovanie 12 áut denne (Claude).
+- **10. 10. 2026** – Web: zelený „Aktuálny počet vozidiel“, filter „splátka do“, filtre na mobile v dvoch stĺpcoch (Claude).
+- **10. 10. 2026** – E-mail marketing: súhlas v Laure, Ochrana osobných údajov, export CSV v Dopytoch, týždenný Newsletter v admine (Claude).
+- **10. 10. 2026** – Admin Dopyty: tlačidlo Zmazať pre majiteľa (Claude).
+- **10. 10. 2026** – Dokument FUNKCIE.md s prehľadom funkcií a denníkom zmien (Claude).

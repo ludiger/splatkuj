@@ -15,6 +15,7 @@ Splatkuj.sk je sprostredkovateľ financovania ojazdených áut (predtým značka
 - E-mail info@splatkuj.sk – Cloudflare Email Routing → preposiela sa do Gmailu majiteľa.
 
 ## Dokumenty (čítaj podľa potreby)
+- `docs/FUNKCIE.md` – prehľad všetkého, čo web, Laura, admin a automatika robia, a **denník zmien**. **Pri každej novej alebo zmenenej funkcii ho aktualizuj a doplň záznam do Denníka zmien (dátum, čo, kto) v tom istom commite.**
 - `docs/PLAN.md` – plán a stav úloh (čo je hotové, čo ďalej). Po dokončení bodu ho odškrtni.
 - `docs/laura-scenar.md` – scenár rozhovoru Laury.
 - `docs/zasady-znacky.md` – 12 princípov budovania značky (Žltá kniha), podľa nich overovať rozhodnutia o značke.
