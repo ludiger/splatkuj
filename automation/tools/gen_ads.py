@@ -125,7 +125,9 @@ h1 small{{display:block;font-size:{34 if story else 27}px;font-weight:500;letter
     if not story: fe = fe[:3]
     feats = ''.join(f'<div class="feat{" sv" if (a, b) in BENEFITS else ""}"><b>{E(a)}</b><span>{E(b)}</span></div>' for a, b in fe)
     sp = ''.join(f'<div class="spec"><b>{E(a)}</b><span>{E(b)}</span></div>' for a, b in specs(c))
-    gal = ''.join(f'<div style="background-image:url({pp(n)})"></div>' for n in PK[1:4])
+    # fotky interiéru: webová fotka (img/p), ak nie je (autá z dávok / cez /api/foto), záloha vo vysokej kvalite (img/hq)
+    gp = lambda n: pp(n) if (ROOT / 'img' / 'p' / f'{bid}-{n}.jpg').exists() else hq(n)
+    gal = ''.join(f'<div style="background-image:url({gp(n)})"></div>' for n in PK[1:4])
     fn = (f"Reprezentatívny príklad: cena vozidla {money(c['price'])} €, akontácia {DOWN} % ({money(k['down'])} €), výška úveru {money(k['loan'])} €, "
           f"doba splácania {MONTHS} mes., mesačná splátka {money(k['m'])} €, úroková sadzba {str(RATE).replace('.', ',')} % p.a., "
           f"RPMN {k['rpmn']:.2f} %, celková splatná suma {money(k['total'])} €. Informatívny výpočet bez poplatkov, nie je záväznou ponukou.").replace('.', ',', 0)
