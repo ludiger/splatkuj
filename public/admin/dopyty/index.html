@@ -44,6 +44,7 @@ textarea:focus,input:focus{outline:none;border-color:var(--brand)}
 .empty{padding:44px 16px;text-align:center;color:var(--mut);background:var(--panel);border:1px dashed var(--line);border-radius:16px}
 .empty b{display:block;color:var(--fg);font-size:17px;margin-bottom:4px}
 .who{font-size:12px;color:var(--mut)}
+.acts .del{margin-left:8px;color:#d64545;border-color:#e8b4b4;background:transparent}.acts .del.sure{background:#d64545;color:#fff;border-color:#d64545}
 </style>
 </head>
 <body>
@@ -88,7 +89,7 @@ textarea:focus,input:focus{outline:none;border-color:var(--brand)}
         ${Object.keys(u).length || r.zdroj ? `<dl>${Object.entries(u).map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${link(v)}</dd></div>`).join('')}${r.zdroj ? `<div><dt>Zdroj</dt><dd>${esc(r.zdroj)}</dd></div>` : ''}</dl>` : ''}
         <textarea data-note placeholder="Poznámka k hovoru…" aria-label="Poznámka">${esc(r.poznamka || '')}</textarea>
         <div class="acts">${ST.map(([k, l]) => `<button type="button" data-st="${k}" aria-pressed="${st === k}">${l}</button>`).join('')}<span class="sp"></span>
-          ${r.upravil ? `<span class="who">${esc(r.upravil)} · ${fmt(r.upravene)}</span>` : ''}</div>
+          ${r.upravil ? `<span class="who">${esc(r.upravil)} · ${fmt(r.upravene)}</span>` : ''}${me && me.role === 'owner' ? `<button type="button" class="del" data-del>Zmazať</button>` : ''}</div>
       </article>`;
     }).join('');
   }
@@ -99,6 +100,15 @@ textarea:focus,input:focus{outline:none;border-color:var(--brand)}
   const alertBox = (t) => { const p = document.createElement('p'); p.className = 'empty'; p.textContent = t; $('list').prepend(p); setTimeout(() => p.remove(), 4000); };
   $('seg').addEventListener('click', (e) => { const b = e.target.closest('[data-f]'); if (b) { filter = b.dataset.f; render(); } });
   $('q').addEventListener('input', render);
+  // Zmazanie dopytu (len majiteľ): prvé kliknutie sa opýta, druhé do 4 s zmaže natrvalo
+  $('list').addEventListener('click', async (e) => {
+    const b = e.target.closest('[data-del]'); if (!b) return;
+    const id = b.closest('[data-id]').dataset.id;
+    if (!b.dataset.sure) { b.dataset.sure = '1'; b.textContent = 'Naozaj zmazať?'; b.classList.add('sure'); setTimeout(() => { if (b.isConnected) { delete b.dataset.sure; b.textContent = 'Zmazať'; b.classList.remove('sure'); } }, 4000); return; }
+    b.disabled = true;
+    try { await db.doc('leady/' + id).delete(); rows = rows.filter((x) => x.leadId !== id); render(); }
+    catch (err) { b.disabled = false; alertBox('Zmazanie sa nepodarilo: ' + err.message); }
+  });
   $('list').addEventListener('click', (e) => { const b = e.target.closest('[data-st]'); if (!b) return; const id = b.closest('[data-id]').dataset.id; const r = rows.find((x) => x.leadId === id); if (r) r.stav = b.dataset.st; render(); save(id, { stav: b.dataset.st }); });
   $('list').addEventListener('change', (e) => { if (!e.target.matches('[data-note]')) return; const id = e.target.closest('[data-id]').dataset.id; const r = rows.find((x) => x.leadId === id); if (r) r.poznamka = e.target.value; save(id, { poznamka: e.target.value.slice(0, 2000) }); });
   db.collection('leady').onSnapshot((s) => { if (document.activeElement && document.activeElement.matches('[data-note]')) return; rows = s.docs.map((d) => ({ ...d.data(), leadId: d.id })); render(); });
