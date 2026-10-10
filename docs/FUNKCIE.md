@@ -24,14 +24,15 @@ Posledná aktualizácia: 10. 10. 2026
 
 **Služby** – kúpa auta na splátky, predaj vozidla, poistenie vozidla.
 
-**Ďalšie časti** – blog (`blog/posts`), sekcia „Našli ste auto inde?“, kontaktný formulár (dopyt ide do adminu → Dopyty a na Telegram; „Mám záujem“ v detaile doplní odkaz na auto), cookies so súhlasom (nevyhnutné / analytické / marketingové), Ochrana osobných údajov (vrátane e-mailových ponúk so súhlasom), prihlásenie do adminu (ikona v hlavičke a odkaz v pätičke).
+**Ďalšie časti** – blog (`blog/posts`), sekcia „Našli ste auto inde?“, **žiadosť o úver** v 3 krokoch namiesto kontaktného formulára (1. osobné údaje: meno, priezvisko, e-mail, telefón, dátum narodenia, kraj; 2. zdroj príjmu: SZČO / zamestnanec na Slovensku / v zahraničí / s.r.o. / dôchodca – podľa toho IČO s overením v registri, názov firmy, fakturácia, alebo zamestnávateľ s návrhmi z registra, nástup a čistý príjem; 3. deti, typ financovania, auto, súhrn splátky, prehlásenie) – dopyt ide do adminu → Dopyty a na Telegram, „Mám záujem“ v detaile auta žiadosť predvyplní aj s odkazom na auto, cookies so súhlasom (nevyhnutné / analytické / marketingové), Ochrana osobných údajov (vrátane e-mailových ponúk so súhlasom), prihlásenie do adminu (ikona v hlavičke a odkaz v pätičke).
 
 ## 2. Laura – virtuálna asistentka na webe
 
 - Chat v pravom dolnom rohu, vždy vyká, je šarmantná a pozitívna, nikdy neflirtuje, chváli len to, čo auto naozaj má, o sebe hovorí v ženskom rode.
 - **AI odpovede** cez Claude API (`/api/chat`, model claude-haiku-4-5), kľúč `ANTHROPIC_API_KEY` v Cloudflare. Ochrana kreditu: 40 správ z jednej IP za hodinu, 600 správ denne, krátke odpovede. Neuvádza úrokovú sadzbu ani RPMN, nesľubuje schválenie úveru.
 - **Scenáre:** výber auta z ponuky, výpočet splátky, auto z iného inzerátu (odkaz), predaj auta, poistenie, časté otázky, otázky na príjem, IČO (dohľadanie firmy v registri cez `/api/firma`), ročník vozidla.
-- Na konci zbiera meno a telefón, potom **dobrovoľný súhlas s e-mailovými ponukami** (nič nie je predvolené) a e-mail. Uloží znenie a čas súhlasu.
+- **Predbežné posúdenie (7 otázok):** zdroj príjmu (zamestnanec na Slovensku / v zahraničí, SZČO, s.r.o., dôchodca, cudzinec), pri zamestnancovi pracovný pomer, zamestnávateľ, nástup a čistý príjem, pri SZČO/firme IČO (overené v registri) a priemerná fakturácia za 3 mesiace, pri dôchodcovi výška dôchodku; ďalej počet vyživovaných detí, exekúcie, registre, akontácia, doba splácania.
+- Na konci zbiera meno a priezvisko, dátum narodenia (pri financovaní), telefón, e-mail (dá sa preskočiť), potom **dobrovoľný súhlas s e-mailovými ponukami** (nič nie je predvolené). Uloží znenie a čas súhlasu.
 - Dopyt sa uloží do adminu (`/api/lead`) a zákazník ho môže poslať aj cez WhatsApp, SMS alebo zavolať.
 - Scenár rozhovoru: `docs/laura-scenar.md`.
 
@@ -117,3 +118,4 @@ Formát: dátum – čo pribudlo alebo sa zmenilo (kto).
 - **10. 10. 2026** – Admin → Inzeráty: klik na auto otvorí náš inzerát na webe, ikonka ↗ pôvodný inzerát (Bazoš / web predajcu); web vie otvoriť detail auta odkazom `#detail-<číslo>` (Claude).
 - **10. 10. 2026** – Kontaktný formulár na webe funguje: dopyt sa uloží do adminu → Dopyty (zdroj „kontaktný formulár“, kraj, typ financovania) a príde upozornenie na Telegram; tlačidlo „Mám záujem“ v detaile auta vloží do formulára aj odkaz na auto (Claude).
 - **10. 10. 2026** – Kontaktný formulár: po odoslaní sa formulár nahradí výrazným potvrdením „Dopyt sme prijali“ (✓, meno, telefón), tlačidlo počas odosielania ukazuje „Odosielam…“ (Claude).
+- **10. 10. 2026** – Žiadosť o úver v 3 krokoch na webe; Laura sa pýta na rovnaké údaje (zdroj príjmu vrátane zamestnanca v zahraničí, zamestnávateľ, nástup, príjem/fakturácia, deti, priezvisko, dátum narodenia, e-mail); /api/firma overuje IČO v RPO so zálohou v Registri účtovných závierok a vie hľadať firmy podľa názvu; doplnená Ochrana osobných údajov (Claude).
