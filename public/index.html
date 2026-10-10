@@ -370,6 +370,11 @@ footer{border-top:1px solid var(--line);padding-block:40px;color:var(--mut);font
 .svc-ic svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .svc-i b{display:block;font-size:16px}.svc-i small{display:block;color:var(--mut);font-size:13.5px;margin-top:3px;line-height:1.4}
 </style>
+<script>/* odkiaľ prišiel návštevník (prvý vstup, len zdroj – žiadne osobné údaje) */
+(() => { try { if (sessionStorage.getItem('sk_ref')) return; const q = new URLSearchParams(location.search); const h = (() => { try { return new URL(document.referrer).hostname.replace(/^www\./, ''); } catch { return ''; } })();
+  const v = q.get('z') || q.get('utm_source') || (q.has('fbclid') ? 'facebook' : '') || (q.has('gclid') ? 'google-ads' : '') || (h && !/splatkuj\.sk$/.test(h) ? h : '') || 'priamo';
+  sessionStorage.setItem('sk_ref', String(v).slice(0, 80)); } catch {} })();
+window.SKref = () => { try { return sessionStorage.getItem('sk_ref') || ''; } catch { return ''; } };</script>
 <script>document.addEventListener('click', e => { const b = e.target.closest('[data-svc]'); if (b) window.SKchat?.svc(b.dataset.svc); });</script>
 
   <section id="kalkulacka">
@@ -592,6 +597,7 @@ footer{border-top:1px solid var(--line);padding-block:40px;color:var(--mut);font
           <label>Rok výroby<select id="f-year"><option value="">—</option><option>2026</option><option>2025</option><option>2024</option><option>2023</option><option>2022</option><option>2021</option><option>2020</option><option>2019</option><option>2018</option><option>2017</option><option>2016</option><option>2015</option><option>2014</option><option>2013</option><option>2012</option><option>2011</option><option>2010</option><option>2009</option><option>2008</option><option>2007</option><option>2006</option><option>2005</option><option>2004</option><option>2003</option><option>2002</option><option>2001</option><option>2000</option><option>staršie</option></select></label>
           <label>Cena vozidla (€)<input id="f-price" inputmode="numeric" placeholder="napr. 18500"></label>
           <label>Akontácia<select id="f-down"><option value="0">0 % (bez akontácie)</option><option value="10">10 %</option><option value="20">20 %</option><option value="30">30 %</option><option value="40">40 %</option><option value="50">50 %</option></select></label>
+          <label class="full">Ako ste sa o nás dozvedeli? (nepovinné)<select id="f-heard"><option value="">Vyberte odpoveď</option><option>Bazoš</option><option>Facebook</option><option>Instagram</option><option>TikTok</option><option>Google</option><option>Odporúčanie známeho</option><option>Už som bol(a) zákazník</option><option>Od predajcu auta</option><option>Iné</option></select></label>
           <label class="full">Doplňujúce informácie<textarea id="f-msg" placeholder="Odkaz na inzerát, akontácia, otázky…"></textarea></label>
           <label class="full chk"><input type="checkbox" id="f-ok"> <span>Prehlasujem, že uvedené informácie sú úplné a pravdivé, a beriem na vedomie spracúvanie osobných údajov na účel vybavenia žiadosti (<a href="#" data-legal="privacy">Ochrana osobných údajov</a>).</span></label>
         </fieldset>
@@ -957,7 +963,7 @@ dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-f
     try {
       const r = await fetch('/api/lead', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
         meno: name, tel: phone, email: v('f-email'), zaujem: 'financovanie', auto: autoT.slice(0, 300),
-        autoId: car ? String(bzId(car)) : '', odkaz: car ? carLink(car) : '', inzerat: car && car.url || '', zdroj: 'žiadosť o úver (formulár)', udaje: U,
+        autoId: car ? String(bzId(car)) : '', odkaz: car ? carLink(car) : '', inzerat: car && car.url || '', zdroj: 'žiadosť o úver (formulár)', udaje: U, odkial: v('f-heard'), ref: (window.SKref ? SKref() : ''),
         prehlasenie: 'áno ' + new Date().toISOString(),
         text: `Žiadosť o úver z webu\nMeno: ${name}\nTelefón: ${phone}\nE-mail: ${v('f-email')}${autoT ? '\nAuto: ' + autoT : ''}\n` + Object.entries(U).map(([a, b]) => a + ': ' + b).join('\n') + (msg ? '\nPoznámka: ' + msg : '') }) });
       const j = await r.json().catch(() => ({}));
@@ -1332,7 +1338,7 @@ video.lau{transform:scale(1.6);transform-origin:50% 33%}
       fetch('/api/lead', {method:'POST', headers:{'content-type':'application/json'}, keepalive:true, body: JSON.stringify({
         meno: lead.name, tel: lead.phone, zaujem: lead.zaujem || 'financovanie', auto: lead.car || '', autoId: curCar ? String(curCar.id) : '',
         odkaz: curCar ? 'https://splatkuj.sk/#auto-' + SK.slug(curCar) : '', inzerat: curCar && curCar.url || '', zdroj: lead.zdroj || '',
-        poistenie: lead.poistenie || '', udaje: ex, text: txt,
+        poistenie: lead.poistenie || '', udaje: ex, text: txt, ref: (window.SKref ? SKref() : ''),
         email: lead.email || '', marketing: lead.marketing || '', marketingAt: lead.marketingAt || '', marketingText: lead.marketing === 'ano' ? MKT_CONSENT : '', prepis: PREPIS.join('\n').slice(-12000) })}).catch(() => {});
     }
     await bot(`Výborne, máme všetko 👍\n\n<b>${esc(lead.name)}</b> · ${esc(lead.phone)}${lead.email ? ' · ' + esc(lead.email) : ''}${lead.car ? '\n' + esc(lead.car) : ''}\n\nPošlite nám to jedným klikom a ozveme sa vám čo najskôr – zvyčajne ešte v ten istý deň.`, 900);

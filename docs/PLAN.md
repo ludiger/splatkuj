@@ -11,8 +11,9 @@ Majiteľ 10. 10. 2026: tento dokument je naša biblia a riadime sa ním. Fázy i
 
 ### Fáza 1 · Základ (čísla) – PRÁVE TERAZ
 - [ ] VY – Skutočné čísla za posledné 3 mesiace (dopyty, žiadosti, schválenia, prefinancovaná suma) a za 12 mesiacov (počet a hodnota áut).
-- [ ] CLAUDE – Pole **Zdroj zákazníka** pri každom dopyte (Bazoš, Facebook, Instagram, odporúčanie, web, Laura) – automaticky z webu/Laury, ručne pri ručnom dopyte.
-- [ ] CLAUDE – **Týždenný prehľad 5 čísel** v admine (dopyty, žiadosti, schválenia, uzavreté, prefinancovaná suma) + v pondelňajšej notifikácii.
+- [x] CLAUDE – Pole **Zdroj zákazníka** pri každom dopyte (Bazoš, Facebook, Instagram, odporúčanie, web, Laura) – automaticky z webu/Laury, ručne pri ručnom dopyte.
+- [x] CLAUDE – **Týždenný prehľad 5 čísel** v admine → Dopyty (8 týždňov + zdroje za 90 dní).
+- [ ] CLAUDE – 5 čísel aj v pondelňajšej rannej notifikácii (pri najbližšej úprave automatiky).
 - [ ] VY – Financujúce spoločnosti a ich podmienky (max. vek auta, doba, akontácia).
 - [ ] VY – Kto okrem majiteľa pomáha a s čím; čo berie zákazníkov konkurencia.
 - Brána: čísla sú v admine a každý nový dopyt má zdroj.
@@ -111,7 +112,7 @@ Majiteľ 10. 10. 2026: tento dokument je naša biblia a riadime sa ním. Fázy i
 - [x] CLAUDE – Zapísané všetky autá Cooldrive (34), JD Autobazár (5) a Zoltan (9); na webe je 207 áut.
 - [x] CLAUDE – Admin → Inzeráty: klik na auto = náš inzerát na webe, ikonka ↗ = pôvodný inzerát (Bazoš / web predajcu).
 - [x] CLAUDE – Žiadosť o úver v 3 krokoch na webe (osobné údaje, zdroj príjmu, deti a auto) + overenie IČO v registroch (RPO, záloha Register účtovných závierok); Laura sa pýta na rovnaké údaje.
-- [ ] CLAUDE – Reklamy (stránka Reklamy na siete) pre všetky autá – dnes je tam 83 plne spracovaných; zvyšných ~124 spracovať dávkami (fotky na reklamu, texty, video).
+- [ ] CLAUDE – Reklamy (stránka Reklamy na siete) pre všetky autá – dnes je tam 90 plne spracovaných; zvyšných ~117 spracovať dávkami (fotky na reklamu, texty, video).
 - [ ] CLAUDE – Nová sekcia/stránka **Spolupráca** (predajcovia áut, poskytovatelia súvisiacich služieb, marketingoví partneri) s formulárom „Stať sa partnerom“ – podľa vzoru starej stránky Autá za babku.
 - [ ] SPOLU – **Motocykle a dodávky** v ponuke: kategórie na webe a v admine, filter, a podmienky financovania (max. vek, doba, akontácia – dodá majiteľ / financujúce spoločnosti).
 - [ ] SPOLU – **Laura na Facebooku a Instagrame** (Messenger a Instagram Direct cez Meta API): VY – Meta Business účet, prepojená FB stránka a IG firemný účet, vytvorenie Meta aplikácie; CLAUDE – webhook v Cloudflare, rovnaké správanie ako na webe, dopyty do adminu; potom schválenie aplikácie Metou.

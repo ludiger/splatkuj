@@ -98,7 +98,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
   }
   if (!conv.leadId && tel) {
     const id = new Date().toISOString().replace(/[-:T.Z]/g, '').slice(0, 14) + '-' + randomHex(3);
-    newLead = { leadId: id, meno: conv.name || 'Klient z ' + kanal, tel, email, zaujem: 'financovanie', zdroj: kanal, kanal, socialId: cid,
+    newLead = { leadId: id, meno: conv.name || 'Klient z ' + kanal, tel, email, zaujem: 'financovanie', zdroj: kanal, kanal, odkial: /insta/i.test(kanal) ? 'Instagram' : /face|messenger/i.test(kanal) ? 'Facebook' : '', socialId: cid,
       prepis, text: `Dopyt z ${kanal}\nMeno: ${conv.name || ''}\nTelefón: ${tel}${email ? '\nE-mail: ' + email : ''}`, stav: 'novy', prijate: new Date().toISOString() };
     await env.DB.prepare('INSERT INTO docs (coll, id, data, updated) VALUES (?, ?, ?, ?)').bind('leady', id, JSON.stringify(newLead), Date.now()).run();
     conv.leadId = id;

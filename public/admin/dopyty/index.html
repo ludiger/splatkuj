@@ -10,6 +10,7 @@
 <style>
 :root{--ink:#0d0e11;--panel:#16181d;--panel2:#1d2027;--line:#2a2e37;--fg:#f3f4f6;--mut:#9ca2ad;--brand:#14B47E;--brand2:#45D99B;--on:#03140D;--red:#f0616d;--amber:#f2b84b;--blue:#6aa8ff;color-scheme:dark}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 body{margin:0;background:var(--ink);color:var(--fg);font:15px/1.5 Figtree,system-ui,sans-serif}
 .wrap{max-width:1280px;margin:0 auto;padding:24px clamp(16px,3vw,32px) 60px}
 h1{font:900 clamp(26px,3.4vw,34px)/1.1 Archivo,system-ui;font-stretch:115%;margin:0 0 6px}
@@ -95,6 +96,16 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
 .addgrid label{display:grid;gap:4px;font-size:12.5px;color:var(--mut);font-weight:700}
 .addgrid input,.addgrid select{background:var(--ink);border:1px solid var(--line);border-radius:9px;padding:9px 10px;color:var(--fg);font:14px Figtree}
 .prepis{white-space:pre-wrap;font-size:13px;line-height:1.55;background:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px 12px;max-height:340px;overflow:auto;margin-top:8px}
+.wk{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:6px 16px 14px;margin-bottom:16px}
+.wk>summary{cursor:pointer;font:800 15px/1.2 Figtree;padding:10px 0;list-style:none}.wk>summary::before{content:"▸ ";color:var(--brand2)}.wk[open]>summary::before{content:"▾ "}
+.wk .tw{overflow-x:auto}.wk table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums;min-width:560px}
+.wk th,.wk td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}.wk th:first-child,.wk td:first-child{text-align:left}
+.wk th{color:var(--mut);font-size:12px;font-weight:700}.wk tr.cur td{color:var(--brand2);font-weight:800}
+.wk .note{color:var(--mut);font-size:12.5px;margin:8px 0 0}
+.wk .src{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:10px}
+.wk .src div{background:var(--panel2);border-radius:10px;padding:8px 10px;font-size:13px}.wk .src b{font:800 18px/1 Archivo;display:block;margin-bottom:2px}
+.odk{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--mut)}.odk select{background:var(--ink);border:1px solid var(--line);border-radius:9px;padding:6px 9px;color:var(--fg);font:13.5px Figtree}
+.odk.need select{border-color:var(--amber)}
 .flash{outline:2px solid var(--brand);outline-offset:2px}
 </style>
 </head>
@@ -103,6 +114,7 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
 <div class="wrap">
   <h1>Dopyty a obchody</h1>
   <p class="lead">Jednoduché CRM: každý dopyt z webu (Laura aj žiadosť o úver) prechádza fázami obchodu. Pri každej fáze je <b>postup hovoru</b> na odškrtnutie, záznam aktivít a <b>ďalší krok s termínom</b> – nič sa nestratí. Obnovuje sa každých 15 sekúnd.</p>
+  <details class="wk" id="wk"></details>
   <div class="kpi" id="kpi"></div>
   <div class="bar">
     <div class="seg" id="view" role="group" aria-label="Zobrazenie"><button type="button" data-v="list" aria-pressed="true">☰ Zoznam</button><button type="button" data-v="board" aria-pressed="false">▦ Lievik</button></div>
@@ -124,6 +136,7 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
       <label>E-mail<input name="email" type="email" maxlength="120"></label>
       <label>Záujem<select name="zaujem"><option value="financovanie">Financovanie</option><option value="predaj">Predaj auta</option><option value="poistenie">Poistenie</option></select></label>
       <label>Zdroj<select name="zdroj"><option>Telefonát</option><option>Facebook Messenger</option><option>Instagram</option><option>WhatsApp</option><option>Osobne</option><option>Odporúčanie</option><option>E-mail</option><option>Iné</option></select></label>
+      <label>Odkiaľ o nás vie<select name="odkial"><option value="">— neviem —</option><option>Bazoš</option><option>Facebook</option><option>Instagram</option><option>TikTok</option><option>Google</option><option>Web (priamo)</option><option>Odporúčanie</option><option>Stály zákazník</option><option>Predajca / partner</option><option>Iné</option></select></label>
       <label>Auto (názov, rok, cena)<input name="auto" maxlength="200" placeholder="napr. Škoda Octavia 2019, 13 900 €"></label>
       <label style="grid-column:1/-1">Odkaz na auto / inzerát<input name="odkaz" maxlength="300" placeholder="https://…"></label>
       <label style="grid-column:1/-1">Poznámka / priebeh rozhovoru<textarea name="poznamka" maxlength="4000" placeholder="Čo klient chce, príjem, akontácia, dohodnutý ďalší krok…"></textarea></label>
@@ -195,6 +208,54 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
       'Pripomenúť poistenie a servis o rok',
     ] },
   };
+  // ---------- odkiaľ prišiel zákazník (Fáza 1 strategického plánu) ----------
+  const SRC = ['Bazoš', 'Facebook', 'Instagram', 'TikTok', 'Google', 'Web (priamo)', 'Odporúčanie', 'Stály zákazník', 'Predajca / partner', 'Iné'];
+  const HEARD = { 'Odporúčanie známeho': 'Odporúčanie', 'Už som bol(a) zákazník': 'Stály zákazník', 'Od predajcu auta': 'Predajca / partner' };
+  // r.odkial = potvrdené (vybrané ručne alebo klientom); inak odhad z kanála a odkazu, z ktorého prišiel na web
+  const srcGuess = (r) => { const t = [r.kanal, r.zdroj, r.ref].join(' ').toLowerCase();
+    if (/bazos/.test(t)) return 'Bazoš'; if (/insta|\big\b/.test(t)) return 'Instagram'; if (/facebook|messenger|\bfb\b|fb\.|m\.facebook/.test(t)) return 'Facebook';
+    if (/tiktok|\btt\b/.test(t)) return 'TikTok'; if (/google|bing|seznam/.test(t)) return 'Google'; if (/odporu/.test(t)) return 'Odporúčanie';
+    if (/\bpriamo\b/.test(String(r.ref || ''))) return 'Web (priamo)'; return ''; };
+  const srcOf = (r) => { const o = HEARD[r.odkial] || r.odkial; return SRC.includes(o) ? o : (o ? 'Iné' : srcGuess(r)); };
+  const srcSel = (r) => { const cur = srcOf(r), sure = !!r.odkial;
+    return `<label class="odk${cur ? '' : ' need'}" title="${sure ? 'Potvrdené' : cur ? 'Odhad podľa odkazu – potvrďte' : 'Doplňte pri hovore: Odkiaľ ste sa o nás dozvedeli?'}">📍 Odkiaľ prišiel:<select data-odk><option value="">— doplniť —</option>${SRC.map((x) => `<option${cur === x ? ' selected' : ''}>${x}</option>`).join('')}</select>${sure ? '' : cur ? '<small>(odhad)</small>' : ''}</label>`; };
+  // ---------- týždenný prehľad 5 čísel ----------
+  const idxOf = (k) => ST.findIndex(([x]) => x === k);
+  // kedy dopyt prvý raz dosiahol fázu k (podľa záznamu zmien fáz); bez záznamu odhad podľa aktuálnej fázy
+  const reachedAt = (r, k) => { const i = idxOf(k), names = ST.slice(i, idxOf('uzavrete') + 1).map(([, l]) => l);
+    if (k === 'uzavrete' && r.uzavreteAt && stOf(r) === 'uzavrete') return r.uzavreteAt;
+    const hit = arr(r.aktivity).filter((a) => a.typ === '🔀 Fáza' && names.some((n) => String(a.text || '').endsWith('→ ' + n))).map((a) => a.cas).sort()[0];
+    if (hit) return hit; const s = stOf(r), si = idxOf(s);
+    if (STG[s] !== 'lost' && si >= i) return r.upravene || r.prijate;
+    if (s === 'zamietnute' && i <= idxOf('posudenie')) return r.upravene || r.prijate;
+    return ''; };
+  const monday = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; };
+  const eurF = (n) => Math.round(n).toLocaleString('sk-SK') + ' €';
+  const valOf = (r) => +String(r.hodnota || '').replace(/\D/g, '') || +String(udaje(r)['Cena vozidla'] || '').replace(/\D/g, '') || 0;
+  let wkOpen = false;
+  function weekly() {
+    const fin = rows.filter((r) => (r.zaujem || 'financovanie') === 'financovanie');
+    const W = []; let m = monday(new Date());
+    for (let i = 0; i < 8; i++) { const a = new Date(m); a.setDate(a.getDate() - 7 * i); const b = new Date(a); b.setDate(b.getDate() + 7); W.push([a, b]); }
+    const inW = (iso, [a, b]) => { const t = Date.parse(iso); return t >= a && t < b; };
+    const line = (w) => { const won = fin.filter((r) => inW(reachedAt(r, 'uzavrete'), w));
+      return [rows.filter((r) => inW(r.prijate, w)).length, fin.filter((r) => inW(reachedAt(r, 'posudenie'), w)).length, fin.filter((r) => inW(reachedAt(r, 'schvalene'), w)).length, won.length, won.reduce((s, r) => s + valOf(r), 0)]; };
+    const L = W.map(line), d = (x) => x.toLocaleDateString('sk-SK', { day: 'numeric', month: 'numeric' });
+    const tot = L.reduce((s, l) => s.map((v, i) => v + l[i]), [0, 0, 0, 0, 0]);
+    const since = Date.now() - 90 * 864e5, recent = rows.filter((r) => Date.parse(r.prijate) >= since);
+    const bySrc = {}; recent.forEach((r) => { const k = srcOf(r) || 'nevyplnené'; (bySrc[k] ||= [0, 0]); bySrc[k][0]++; if (stOf(r) === 'uzavrete') bySrc[k][1]++; });
+    const unknown = recent.filter((r) => !srcOf(r)).length;
+    const c = L[0];
+    $('wk').innerHTML = `<summary>📊 Týždenný prehľad · tento týždeň: dopyty ${c[0]} · žiadosti ${c[1]} · schválené ${c[2]} · uzavreté ${c[3]} · ${eurF(c[4])}</summary>
+      <div class="tw"><table><thead><tr><th>Týždeň</th><th>Dopyty</th><th>Žiadosti (na posúdení)</th><th>Schválené</th><th>Uzavreté</th><th>Prefinancovaná suma</th></tr></thead><tbody>
+      ${W.map((w, i) => `<tr class="${i ? '' : 'cur'}"><td>${d(w[0])} – ${d(new Date(w[1] - 864e5))}${i ? '' : ' (teraz)'}</td>${L[i].map((v, j) => `<td>${j === 4 ? eurF(v) : v}</td>`).join('')}</tr>`).join('')}
+      <tr><td><b>Spolu 8 týždňov</b></td>${tot.map((v, j) => `<td><b>${j === 4 ? eurF(v) : v}</b></td>`).join('')}</tr></tbody></table></div>
+      <p class="note">Žiadosť = dopyt posunutý do fázy „Na posúdení“; suma = „Výška financovania“ pri uzavretom obchode (inak cena auta). Počíta sa podľa záznamu zmien fáz – preto fázy posúvajte vždy hneď.</p>
+      <h4 style="margin:14px 0 0;font-size:13px;color:var(--mut)">📍 Odkiaľ prišli zákazníci – posledných 90 dní${unknown ? ` · <span style="color:var(--amber)">${unknown} bez zdroja – doplňte pri hovore</span>` : ''}</h4>
+      <div class="src">${Object.entries(bySrc).sort((a, b) => b[1][0] - a[1][0]).map(([k, [n, w]]) => `<div><b>${n}</b>${esc(k)}${w ? ` · ${w} uzavretých` : ''}</div>`).join('') || '<div>Zatiaľ žiadne dopyty.</div>'}</div>`;
+    $('wk').open = wkOpen;
+  }
+  $('wk').addEventListener('toggle', () => { wkOpen = $('wk').open; });
   const ZA = { financovanie: 'Financovanie', predaj: 'Predaj auta', poistenie: 'Poistenie' };
   const TYP = ['📞 Hovor', '💬 SMS / WhatsApp', '✉️ E-mail', '📝 Poznámka', '📄 Podklady', '🏦 Banka / leasing'];
   let rows = [], filter = 'open', view = 'list', me = null, openId = location.hash.slice(1) || null;
@@ -239,7 +300,7 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
     $('kpi').innerHTML = K.map(([f, v, l, c]) => `<button type="button" class="${c}" data-f="${f}" aria-pressed="false"><b>${v}</b><span>${l}</span></button>`).join('');
   }
   function render() {
-    kpi();
+    weekly(); kpi();
     $('seg').innerHTML = Object.entries(FILTERS).map(([k, [l, f]]) => `<button type="button" data-f="${k}" aria-pressed="${filter === k}">${l}<b>${rows.filter(f).length}</b></button>`).join('');
     const q = $('q').value.trim().toLowerCase();
     const list = rows.filter(view === 'board' ? () => true : FILTERS[filter][1])
@@ -305,6 +366,7 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
       <div class="hd"><b>${esc(r.meno)}</b>${tel ? `<a href="tel:${esc(tel)}">📞 ${esc(r.tel)}</a>` : ''}${tel ? `<a href="https://wa.me/${esc(tel.replace(/^\+/, '').replace(/^0/, '421'))}" target="_blank" rel="noopener">WhatsApp</a>` : ''}${r.email ? `<a href="mailto:${esc(r.email)}">${esc(r.email)}</a>` : ''}
         ${r.marketing === 'ano' ? `<span class="tag mk" title="Súhlas so zasielaním ponúk: ${esc(fmt(r.marketingAt))}">📧 súhlas</span>` : ''}<span class="tag${st === 'novy' ? ' new' : ''}">${STL[st]}</span><span class="tag">${esc(ZA[r.zaujem] || r.zaujem || '')}</span>${r.riesi ? `<span class="tag own">👤 ${esc(r.riesi)}</span>` : ''}${urgent(r) ? '<span class="tag" style="color:var(--amber)">⚠ čaká > 30 min</span>' : ''}<span class="when">${fmt(r.prijate)}</span></div>
       ${r.auto ? `<div class="car">🚗 ${esc(r.auto)}${r.odkaz ? `<a href="${esc(r.odkaz)}" target="_blank" rel="noopener">na webe ↗</a>` : ''}${r.inzerat ? `<a href="${esc(r.inzerat)}" target="_blank" rel="noopener">pôvodný inzerát ↗</a>` : ''}</div>` : ''}
+      ${srcSel(r)}
       ${dueTxt(r) ? `<div>${dueTxt(r)}</div>` : ''}
       <div class="pipe" role="group" aria-label="Fáza obchodu">${ST.map(([k, l, gg], i) => `${gg === 'lost' && ST[i - 1][2] !== 'lost' ? '<span class="sep"></span>' : ''}<button type="button" class="${gg === 'lost' ? 'lost' : ''}${gg !== 'lost' && i < stepI && g !== 'lost' ? ' done' : ''}" data-st="${k}" aria-pressed="${st === k}">${l}</button>`).join('')}</div>
       ${g === 'lost' ? `<div class="lostr">Dôvod: <select data-dovod><option value="">— vyberte —</option>${LOST_R.map((x) => `<option${r.dovod === x ? ' selected' : ''}>${esc(x)}</option>`).join('')}</select></div>` : ''}
@@ -347,8 +409,8 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
   $('expAll').addEventListener('click', () => {
     if (!rows.length) return alertBox('Zatiaľ žiadne dopyty.');
     const list = [...rows].sort((a, b) => String(b.prijate).localeCompare(String(a.prijate)));
-    download(`splatkuj-dopyty-${day()}.csv`, ['Prijaté', 'Meno', 'Telefón', 'E-mail', 'Súhlas s marketingom', 'Záujem', 'Auto', 'Odkaz', 'Zdroj', 'Fáza', 'Dôvod straty', 'Rieši', 'Ďalší krok', 'Termín', 'Výška financovania', 'Počet aktivít', 'Poznámka', 'Údaje'],
-      list.map((r) => [r.prijate, r.meno, r.tel, r.email, r.marketing === 'ano' ? 'áno (' + (r.marketingAt || '') + ')' : r.marketing === 'nie' ? 'nie' : '', ZA[r.zaujem] || r.zaujem || '', r.auto, r.odkaz, r.zdroj, STL[stOf(r)], r.dovod, r.riesi, r.dalsiKrok, r.dalsiKrokDatum, r.hodnota, arr(r.aktivity).length, r.poznamka, Object.entries(udaje(r)).map(([k, v]) => k + ': ' + v).join(' | ')]), ';');
+    download(`splatkuj-dopyty-${day()}.csv`, ['Prijaté', 'Meno', 'Telefón', 'E-mail', 'Súhlas s marketingom', 'Záujem', 'Auto', 'Odkaz', 'Zdroj', 'Odkiaľ prišiel', 'Fáza', 'Dôvod straty', 'Rieši', 'Ďalší krok', 'Termín', 'Výška financovania', 'Počet aktivít', 'Poznámka', 'Údaje'],
+      list.map((r) => [r.prijate, r.meno, r.tel, r.email, r.marketing === 'ano' ? 'áno (' + (r.marketingAt || '') + ')' : r.marketing === 'nie' ? 'nie' : '', ZA[r.zaujem] || r.zaujem || '', r.auto, r.odkaz, r.zdroj, srcOf(r), STL[stOf(r)], r.dovod, r.riesi, r.dalsiKrok, r.dalsiKrokDatum, r.hodnota, arr(r.aktivity).length, r.poznamka, Object.entries(udaje(r)).map(([k, v]) => k + ': ' + v).join(' | ')]), ';');
   });
   // ---------- ukladanie ----------
   const find = (id) => rows.find((x) => x.leadId === id);
@@ -394,6 +456,7 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
     if (t.matches('[data-note]')) return save(id, { poznamka: t.value.slice(0, 2000) }, true);
     if (t.matches('[data-next]') || t.matches('[data-nextd]')) { const art = t.closest('article'); return save(id, { dalsiKrok: art.querySelector('[data-next]').value.trim().slice(0, 200), dalsiKrokDatum: art.querySelector('[data-nextd]').value }, t.matches('[data-next]')); }
     if (t.matches('[data-val]')) return save(id, { hodnota: t.value.replace(/\D/g, '') }, true);
+    if (t.matches('[data-odk]')) return save(id, { odkial: t.value, aktivity: log(r, '📍 Odkiaľ prišiel', t.value || '—') });
     if (t.matches('[data-dovod]')) return save(id, { dovod: t.value, aktivity: log(r, '❌ Dôvod', t.value) });
   });
   $('out').addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.matches('[data-act]')) { e.preventDefault(); e.target.closest('article').querySelector('[data-addact]').click(); } });
@@ -406,7 +469,7 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
     if (v.meno.length < 2 || (v.tel.match(/\d/g) || []).length < 9) return alertBox('Vyplňte meno a telefón (aspoň 9 číslic).');
     const id = new Date().toISOString().replace(/[-:T.Z]/g, '').slice(0, 14) + '-' + Math.random().toString(16).slice(2, 8);
     const now = new Date().toISOString();
-    const doc = { leadId: id, meno: v.meno, tel: v.tel, email: v.email, zaujem: v.zaujem, zdroj: v.zdroj + ' (ručne)', auto: v.auto, odkaz: /^https?:\/\//.test(v.odkaz) ? v.odkaz : '',
+    const doc = { leadId: id, meno: v.meno, tel: v.tel, email: v.email, zaujem: v.zaujem, zdroj: v.zdroj + ' (ručne)', odkial: v.odkial || (/Facebook/.test(v.zdroj) ? 'Facebook' : /Instagram/.test(v.zdroj) ? 'Instagram' : /Odporúčanie/.test(v.zdroj) ? 'Odporúčanie' : ''), auto: v.auto, odkaz: /^https?:\/\//.test(v.odkaz) ? v.odkaz : '',
       poznamka: v.poznamka, stav: 'novy', prijate: now, riesi: myName(), rucne: true,
       aktivity: [{ cas: now, kto: myName(), typ: '✍️ Zadané ručne', text: v.zdroj + (v.poznamka ? ' – ' + v.poznamka.slice(0, 300) : '') }], upravil: myName(), upravene: now };
     try { await db.doc('leady/' + id).set(doc); rows.push(doc); af.reset(); af.hidden = true; openId = id; filter = 'all'; render(); }
