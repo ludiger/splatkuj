@@ -144,8 +144,9 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 .filters input{flex:0 1 380px}
 @media (max-width:640px){.filters input{flex:1 1 100%}}
 .filters input:focus,.filters select:focus{border-color:var(--brand);outline:none}
-#fCount{margin-left:auto;font-size:14px}
-.eyebrow .offcnt{display:inline-block;margin-left:10px;padding:4px 10px;border-radius:999px;background:linear-gradient(135deg,var(--brand),var(--brand2));color:var(--on-brand);font:700 12px/1.2 var(--body);letter-spacing:.04em;text-transform:none;vertical-align:1px}
+.stock{display:table;margin:0 auto 18px;background:linear-gradient(135deg,var(--brand),var(--brand2));color:var(--on-brand);border-radius:14px;padding:9px 18px;line-height:1.05;text-align:center}
+.stock small{display:block;font:700 10px/1 var(--body);letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px}
+.stock b{font:900 26px/1.1 var(--display)} .stock b span{font-size:14px}
 /* detail */
 dialog.det{border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:24px;padding:0;width:min(980px,calc(100vw - 24px));max-height:calc(100vh - 24px);overflow:auto}
 dialog.det::backdrop{background:rgb(0 0 0/.7);backdrop-filter:blur(4px)}
@@ -372,9 +373,10 @@ footer{border-top:1px solid var(--line);padding-block:40px;color:var(--mut);font
   <section id="ponuka" style="padding-top:0">
     <div class="wrap">
       <div class="head">
-        <div><span class="eyebrow">Aktuálna ponuka <span class="offcnt" id="pCount" hidden></span></span><h2>Preverené autá, pripravené na splátky</h2></div>
+        <div><span class="eyebrow">Aktuálna ponuka</span><h2>Preverené autá, pripravené na splátky</h2></div>
         <p>Vyberte si z ponuky preverených áut. Financovanie pripravíme ku každému vozidlu.</p>
       </div>
+      <div class="stock" aria-live="polite"><small>Aktuálny počet vozidiel</small><b class="num" id="fCount"></b></div>
       <div class="filters">
         <input id="fQ" type="search" placeholder="Hľadať model, napr. Kodiaq" aria-label="Hľadať model">
         <select id="fBrand" aria-label="Značka"></select>
@@ -382,7 +384,6 @@ footer{border-top:1px solid var(--line);padding-block:40px;color:var(--mut);font
         <select id="fMax" aria-label="Maximálna cena"><option value="">Akákoľvek cena</option><option value="10000">do 10 000 €</option><option value="15000">do 15 000 €</option><option value="20000">do 20 000 €</option><option value="25000">do 25 000 €</option><option value="30000">do 30 000 €</option></select>
         <select id="fPay" aria-label="Maximálna mesačná splátka"><option value="">Akákoľvek splátka</option><option value="100">splátka do 100 €</option><option value="150">splátka do 150 €</option><option value="200">splátka do 200 €</option><option value="250">splátka do 250 €</option><option value="300">splátka do 300 €</option><option value="400">splátka do 400 €</option><option value="500">splátka do 500 €</option></select>
         <select id="fSort" aria-label="Zoradiť"><option value="">Odporúčané</option><option value="pa">Najlacnejšie</option><option value="pd">Najdrahšie</option><option value="y">Najnovšie</option></select>
-        <span class="mut num" id="fCount"></span>
       </div>
       <div class="cars" id="cars"></div>
       <div style="text-align:center;margin-top:24px"><button class="btn btn-ghost" id="more" type="button">Zobraziť ďalšie autá</button></div>
@@ -669,12 +670,11 @@ dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-f
     let r=CARS.map((c,ix)=>({c,ix})).filter(({c})=>(!b||BR(c)===b)&&(!f||c.fuel===f)&&c.price<=mx&&(mp===Infinity||monthly(c.price,0,96,9.9).m<=mp)&&(!q||(c.title+' '+c.sub+' '+(c.loc||'')).toLowerCase().includes(q)));
     if(so==='pa')r.sort((a,b)=>a.c.price-b.c.price); if(so==='pd')r.sort((a,b)=>b.c.price-a.c.price);
     if(so==='y')r.sort((a,b)=>parseInt(String(b.c.year).slice(-4))-parseInt(String(a.c.year).slice(-4))||0);
-    $('fCount').textContent=r.length+' '+(r.length===1?'auto':r.length<5&&r.length>1?'autá':'áut');
+    $('fCount').innerHTML=r.length+' <span>'+(r.length===1?'auto':r.length<5&&r.length>1?'autá':'áut')+'</span>';
     $('cars').innerHTML = r.length? r.slice(0,shown).map(({c,ix})=>card(c,ix)).join('') : '<p class="mut" style="grid-column:1/-1">Žiadne auto nezodpovedá filtru. Skúste upraviť výber.</p>';
     $('more').hidden = r.length<=shown;
   }
   // zelený odznak s počtom áut v aktuálnej ponuke
-  { const n=CARS.length, pc=$('pCount'); if (pc && n){ pc.textContent=n+' '+(n===1?'auto':n<5?'autá':'áut'); pc.hidden=false; } }
   ['fQ','fBrand','fFuel','fMax','fPay','fSort'].forEach(id=>$(id).addEventListener('input',()=>{shown=12;list();}));
   $('more').addEventListener('click',()=>{shown+=12;list();});
   const card = (c,ix) => `
