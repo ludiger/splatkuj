@@ -585,7 +585,7 @@ footer{border-top:1px solid var(--line);padding-block:40px;color:var(--mut);font
         </fieldset>
         <fieldset class="st full" data-step="3" hidden><legend>Ostatné informácie</legend>
           <label>Počet vyživovaných detí *<select id="f-kids" required><option value="">Vyberte odpoveď</option><option>0</option><option>1</option><option>2</option><option>3</option><option>4 a viac</option></select></label>
-          <label>Typ financovania<select id="f-type"><option>Úver</option><option>Leasing</option><option>Neviem, poraďte mi</option></select></label>
+          <label>Typ financovania<select id="f-type"><option>Autoúver</option><option>Úver</option></select><small id="typeHint" style="color:var(--mut);font-weight:500;font-size:12px">Autoúver pre autá od roku 2015, na staršie autá (do 2014) úver.</small></label>
           <div class="full sum" id="sumBox" hidden></div>
           <label>Značka vozidla<input id="f-brand" placeholder="napr. BMW"></label>
           <label>Model vozidla<input id="f-model" placeholder="napr. X5"></label>
@@ -868,7 +868,7 @@ dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-f
   $('dCta').addEventListener('click', () => { formCar = cur; const t = cur.title.split(' ');
     $('f-brand').value = t[0] || ''; $('f-model').value = t.slice(1).join(' ');
     const y = (String(cur.year).match(/(19|20)\d\d/) || [])[0]; if (y) $('f-year').value = [...$('f-year').options].some(o => o.text === y) ? y : 'staršie';
-    $('f-price').value = cur.price; $('f-down').value = String(dDown); $('f-msg').value = `${cur.title}, ${cur.year}, ${fmt(cur.price)}\n${carLink(cur)}`; sumUpd(); det.close(); });
+    $('f-price').value = cur.price; $('f-down').value = String(dDown); typeUpd(); $('f-msg').value = `${cur.title}, ${cur.year}, ${fmt(cur.price)}\n${carLink(cur)}`; sumUpd(); det.close(); });
 
   // ---------- žiadosť o úver (3 kroky) → admin Dopyty + Telegram ----------
   const F = $('lead'), okEl = $('ok'); let fstep = 1, ico = { ico: '', ok: null, f: null };
@@ -883,6 +883,10 @@ dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-f
   function sumUpd(){ const p = num0($('f-price').value), d = +$('f-down').value || 0, b = $('sumBox'); b.hidden = !p; if (!p) return;
     b.innerHTML = `<span class="h">Súhrn úveru (orientačne)</span><span>Cena vozidla: <b>${fmt(p)}</b></span><span>Doba splácania: <b>96 mesiacov</b></span><span>Akontácia: <b>${d} %${d ? ' (' + eur(p * d / 100) + ')' : ''}</b></span><span>Mesačná splátka od: <b class="pm">${eur(monthly(p,d,96,9.9).m)}</b></span>`; }
   $('f-price').addEventListener('input', sumUpd); $('f-down').addEventListener('change', sumUpd);
+  // typ financovania podľa roku výroby: autá do roku 2014 len úver, novšie autoúver (dá sa zmeniť na úver)
+  function typeUpd(){ const y = $('f-year').value, old = y === 'staršie' || (+y && +y <= 2014), t = $('f-type');
+    t.options[0].disabled = old; if (old) t.value = 'Úver'; else if (+y) t.value = 'Autoúver'; }
+  $('f-year').addEventListener('change', typeUpd);
   // IČO: kontrolná číslica + overenie v registri (RPO / Register účtovných závierok)
   const icoSum = d => { if (!/^\d{8}$/.test(d)) return false; let s = 0; for (let k = 0; k < 7; k++) s += +d[k] * (8 - k); return (11 - s % 11) % 10 === +d[7]; };
   let icoT = 0;
@@ -959,7 +963,7 @@ dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-f
         text: `Žiadosť o úver z webu\nMeno: ${name}\nTelefón: ${phone}\nE-mail: ${v('f-email')}${autoT ? '\nAuto: ' + autoT : ''}\n` + Object.entries(U).map(([a, b]) => a + ': ' + b).join('\n') + (msg ? '\nPoznámka: ' + msg : '') }) });
       const j = await r.json().catch(() => ({}));
       if (!r.ok || !j.ok) throw new Error(j.error || r.status);
-      F.reset(); formCar = null; ico = { ico: '', ok: null, f: null }; $('icoInfo').hidden = true; srcUpd(); sumUpd(); showStep(1, true);
+      F.reset(); formCar = null; ico = { ico: '', ok: null, f: null }; $('icoInfo').hidden = true; srcUpd(); sumUpd(); typeUpd(); showStep(1, true);
       [...F.children].forEach(x => { x.dataset.was = x.hidden ? '1' : ''; x.hidden = true; });
       const d = document.createElement('div'); d.className = 'done'; d.setAttribute('role', 'status');
       d.innerHTML = `<i>✓</i><h3>Žiadosť sme prijali</h3><p>Ďakujeme, ${esc2(name.split(' ')[0])}. Ozveme sa vám na číslo <b>${esc2(phone)}</b> čo najskôr – zvyčajne ešte v ten istý deň.</p><button type="button" class="btn btn-ghost">Poslať ďalšiu žiadosť</button>`;
