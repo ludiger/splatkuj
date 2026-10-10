@@ -179,6 +179,9 @@ dialog.det::backdrop{background:rgb(0 0 0/.7);backdrop-filter:blur(4px)}
 .det .paybox small{font:700 11px/1 var(--body);letter-spacing:.12em;text-transform:uppercase}
 .det .paybox b{display:block;font:900 52px/1 var(--display);margin-top:6px} .det .paybox b span{font-size:18px}
 .det .paybox p{font-size:12px;opacity:.75;margin-top:8px}
+.dpk{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:12px}.dpk span{font:700 11px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;margin-right:2px}
+.dpk button{font:700 13px var(--body);padding:6px 10px;border-radius:999px;border:1px solid color-mix(in srgb,var(--on-brand) 35%,transparent);background:transparent;color:var(--on-brand);cursor:pointer}
+.dpk button[aria-pressed=true]{background:var(--on-brand);color:var(--brand)}
 .det dl{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;margin:0;font-size:14px}
 .det dt{color:var(--mut)} .det dd{margin:0;font-weight:600;text-align:right}
 @media (max-width:760px){.det .body{grid-template-columns:1fr}.det ul{grid-template-columns:1fr}}
@@ -438,7 +441,9 @@ footer{border-top:1px solid var(--line);padding-block:40px;color:var(--mut);font
     <div class="body">
       <div><h3 id="dTitle"></h3><p class="mut" id="dSub"></p><p class="desc" id="dDesc"></p><ul id="dEq"></ul><div id="dMore"></div></div>
       <div class="side">
-        <div class="paybox"><small>Splátka orientačne od</small><b class="num" id="dPay"></b><p>Bez akontácie (0 %), 96 mesiacov. Presnú ponuku pripravíme na mieru.</p></div>
+        <div class="paybox"><small>Splátka orientačne od</small><b class="num" id="dPay"></b>
+          <div class="dpk" role="group" aria-label="Akontácia"><span>Akontácia</span><button type="button" data-dp="0" aria-pressed="true">0 %</button><button type="button" data-dp="10">10 %</button><button type="button" data-dp="20">20 %</button><button type="button" data-dp="30">30 %</button></div>
+          <p id="dPayNote">Bez akontácie (0 %), 96 mesiacov. Presnú ponuku pripravíme na mieru.</p></div>
         <dl class="num" id="dSpecs"></dl>
         <a class="btn btn-brand" href="#kontakt" id="dCta" style="justify-content:center">Mám záujem o toto auto</a>
         <button class="btn btn-ghost" type="button" id="dChat" style="justify-content:center;width:100%;margin-top:8px">💬 Opýtať sa Laury</button>
@@ -581,6 +586,7 @@ footer{border-top:1px solid var(--line);padding-block:40px;color:var(--mut);font
           <label>Model vozidla<input id="f-model" placeholder="napr. X5"></label>
           <label>Rok výroby<select id="f-year"><option value="">—</option><option>2026</option><option>2025</option><option>2024</option><option>2023</option><option>2022</option><option>2021</option><option>2020</option><option>2019</option><option>2018</option><option>2017</option><option>2016</option><option>2015</option><option>2014</option><option>2013</option><option>2012</option><option>2011</option><option>2010</option><option>2009</option><option>2008</option><option>2007</option><option>2006</option><option>2005</option><option>2004</option><option>2003</option><option>2002</option><option>2001</option><option>2000</option><option>staršie</option></select></label>
           <label>Cena vozidla (€)<input id="f-price" inputmode="numeric" placeholder="napr. 18500"></label>
+          <label>Akontácia<select id="f-down"><option value="0">0 % (bez akontácie)</option><option value="10">10 %</option><option value="20">20 %</option><option value="30">30 %</option><option value="40">40 %</option><option value="50">50 %</option></select></label>
           <label class="full">Doplňujúce informácie<textarea id="f-msg" placeholder="Odkaz na inzerát, akontácia, otázky…"></textarea></label>
           <label class="full chk"><input type="checkbox" id="f-ok"> <span>Prehlasujem, že uvedené informácie sú úplné a pravdivé, a beriem na vedomie spracúvanie osobných údajov na účel vybavenia žiadosti (<a href="#" data-legal="privacy">Ochrana osobných údajov</a>).</span></label>
         </fieldset>
@@ -785,11 +791,18 @@ dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-f
     n.style.cssText = 'position:fixed;left:50%;top:16px;transform:translateX(-50%);z-index:9999;background:#111;color:#fff;padding:12px 18px;border-radius:12px;font:600 14px/1.4 system-ui;max-width:calc(100% - 32px);box-shadow:0 8px 30px rgba(0,0,0,.25)';
     document.body.appendChild(n); setTimeout(() => n.remove(), 6000);
   }
+  // akontácia v detaile auta (predvolene 0 %, klient si môže zvoliť 10 – 30 %)
+  let dDown = 0;
+  function setDown(d){ dDown = d; const p = cur.price;
+    $('dPay').innerHTML = eur(monthly(p, d, 96, 9.9).m).replace(' €','') + ' <span>€ / mes.</span>';
+    $('dPayNote').textContent = (d ? `Akontácia ${d} % (${eur(p * d / 100)}), ` : 'Bez akontácie (0 %), ') + '96 mesiacov. Presnú ponuku pripravíme na mieru.';
+    document.querySelectorAll('.dpk button').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.dp === d))); }
+  document.querySelector('.dpk').addEventListener('click', e => { const b = e.target.closest('[data-dp]'); if (b && cur) setDown(+b.dataset.dp); });
   function openCar(c){
     cur = c; pi = 1; try { history.replaceState(null, '', '#auto-' + slug(c)); } catch {}
     $('dTitle').textContent = c.title; $('dSub').textContent = c.sub; $('dDesc').textContent = c.desc;
     $('dEq').innerHTML = c.eq.map(e=>`<li>${e}</li>`).join(''); $('dEq').hidden=!c.eq.length;
-    $('dPay').innerHTML = pay(c.price) + ' <span>€ / mes.</span>';
+    setDown(0);
     $('dSpecs').innerHTML = [['Cena',fmt(c.price)],['Rok výroby',c.year],['Najazdené',c.km],['Výkon',c.power],['Palivo',c.fuel],['Prevodovka',c.gear],['Pohon',c.drive]].concat(c.loc?[['Lokalita',c.loc]]:[]).map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join('');
     $('dThumbs').innerHTML = Array.from({length:c.photos},(_,i)=>`<button type="button" data-p="${i+1}" aria-label="Fotka ${i+1}"></button>`).join('');
     [...$('dThumbs').children].forEach((b,i)=>paint(b,c,i+1,'cover'));
@@ -850,7 +863,7 @@ dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-f
   $('dCta').addEventListener('click', () => { formCar = cur; const t = cur.title.split(' ');
     $('f-brand').value = t[0] || ''; $('f-model').value = t.slice(1).join(' ');
     const y = (String(cur.year).match(/(19|20)\d\d/) || [])[0]; if (y) $('f-year').value = [...$('f-year').options].some(o => o.text === y) ? y : 'staršie';
-    $('f-price').value = cur.price; $('f-msg').value = `${cur.title}, ${cur.year}, ${fmt(cur.price)}\n${carLink(cur)}`; sumUpd(); det.close(); });
+    $('f-price').value = cur.price; $('f-down').value = String(dDown); $('f-msg').value = `${cur.title}, ${cur.year}, ${fmt(cur.price)}\n${carLink(cur)}`; sumUpd(); det.close(); });
 
   // ---------- žiadosť o úver (3 kroky) → admin Dopyty + Telegram ----------
   const F = $('lead'), okEl = $('ok'); let fstep = 1, ico = { ico: '', ok: null, f: null };
@@ -862,9 +875,9 @@ dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-f
     F.querySelector('[data-for=prijem]').hidden = !(k === 'zam' || k === 'dochodca');
     $('incL').textContent = k === 'dochodca' ? 'Výška dôchodku mesačne *' : 'Priemerný čistý mesačný príjem *'; }
   $('f-src').addEventListener('change', srcUpd);
-  function sumUpd(){ const p = num0($('f-price').value), b = $('sumBox'); b.hidden = !p; if (!p) return;
-    b.innerHTML = `<span class="h">Súhrn úveru (orientačne)</span><span>Cena vozidla: <b>${fmt(p)}</b></span><span>Doba splácania: <b>96 mesiacov</b></span><span>Akontácia: <b>0 %</b></span><span>Mesačná splátka od: <b class="pm">${eur(monthly(p,0,96,9.9).m)}</b></span>`; }
-  $('f-price').addEventListener('input', sumUpd);
+  function sumUpd(){ const p = num0($('f-price').value), d = +$('f-down').value || 0, b = $('sumBox'); b.hidden = !p; if (!p) return;
+    b.innerHTML = `<span class="h">Súhrn úveru (orientačne)</span><span>Cena vozidla: <b>${fmt(p)}</b></span><span>Doba splácania: <b>96 mesiacov</b></span><span>Akontácia: <b>${d} %${d ? ' (' + eur(p * d / 100) + ')' : ''}</b></span><span>Mesačná splátka od: <b class="pm">${eur(monthly(p,d,96,9.9).m)}</b></span>`; }
+  $('f-price').addEventListener('input', sumUpd); $('f-down').addEventListener('change', sumUpd);
   // IČO: kontrolná číslica + overenie v registri (RPO / Register účtovných závierok)
   const icoSum = d => { if (!/^\d{8}$/.test(d)) return false; let s = 0; for (let k = 0; k < 7; k++) s += +d[k] * (8 - k); return (11 - s % 11) % 10 === +d[7]; };
   let icoT = 0;
@@ -880,7 +893,7 @@ dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-f
         info.innerHTML = `✓ Overené v registri: <b>${esc2(f.name)}</b>${f.address ? '<br>' + esc2(f.address) : ''}${f.established ? '<br>vznik ' + esc2(f.established.split('-').reverse().join('. ')) : ''}${f.active === false ? '<br><b>Pozor: subjekt je zrušený.</b>' : ''}`;
         if (!$('f-company').value.trim() || $('f-company').dataset.auto) { $('f-company').value = f.name; $('f-company').dataset.auto = '1'; } }
       else { ico = { ico: d, ok: f && f.error === 'nenašlo sa' ? false : null, f: null }; info.classList.add('n');
-        info.textContent = ico.ok === false ? 'IČO sme v registri nenašli – skontrolujte ho prosím. Žiadosť môžete odoslať aj tak, overíme ho ručne.' : 'Register momentálne neodpovedá – IČO overíme ručne. Pokračujte prosím.'; } }, 300); });
+        info.textContent = ico.ok === false ? 'IČO sme v registri nenašli – skontrolujte ho prosím. Žiadosť môžete odoslať aj tak, overíme ho ručne.' : ($('f-src').value.includes('SZČO') ? 'Register živností momentálne neodpovedá, preto živnostníka teraz nevieme overiť automaticky. Pokračujte prosím – IČO overíme ručne.' : 'Register momentálne neodpovedá – IČO overíme ručne. Pokračujte prosím.'); } }, 300); });
   $('f-company').addEventListener('input', () => delete $('f-company').dataset.auto);
   // zamestnávateľ: návrhy z registra podľa názvu (ak register odpovedá)
   let empT = 0;
@@ -921,7 +934,8 @@ dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-f
     if (k === 'zam') Object.assign(U, { 'Zamestnávateľ': v('f-employer'), 'Nástup': v('f-sm') + '/' + v('f-sy') });
     if (k === 'zam' || k === 'dochodca') U[k === 'dochodca' ? 'Dôchodok mesačne' : 'Čistý mesačný príjem'] = fmt(num0(v('f-income')));
     Object.assign(U, { 'Vyživované deti': v('f-kids'), 'Typ financovania': v('f-type') });
-    if (price) Object.assign(U, { 'Cena vozidla': fmt(price), 'Splátka od (orientačne)': eur(monthly(price,0,96,9.9).m) + ' / 96 mes., 0 % akontácia' });
+    const dn = +v('f-down') || 0; U['Akontácia'] = dn + ' %' + (price && dn ? ' (' + eur(price * dn / 100) + ')' : '');
+    if (price) Object.assign(U, { 'Cena vozidla': fmt(price), 'Splátka od (orientačne)': eur(monthly(price,dn,96,9.9).m) + ' / 96 mes., akontácia ' + dn + ' %' });
     btn.disabled = true; btn.textContent = 'Odosielam…'; say('');
     try {
       const r = await fetch('/api/lead', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
