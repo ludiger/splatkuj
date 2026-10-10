@@ -709,11 +709,24 @@ dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-f
     const have = new Set(CARS.map(c => String(bzId(c)))); let n = 0;
     for (const c of j.cars) { const id = String(c.id); if (have.has(id) || HIDE.has(id) || Object.values(RL).includes(id)) continue; /* už je na webe, predané alebo znovu vložené */ CARS.push(c); have.add(id); n++; }
     if (n) { fillSel(); list(); }
-  }).catch(() => {});
+    detailLink(true);
+  }).catch(() => detailLink(true));
   const det = $('det'); let cur = null, pi = 1;
   function showPhoto(){ paint($('dGal'),cur,pi,'contain'); $('dWmk').hidden = pi <= 5; $('dCount').textContent = pi + ' / ' + cur.photos;
     [...$('dThumbs').children].forEach((t,i)=>t.setAttribute('aria-current', String(i+1===pi))); }
   const slug = c => (c.title + ' ' + String(c.year).split('/').pop()).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') + '-' + (BID[c.id]||c.id);
+  // odkaz z adminu: splatkuj.sk/#detail-<číslo inzerátu> otvorí detail auta (aj auta, ktoré prídu z /api/ponuka)
+  let dlDone = false;
+  function detailLink(last){
+    const m = location.hash.match(/^#detail-([a-z0-9]+)$/i); if (!m || dlDone) return;
+    const id = m[1], c = CARS.find(x => { const b = String(bzId(x)); return b === id || x.id === id || RL[b] === id || RL[id] === b; });
+    if (c && !HIDE.has(String(bzId(c)))) { dlDone = true; document.getElementById('ponuka')?.scrollIntoView(); openCar(c); return; }
+    if (!last && LIVE) return; // počkáme na autá z /api/ponuka
+    dlDone = true;
+    const n = document.createElement('div'); n.textContent = 'Toto auto už nie je v ponuke na webe (predané alebo ešte nespracované).';
+    n.style.cssText = 'position:fixed;left:50%;top:16px;transform:translateX(-50%);z-index:9999;background:#111;color:#fff;padding:12px 18px;border-radius:12px;font:600 14px/1.4 system-ui;max-width:calc(100% - 32px);box-shadow:0 8px 30px rgba(0,0,0,.25)';
+    document.body.appendChild(n); setTimeout(() => n.remove(), 6000);
+  }
   function openCar(c){
     cur = c; pi = 1; try { history.replaceState(null, '', '#auto-' + slug(c)); } catch {}
     $('dTitle').textContent = c.title; $('dSub').textContent = c.sub; $('dDesc').textContent = c.desc;
@@ -777,6 +790,7 @@ dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-f
   $('lead').addEventListener('submit', e => { e.preventDefault(); $('ok').hidden = false; });
   $('dChat').addEventListener('click', () => { const c = cur; det.close(); window.SKchat?.car(c); });
   window.SK = {CARS, openCar, photo, monthly, slug};
+  detailLink(false);
 })();
 </script>
 

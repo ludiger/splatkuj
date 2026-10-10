@@ -259,6 +259,11 @@ h2{font-size:20px;font-weight:800}
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   function say(text, kind){ const m=$('msg'); m.textContent=text; m.className='msg'+(kind?' '+kind:''); m.hidden=!text; }
 
+  // náš inzerát na webe (web ho otvorí cez #detail-<číslo>) a popis pôvodného inzerátu (Bazoš alebo web predajcu)
+  const ourUrl = r => 'https://www.splatkuj.sk/#detail-' + encodeURIComponent(r.adId);
+  const srcHost = r => { try { const h = new URL(r.url).hostname.replace(/^www\./, ''); return /bazos\./.test(h) ? '' : h; } catch { return ''; } };
+  const srcLbl = r => srcHost(r) ? 'Pôvodný inzerát u predajcu (' + srcHost(r) + ')' : 'Pôvodný inzerát na Bazoši';
+  document.addEventListener('click', e => { const a = e.target.closest('[data-soldopen]'); if (a) { e.preventDefault(); openSold(rows.find(r => r.adId === a.dataset.soldopen)); } });
   function render(){
     const counts = {all:rows.length, aktivny:0, predany:0, caka:0, nove:rows.filter(isFresh).length};
     rows.forEach(r => { const s = r.status === 'chyba' ? 'caka' : r.status; if (counts[s] !== undefined) counts[s]++; });
@@ -286,11 +291,11 @@ h2{font-size:20px;font-weight:800}
       const sub = [r.needsAds ? 'čaká na reklamu' : null, isFresh(r) ? 'pridané ' + fmtDate(r.addedAt) : null, r.relistedFrom ? 'znovu vložené' : null, sName(r.sellerId), r.location, r.status === 'predany' && r.soldAt ? 'zmizol ' + fmtDate(r.soldAt) : null, r.note].filter((v,i,a) => v && a.indexOf(v) === i).join(' · ') || r.url;
       const acts = confirmId === r.adId
         ? `<div class="confirm">Odstrániť?<button class="yes" data-del="${esc(r.adId)}" type="button">Áno</button><button data-cancel type="button">Nie</button></div>`
-        : `<a class="icon" href="${esc(r.url)}" target="_blank" rel="noopener" title="Otvoriť na Bazoši" aria-label="Otvoriť na Bazoši"><svg viewBox="0 0 24 24"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg></a>
+        : `<a class="icon" href="${esc(r.url)}" target="_blank" rel="noopener" title="${esc(srcLbl(r))}" aria-label="${esc(srcLbl(r))}"><svg viewBox="0 0 24 24"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg></a>
            <a class="icon" href="/admin/reklamy/#${esc(r.adId)}" title="Reklama k autu" aria-label="Reklama k autu"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 15l5-5 4 4 3-3 6 6"/><circle cx="16" cy="9" r="1.5"/></svg></a>
            <button class="icon" data-ask="${esc(r.adId)}" type="button" title="Odstrániť zo zoznamu" aria-label="Odstrániť zo zoznamu"><svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>`;
       return `<div class="item s-${st}"><span class="stripe"></span>
-        <div class="t"><a href="${esc(r.url)}" target="_blank" rel="noopener">${isFresh(r) && r.status !== 'predany' ? '<span class="tag-new">NOVÉ</span>' : ''}${esc(title)}</a><small>${esc(sub)}</small></div>
+        <div class="t"><a href="${st === 'predany' ? '#' : ourUrl(r)}" ${st === 'predany' ? `data-soldopen="${esc(r.adId)}"` : 'target="_blank" rel="noopener"'} title="${st === 'predany' ? 'Uložená kópia predaného auta' : 'Náš inzerát na splatkuj.sk'}">${isFresh(r) && r.status !== 'predany' ? '<span class="tag-new">NOVÉ</span>' : ''}${esc(title)}</a><small>${esc(sub)}</small></div>
         <div class="price num">${esc(r.price || '—')}</div>
         <div class="st"><span class="pill p-${st}">${LABEL[st] || st}</span></div>
         <div class="when num">${r.checkedAt ? 'kontrola ' + fmtDate(r.checkedAt) : 'zatiaľ nekontrolované'}</div>
@@ -482,7 +487,7 @@ h2{font-size:20px;font-weight:800}
       ${r.desc ? `<p>${esc(r.desc)}</p>` : ''}${(r.fotky||[]).length ? `<div class="fst">${r.fotky.map(n => `<a href="/api/foto/${esc(r.adId)}/${n}" target="_blank" rel="noopener"><img loading="lazy" src="/api/foto/${esc(r.adId)}/${n}/t" alt="Fotka ${n}"></a>`).join('')}</div>` : ''}${r.why ? `<p><b style="color:var(--fg)">Text z reklamy:</b> ${esc(r.why)}</p>` : ''}
       <div class="chart" style="padding:14px 16px"><h3 style="margin-bottom:10px">Ako sa auto predalo?</h3><div class="scope" data-via="${esc(r.adId)}">${VIA.map(([k,l]) => `<button type="button" data-viak="${k}" aria-pressed="${(r.soldVia||'') === k}">${l}</button>`).join('')}</div>
         <span class="hint" style="display:block;margin-top:8px">${r.leadAt ? 'Laura k tomuto autu prijala dopyt ' + esc(fmtDate(r.leadAt)) + '.' : 'Ak auto kúpil náš klient na splátky, označte „Cez nás“.'}</span></div>
-      <div class="acts2"><a class="mini" href="${esc(r.url)}" target="_blank" rel="noopener">Pôvodný odkaz na Bazoš ↗</a><a class="mini" href="/admin/reklamy/#${esc(r.adId)}">Reklama k autu</a><button class="mini pri" type="button" data-close>Zavrieť</button></div>
+      <div class="acts2"><a class="mini" href="${esc(r.url)}" target="_blank" rel="noopener">${esc(srcLbl(r))} ↗</a><button class="mini pri" type="button" data-close>Zavrieť</button></div>
       <span class="hint">Bazoš po predaji inzerát maže, preto ukladáme jeho kópiu tu.</span></div>`;
     d.showModal();
   }

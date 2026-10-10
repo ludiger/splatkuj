@@ -45,7 +45,7 @@ Posledná aktualizácia: 10. 10. 2026
 
 Prihlásenie menom a heslom (majiteľ a kolegyňa), záchranné kódy, záznam prihlásení a zmien.
 
-- **Inzeráty:** zoznam všetkých áut (aktívne, predané, čakajúce na kontrolu, nové za 7 dní), predajcovia (filtrovanie, úprava mena a odkazov), pridanie inzerátov z Bazoša.
+- **Inzeráty:** zoznam všetkých áut (aktívne, predané, čakajúce na kontrolu, nové za 7 dní), predajcovia (filtrovanie, úprava mena a odkazov), pridanie inzerátov z Bazoša. Klik na názov auta otvorí **náš inzerát na webe** (detail auta, odkaz `splatkuj.sk/#detail-<číslo>`), pri predanom aute uloženú kópiu; ikonka ↗ vedľa otvorí **pôvodný inzerát** na Bazoši alebo na webe predajcu (napr. cooldrive.sk).
 - **Predané autá:** uložená kópia inzerátu, doba predaja, **„Ako sa auto predalo?“** (cez nás / cez predajcu).
 - **Analytika:** prepínač Predané / Aktívne / Všetky, dosah a kliknutia, grafy (napr. ako sa autá predali).
 - **Reklamy** (`/admin/reklamy`): galéria reklám (príspevok, story) a videí ku každému autu.
@@ -114,3 +114,4 @@ Formát: dátum – čo pribudlo alebo sa zmenilo (kto).
 - **10. 10. 2026** – Admin Dopyty: tlačidlo Zmazať pre majiteľa (Claude).
 - **10. 10. 2026** – Dokument FUNKCIE.md s prehľadom funkcií a denníkom zmien (Claude).
 - **10. 10. 2026** – Web: rozšírené zoradenie (cena, rok, km, výkon, palivo – oboma smermi), počet vozidiel na výšku dvoch riadkov filtrov (Claude).
+- **10. 10. 2026** – Admin → Inzeráty: klik na auto otvorí náš inzerát na webe, ikonka ↗ pôvodný inzerát (Bazoš / web predajcu); web vie otvoriť detail auta odkazom `#detail-<číslo>` (Claude).
