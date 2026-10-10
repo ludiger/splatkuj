@@ -48,14 +48,15 @@ h2{font-size:20px;font-weight:800}
 .msg.warn{border-color:var(--amber);background:color-mix(in srgb,var(--amber) 10%,var(--panel))}
 .msg.err{border-color:var(--sold);background:color-mix(in srgb,var(--sold) 10%,var(--panel))}
 
-.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
+.tiles{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:22px}
 .tile{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px 20px;cursor:pointer;text-align:left;color:var(--fg);font:inherit}
 .tile[aria-pressed="true"]{border-color:var(--amber)}
 .tile b{display:block;font:900 34px/1 var(--display);font-stretch:112%}
 .tile span{display:flex;align-items:center;gap:8px;margin-top:8px;font-weight:600;font-size:14px;color:var(--mut)}
 .dot{width:9px;height:9px;border-radius:50%;flex:none}
-.d-ok{background:var(--ok)} .d-sold{background:var(--sold)} .d-wait{background:var(--wait)} .d-all{background:var(--amber)}
-@media (max-width:720px){.tiles{grid-template-columns:1fr 1fr}}
+.d-new{background:#6aa8ff} .d-ok{background:var(--ok)} .d-sold{background:var(--sold)} .d-wait{background:var(--wait)} .d-all{background:var(--amber)}
+@media (max-width:720px){.tiles{grid-template-columns:1fr 1fr}.tiles .tile:last-child{grid-column:1/-1}}
+.tag-new{display:inline-block;font:800 10.5px/1 var(--body);letter-spacing:.06em;padding:4px 7px;border-radius:999px;background:#6aa8ff;color:#06142b;margin-right:6px;vertical-align:2px}
 
 .sellers{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-bottom:22px;align-items:start}
 .seller{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:grid;gap:6px;min-width:0;cursor:pointer;text-align:left;color:var(--fg);font:inherit}
@@ -215,6 +216,7 @@ h2{font-size:20px;font-weight:800}
     <button class="tile" type="button" data-f="aktivny" aria-pressed="false"><b class="num" id="c-aktivny">0</b><span><i class="dot d-ok"></i>Aktívne na Bazoši</span></button>
     <button class="tile" type="button" data-f="predany" aria-pressed="false"><b class="num" id="c-predany">0</b><span><i class="dot d-sold"></i>Predané / zmazané</span></button>
     <button class="tile" type="button" data-f="caka" aria-pressed="false"><b class="num" id="c-caka">0</b><span><i class="dot d-wait"></i>Čaká na kontrolu</span></button>
+    <button class="tile" type="button" data-f="nove" aria-pressed="false"><b class="num" id="c-nove">0</b><span><i class="dot d-new"></i>Nové za 7 dní</span></button>
   </div>
 
   <div class="bar"><h2>Predajcovia</h2><span class="hint">Kliknite na predajcu a zobrazia sa len jeho autá. Cez „Upraviť“ zmeníte meno alebo pridáte ďalšie odkazy.</span></div>
@@ -247,16 +249,18 @@ h2{font-size:20px;font-weight:800}
 (() => {
   const $ = id => document.getElementById(id);
   const LABEL = {aktivny:'Aktívny', predany:'Predaný / zmazaný', caka:'Čaká na kontrolu', chyba:'Nedá sa overiť'};
-  const TITLES = {all:'Všetky inzeráty', aktivny:'Aktívne na Bazoši', predany:'Predané / zmazané', caka:'Čaká na kontrolu'};
+  const TITLES = {all:'Všetky inzeráty', aktivny:'Aktívne na Bazoši', predany:'Predané / zmazané', caka:'Čaká na kontrolu', nove:'Nové za posledných 7 dní'};
   let db = null, mcp = null, rows = [], filter = 'all', confirmId = null, cfg = {}, seller = null;
 
   const fmtDate = iso => { if (!iso) return '—'; const d = new Date(iso); if (isNaN(d)) return '—';
     return d.toLocaleString('sk-SK',{day:'numeric',month:'numeric',hour:'2-digit',minute:'2-digit'}); };
+  const pic = (r, t) => '/api/foto/' + r.adId + '/' + ((r.fotky && r.fotky[0]) || 1) + (t ? '/t' : '');
+  const NEWD = 7, isFresh = r => r.addedAt && Date.now() - new Date(r.addedAt) < NEWD * 864e5;
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   function say(text, kind){ const m=$('msg'); m.textContent=text; m.className='msg'+(kind?' '+kind:''); m.hidden=!text; }
 
   function render(){
-    const counts = {all:rows.length, aktivny:0, predany:0, caka:0};
+    const counts = {all:rows.length, aktivny:0, predany:0, caka:0, nove:rows.filter(isFresh).length};
     rows.forEach(r => { const s = r.status === 'chyba' ? 'caka' : r.status; if (counts[s] !== undefined) counts[s]++; });
     Object.keys(counts).forEach(k => $('c-'+k).textContent = counts[k]);
     document.querySelectorAll('.tile').forEach(t => t.setAttribute('aria-pressed', String(t.dataset.f === filter)));
@@ -268,7 +272,7 @@ h2{font-size:20px;font-weight:800}
     const q = $('q').value.trim().toLowerCase();
     const order = {aktivny:0, caka:1, chyba:1, predany:2};
     const shown = rows
-      .filter(r => filter === 'all' || r.status === filter || (filter === 'caka' && r.status === 'chyba'))
+      .filter(r => filter === 'all' || (filter === 'nove' ? isFresh(r) : r.status === filter) || (filter === 'caka' && r.status === 'chyba'))
       .filter(r => !seller || r.sellerId === seller)
       .filter(r => !q || [r.title, r.location, r.url].join(' ').toLowerCase().includes(q))
       .sort((a,b) => (order[a.status] ?? 1) - (order[b.status] ?? 1) || String(b.addedAt).localeCompare(String(a.addedAt)));
@@ -279,14 +283,14 @@ h2{font-size:20px;font-weight:800}
     list.innerHTML = shown.map(r => {
       const st = r.status || 'caka';
       const title = r.title || ('Inzerát č. ' + r.adId);
-      const sub = [r.needsAds ? '🆕 NOVÉ – čaká na reklamu' : null, r.relistedFrom ? 'znovu vložené' : null, sName(r.sellerId), r.location, r.status === 'predany' && r.soldAt ? 'zmizol ' + fmtDate(r.soldAt) : null, r.note].filter((v,i,a) => v && a.indexOf(v) === i).join(' · ') || r.url;
+      const sub = [r.needsAds ? 'čaká na reklamu' : null, isFresh(r) ? 'pridané ' + fmtDate(r.addedAt) : null, r.relistedFrom ? 'znovu vložené' : null, sName(r.sellerId), r.location, r.status === 'predany' && r.soldAt ? 'zmizol ' + fmtDate(r.soldAt) : null, r.note].filter((v,i,a) => v && a.indexOf(v) === i).join(' · ') || r.url;
       const acts = confirmId === r.adId
         ? `<div class="confirm">Odstrániť?<button class="yes" data-del="${esc(r.adId)}" type="button">Áno</button><button data-cancel type="button">Nie</button></div>`
         : `<a class="icon" href="${esc(r.url)}" target="_blank" rel="noopener" title="Otvoriť na Bazoši" aria-label="Otvoriť na Bazoši"><svg viewBox="0 0 24 24"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg></a>
            <a class="icon" href="/admin/reklamy/#${esc(r.adId)}" title="Reklama k autu" aria-label="Reklama k autu"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 15l5-5 4 4 3-3 6 6"/><circle cx="16" cy="9" r="1.5"/></svg></a>
            <button class="icon" data-ask="${esc(r.adId)}" type="button" title="Odstrániť zo zoznamu" aria-label="Odstrániť zo zoznamu"><svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>`;
       return `<div class="item s-${st}"><span class="stripe"></span>
-        <div class="t"><a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(title)}</a><small>${esc(sub)}</small></div>
+        <div class="t"><a href="${esc(r.url)}" target="_blank" rel="noopener">${isFresh(r) && r.status !== 'predany' ? '<span class="tag-new">NOVÉ</span>' : ''}${esc(title)}</a><small>${esc(sub)}</small></div>
         <div class="price num">${esc(r.price || '—')}</div>
         <div class="st"><span class="pill p-${st}">${LABEL[st] || st}</span></div>
         <div class="when num">${r.checkedAt ? 'kontrola ' + fmtDate(r.checkedAt) : 'zatiaľ nekontrolované'}</div>
@@ -459,20 +463,20 @@ h2{font-size:20px;font-weight:800}
     const s = sold(), g = $('soldGrid');
     if (!s.length){ g.innerHTML = '<div class="empty" style="grid-column:1/-1"><b>Zatiaľ sa nič nepredalo</b>Keď inzerát z Bazoša zmizne, auto sa tu objaví aj s uloženým inzerátom.</div>'; return; }
     g.innerHTML = s.map(r => `<button class="sc" type="button" data-sold="${esc(r.adId)}">
-      <div class="ph" style="${r.photo ? `background-image:url('${esc(r.photo)}')` : ''}">${isNew(r) ? '<span class="new">NOVÉ</span>' : ''}</div>
+      <div class="ph" style="background-image:url('${pic(r, true)}')">${isNew(r) ? '<span class="new">NOVO PREDANÉ</span>' : ''}</div>
       <div class="bd"><b>${esc(r.carTitle || r.title || 'Inzerát ' + r.adId)}</b>
         <span class="meta">${esc([r.year, r.km ? new Intl.NumberFormat('sk-SK').format(r.km) + ' km' : null, r.fuel, r.body].filter(Boolean).join(' · '))}</span>
         <div class="row"><span class="mut">Cena</span><span class="num">${esc(r.price || eurN(pnum(r)))}</span></div>
         <div class="row"><span class="mut">Predané</span><span class="num">${esc(fmtDate(r.soldAt))}</span></div>
         <div class="row"><span class="mut">Doba predaja</span><span class="num">${dFmt(days(r))}</span></div>
-        <div class="row"><span class="mut">Predané</span><span>${esc(VIAL[r.soldVia] || 'neoznačené')}</span></div></div></button>`).join('');
+        <div class="row"><span class="mut">Ako sa predalo</span><span>${esc(VIAL[r.soldVia] || 'neoznačené')}</span></div></div></button>`).join('');
   }
   $('soldGrid').addEventListener('click', e => { const b = e.target.closest('[data-sold]'); if (b) openSold(rows.find(r => r.adId === b.dataset.sold)); });
   function openSold(r){
     if (!r) return; const d = $('dlg'); const srcs = cfg.sources || []; if ((r.fotky||[]).length) r = {...r, photo: '/api/foto/' + r.adId + '/' + r.fotky[0]};
     const sn = (srcs.find(x => x.id === r.sellerId) || {}).name || '—';
     const items = [['Cena', r.price || eurN(pnum(r))], ['Rok', r.year || '—'], ['Najazdené', r.km ? new Intl.NumberFormat('sk-SK').format(r.km) + ' km' : '—'], ['Palivo', r.fuel || '—'], ['Prevodovka', r.gear || '—'], ['Karoséria', r.body || '—'], ['Predajca', sn], ['Lokalita', r.location || '—'], ['V ponuke od', fmtDate(r.addedAt)], ['Zmizol z Bazoša', fmtDate(r.soldAt)], ['Doba predaja', dFmt(days(r))]];
-    d.innerHTML = `<div class="ph" style="${r.photo ? `background-image:url('${esc(r.photo)}')` : ''}"></div><div class="in">
+    d.innerHTML = `<div class="ph" style="background-image:url('${pic(r)}')"></div><div class="in">
       <h2>${esc(r.carTitle || r.title)}</h2>${r.title && r.carTitle && r.title !== r.carTitle ? `<span class="mut">Pôvodný názov na Bazoši: ${esc(r.title)}</span>` : ''}
       <dl>${items.map(([k,v]) => `<div><dt>${k}</dt><dd class="num">${esc(v)}</dd></div>`).join('')}</dl>
       ${r.desc ? `<p>${esc(r.desc)}</p>` : ''}${(r.fotky||[]).length ? `<div class="fst">${r.fotky.map(n => `<a href="/api/foto/${esc(r.adId)}/${n}" target="_blank" rel="noopener"><img loading="lazy" src="/api/foto/${esc(r.adId)}/${n}/t" alt="Fotka ${n}"></a>`).join('')}</div>` : ''}${r.why ? `<p><b style="color:var(--fg)">Text z reklamy:</b> ${esc(r.why)}</p>` : ''}

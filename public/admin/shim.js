@@ -74,7 +74,7 @@
   .skbar a[aria-current=page]{background:linear-gradient(135deg,#14B47E,#45D99B);color:#03140D;border-color:transparent}
   .skbar .sp{flex:1}.skbar .who{color:#9ca2ad;font-weight:600;padding-inline:4px}
   .skbar .who b{color:#f3f4f6}
-  @media (max-width:640px){.skbar .who{display:none}}`;
+  @media (max-width:640px){.skbar .who{display:none}.skbar .in{flex-wrap:nowrap;overflow-x:auto;gap:6px;padding:8px 12px;font-size:13px;scrollbar-width:none}.skbar .in::-webkit-scrollbar{display:none}.skbar a,.skbar button{padding:8px 12px;white-space:nowrap;flex:none}.skbar .sp{display:none}}`;
   document.head.append(Object.assign(document.createElement('style'), { textContent: css }));
   const here = location.pathname.replace(/\/+$/, '') || '/admin';
   const links = [['/admin', 'Inzeráty'], ['/admin/reklamy', 'Reklamy'], ['/admin/dopyty', 'Dopyty'], ['/admin/ucet', 'Účet']];
@@ -86,7 +86,7 @@
   window.SKme = api('me').then((j) => {
     const u = j.user; bar.querySelector('#skWho').innerHTML = `Prihlásený: <b>${u.name.replace(/[<>&]/g, '')}</b>`;
     if (u.mustChange && here !== '/admin/ucet') location.href = '/admin/ucet/?zmena=1';
-    if (here !== '/admin/ucet') api('recovery').then((r) => { if (!r.has) { const a = document.createElement('a'); a.href = '/admin/ucet/'; a.textContent = '⚠ Vytvorte si záchranný kód'; a.style.cssText = 'color:#f2b84b;border-color:#f2b84b'; bar.querySelector('.sp').after(a); } }).catch(() => {});
+    if (here !== '/admin/ucet') api('recovery').then((r) => { if (!r.has) { const a = document.createElement('a'); a.href = '/admin/ucet/'; a.textContent = '⚠ Záchranný kód'; a.style.cssText = 'color:#f2b84b;border-color:#f2b84b'; bar.querySelector('.sp').after(a); } }).catch(() => {});
     return u;
   });
 })();
