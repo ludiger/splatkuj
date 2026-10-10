@@ -268,6 +268,11 @@ fieldset.st legend{font-weight:700;font-size:15px;margin-bottom:12px;padding:0}
 .chk{display:flex!important;gap:10px;align-items:flex-start;font-weight:500!important;font-size:13px!important;color:var(--mut)}
 .chk input{width:18px!important;height:18px;margin-top:2px;flex:none;accent-color:var(--brand)}
 .chk a{color:var(--brand)}
+.ac{position:relative}
+.acl{position:absolute;left:0;right:0;top:100%;margin-top:4px;z-index:20;list-style:none;padding:6px;background:var(--panel);border:1px solid var(--brand);border-radius:12px;max-height:260px;overflow:auto;box-shadow:0 12px 30px rgba(0,0,0,.35)}
+.acl li{padding:10px 12px;border-radius:8px;cursor:pointer;font-weight:500;font-size:14px}
+.acl li:hover,.acl li[aria-selected=true]{background:color-mix(in srgb,var(--brand) 18%,transparent)}
+.acl li small{display:block;color:var(--mut);font-size:12px}
 .nav2{display:flex;justify-content:space-between;gap:12px}.nav2 #fNext{margin-left:auto}
 @media (max-width:480px){fieldset.st,.sub,.sum{grid-template-columns:1fr}.steps li+li{margin-left:40px}.steps li+li::before{width:40px}}
 .done{grid-column:1/-1;text-align:center;display:grid;gap:12px;justify-items:center;padding:24px 8px}
@@ -572,7 +577,7 @@ footer{border-top:1px solid var(--line);padding-block:40px;color:var(--mut);font
             <label class="full">Priemerná mesačná fakturácia za posledné 3 mesiace *<input id="f-turnover" inputmode="numeric" placeholder="Fakturácia v eurách"></label>
           </div>
           <div class="full sub" data-for="zam" hidden>
-            <label class="full">Názov zamestnávateľa *<input id="f-employer" list="empList" autocomplete="off" placeholder="Začnite písať názov spoločnosti"></label><datalist id="empList"></datalist>
+            <label class="full ac">Názov zamestnávateľa *<input id="f-employer" autocomplete="off" placeholder="Začnite písať názov spoločnosti" aria-autocomplete="list" aria-controls="empList"><ul id="empList" class="acl" role="listbox" hidden></ul></label>
             <label>Nástup do zamestnania – mesiac *<select id="f-sm"><option value="">Vyberte mesiac</option><option value="01">január</option><option value="02">február</option><option value="03">marec</option><option value="04">apríl</option><option value="05">máj</option><option value="06">jún</option><option value="07">júl</option><option value="08">august</option><option value="09">september</option><option value="10">október</option><option value="11">november</option><option value="12">december</option></select></label>
             <label>Rok *<select id="f-sy"><option value="">Vyberte rok</option><option>2026</option><option>2025</option><option>2024</option><option>2023</option><option>2022</option><option>2021</option><option>2020</option><option>2019</option><option>2018</option><option>2017</option><option>2016</option><option>2015</option><option>2014</option><option>2013</option><option>2012</option><option>2011</option><option>2010</option><option>2009</option><option>2008</option><option>2007</option><option>2006</option><option>2005</option><option>2004</option><option>2003</option><option>2002</option><option>2001</option><option>2000</option><option>1999</option><option>1998</option><option>1997</option><option>1996</option><option>1995</option><option>1994</option><option>1993</option><option>1992</option><option>1991</option><option>1990</option><option>1989</option><option>1988</option><option>1987</option><option>1986</option><option>1985</option><option>1984</option><option>1983</option><option>1982</option><option>1981</option><option>1980</option></select></label>
           </div>
@@ -895,12 +900,21 @@ dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-f
       else { ico = { ico: d, ok: f && f.error === 'nenašlo sa' ? false : null, f: null }; info.classList.add('n');
         info.textContent = ico.ok === false ? 'IČO sme v registri nenašli – skontrolujte ho prosím. Žiadosť môžete odoslať aj tak, overíme ho ručne.' : ($('f-src').value.includes('SZČO') ? 'Register živností momentálne neodpovedá, preto živnostníka teraz nevieme overiť automaticky. Pokračujte prosím – IČO overíme ručne.' : 'Register momentálne neodpovedá – IČO overíme ručne. Pokračujte prosím.'); } }, 300); });
   $('f-company').addEventListener('input', () => delete $('f-company').dataset.auto);
-  // zamestnávateľ: návrhy z registra podľa názvu (ak register odpovedá)
-  let empT = 0;
-  $('f-employer').addEventListener('input', () => { clearTimeout(empT); const q = $('f-employer').value.trim(); if (q.length < 3 || $('f-src').value !== 'Zamestnanec na Slovensku') return;
-    empT = setTimeout(async () => { try { const ac = new AbortController(); setTimeout(() => ac.abort(), 6000);
+  // zamestnávateľ: návrhy z obchodného registra podľa názvu (vlastný zoznam pod poľom)
+  let empT = 0, empSel = -1; const empL = $('empList'), empI = $('f-employer');
+  const empHide = () => { empL.hidden = true; empSel = -1; };
+  empI.addEventListener('input', () => { clearTimeout(empT); const q = empI.value.trim(); if (q.length < 2) return empHide();
+    empT = setTimeout(async () => { try { const ac = new AbortController(); setTimeout(() => ac.abort(), 8000);
       const j = await (await fetch('/api/firma?q=' + encodeURIComponent(q), { signal: ac.signal })).json();
-      $('empList').innerHTML = (j.items || []).map(x => `<option value="${esc2(x.name)}">${esc2([x.ico, x.city].filter(Boolean).join(' · '))}</option>`).join(''); } catch {} }, 350); });
+      if (empI.value.trim() !== q) return; const it = (j.items || []).slice(0, 8);
+      empL.innerHTML = it.map((x, i) => `<li role="option" data-i="${i}">${esc2(x.name)}${x.city || x.ico ? '<small>' + esc2([x.ico, x.city].filter(Boolean).join(' · ')) + '</small>' : ''}</li>`).join('');
+      empL.hidden = !it.length || document.activeElement !== empI; empSel = -1; } catch {} }, 300); });
+  empL.addEventListener('mousedown', e => { const li = e.target.closest('li'); if (!li) return; e.preventDefault(); empI.value = li.firstChild.textContent; empHide(); });
+  empI.addEventListener('keydown', e => { if (empL.hidden) return; const li = [...empL.children];
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); empSel = (empSel + (e.key === 'ArrowDown' ? 1 : -1) + li.length) % li.length; li.forEach((x, i) => x.setAttribute('aria-selected', String(i === empSel))); }
+    else if (e.key === 'Enter' && empSel >= 0){ e.preventDefault(); empI.value = li[empSel].firstChild.textContent; empHide(); }
+    else if (e.key === 'Escape') empHide(); });
+  empI.addEventListener('blur', () => setTimeout(empHide, 150));
   function showStep(n, quiet){ fstep = n; F.querySelectorAll('fieldset.st').forEach(x => x.hidden = +x.dataset.step !== n);
     F.querySelectorAll('.steps li').forEach(li => { li.classList.toggle('on', +li.dataset.s <= n); li.toggleAttribute('aria-current', +li.dataset.s === n); });
     $('stepT').textContent = `Krok ${n} z 3`; $('fBack').hidden = n === 1; $('fNext').textContent = n === 3 ? 'Odoslať žiadosť' : 'Ďalej'; say('');

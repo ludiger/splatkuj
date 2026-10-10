@@ -23,6 +23,20 @@ const json = (data, status = 200, cache = 86400) =>
     headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': status === 200 ? `public, max-age=${cache}` : 'no-store' },
   });
 
+// Obchodný register (orsr.sk) – stránka je vo windows-1250, preto vlastné kódovanie
+const CP = '€\u0081‚\u0083„…†‡\u0088‰Š‹ŚŤŽŹ\u0090‘’“”•–—\u0098™š›śťžź\u00a0ˇ˘Ł¤Ą¦§¨©Ş«¬\u00ad®Ż°±˛ł´µ¶·¸ąş»Ľ˝ľżŔÁÂĂÄĹĆÇČÉĘËĚÍÎĎĐŃŇÓÔŐÖ×ŘŮÚŰÜÝŢßŕáâăäĺćçčéęëěíîďđńňóôőö÷řůúűüýţ˙';
+const cpDecode = (buf) => { let o = ''; for (const b of new Uint8Array(buf)) o += b < 128 ? String.fromCharCode(b) : CP[b - 128]; return o; };
+const cpEncode = (str) => [...str].map((ch) => { const c = ch.charCodeAt(0); if (c < 128) return /[A-Za-z0-9]/.test(ch) ? ch : '%' + c.toString(16).padStart(2, '0').toUpperCase(); const i = CP.indexOf(ch); return i >= 0 ? '%' + (i + 128).toString(16).toUpperCase() : ''; }).join('');
+const unent = (s) => s.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#(\d+);/g, (_, n) => String.fromCharCode(+n)).replace(/&nbsp;/g, ' ');
+async function orsrByName(q) {
+  const r = await fetch(`https://www.orsr.sk/hladaj_subjekt.asp?OBMENO=${cpEncode(q)}&PF=0&R=on`, { signal: AbortSignal.timeout(6000), cf: { cacheTtl: 3600, cacheEverything: true } });
+  if (!r.ok) throw new Error('http ' + r.status);
+  const h = cpDecode(await r.arrayBuffer());
+  const out = [];
+  for (const m of h.matchAll(/<a\b[^>]*title="Aktu[^"]*"[^>]*>([^<]+)<\/a>/gi)) { const name = unent(m[1]).trim(); if (name && !out.some((x) => x.name === name)) out.push({ name, ico: '', city: '' }); }
+  return out.slice(0, 10);
+}
+
 async function getJson(url, ms) {
   const r = await fetch(url, { headers: { accept: 'application/json' }, signal: AbortSignal.timeout(ms), cf: { cacheTtl: 86400, cacheEverything: true } });
   if (r.status === 404) return { notFound: true };
@@ -68,6 +82,7 @@ export async function onRequestGet({ request }) {
   const q = (sp.get('q') || '').trim().slice(0, 60);
   if (q) {
     if (q.length < 3) return json({ ok: true, items: [] });
+    try { const items = await orsrByName(q); if (items.length) return json({ ok: true, items, source: 'ORSR' }, 200, 3600); } catch {}
     try {
       const d = await getJson(`https://api.statistics.sk/rpo/v1/search?fullName=${encodeURIComponent(q)}&onlyActive=true`, 5000);
       const items = (d.results || d.data || []).slice(0, 8).map((e) => {
@@ -91,5 +106,5 @@ export async function onRequestGet({ request }) {
     }
   });
   if (found) { found.ageMonths = found.established ? Math.floor((Date.now() - Date.parse(found.established)) / (30.44 * 864e5)) : null; return json(found); }
-  return rpoDown ? json({ ok: false, error: 'register neodpovedá' }, 502) : json({ ok: false, error: 'nenašlo sa' }, 404);
+  return rpoDown ? json({ ok: false, error: 'register neodpovedá' }, 200, 60) : json({ ok: false, error: 'nenašlo sa' }, 200, 3600);
 }
