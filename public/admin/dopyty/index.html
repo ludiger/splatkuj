@@ -275,6 +275,9 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
   const db = await claude.use('db');
   me = await window.SKme.catch(() => null);
   const myName = () => (me && (me.name || me.login)) || 'admin';
+  let team = []; try { team = ((await window.SKapi('team')).team || []).map((u) => u.name); } catch {}
+  const whoSel = (r) => { const names = [...new Set([...team, myName(), r.riesi].filter(Boolean))];
+    return `<label class="odk" title="Kto obchod rieši – výberom ho odovzdáte kolegovi">👤 Rieši:<select data-riesi><option value="">— nikto —</option>${names.map((n) => `<option${r.riesi === n ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select></label>`; };
   const fmt = (iso) => { const d = new Date(iso); return isNaN(d) ? '' : d.toLocaleString('sk-SK', { day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' }); };
   const fmtD = (s) => { const d = new Date(s); return isNaN(d) ? '' : d.toLocaleDateString('sk-SK', { day: 'numeric', month: 'numeric', year: 'numeric' }); };
   const today = () => new Date().toISOString().slice(0, 10);
@@ -290,7 +293,7 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
   // ---------- časomiera oslovenia: do 30 minút od prijatia ----------
   const LIMIT = 30 * 60e3;
   // čas prvého oslovenia: uložený prvyKontaktAt, inak prvá aktivita (okrem zmeny poverenia), inak prvý posun z „Nový dopyt“
-  const contactAt = (r) => r.prvyKontaktAt || arr(r.aktivity).filter((a) => a.typ && !/Prevzal|Odkiaľ/.test(a.typ)).map((a) => a.cas).sort()[0] || '';
+  const contactAt = (r) => r.prvyKontaktAt || arr(r.aktivity).filter((a) => a.typ && !/Prevzal|Odkiaľ|Odovzdané/.test(a.typ)).map((a) => a.cas).sort()[0] || '';
   const dur = (ms) => { const m = Math.round(Math.abs(ms) / 60e3); return m < 60 ? m + ' min' : m < 1440 ? Math.floor(m / 60) + ' h ' + (m % 60) + ' min' : Math.floor(m / 1440) + ' d ' + Math.floor((m % 1440) / 60) + ' h'; };
   const tmTxt = (start) => { const left = Date.parse(start) + LIMIT - Date.now();
     if (left <= 0) return ['over', '⚠ po termíne +' + dur(left)];
@@ -412,7 +415,7 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
         <div class="box">${sc ? `<h4><span>📋 ${esc(sc.t)}</span><span>${kroky.filter(Boolean).length}/${sc.s.length}</span></h4>
           <ul class="script">${sc.s.map((t, i) => `<li><label class="${kroky[i] ? 'ok' : ''}"><input type="checkbox" data-krok="${i}"${kroky[i] ? ' checked' : ''}><span>${t.replace('{ja}', esc(myName().split(' ')[0])).replace('{auto}', esc(car))}</span></label></li>`).join('')}</ul>`
           : `<h4><span>Obchod ukončený</span></h4><p class="who">Ak sa klient ozve znova, vráťte ho do niektorej fázy vyššie.</p>`}</div>
-        <div class="box"><h4><span>➡️ Ďalší krok</span>${r.riesi === myName() ? '' : `<button type="button" class="btn ghost" data-take>Prevziať</button>`}</h4>
+        <div class="box"><h4><span>➡️ Ďalší krok</span><span class="row">${whoSel(r)}${r.riesi === myName() ? '' : `<button type="button" class="btn ghost" data-take>Prevziať</button>`}</span></h4>
           <div class="next"><input data-next placeholder="Napr. zavolať, či poslal výpisy" value="${esc(r.dalsiKrok || '')}"><input type="date" data-nextd value="${esc(String(r.dalsiKrokDatum || '').slice(0, 10))}"></div>
           <div class="row" style="margin-top:6px">${[['Dnes', 0], ['Zajtra', 1], ['O 3 dni', 3], ['O týždeň', 7]].map(([l, d]) => `<button type="button" class="btn ghost" data-in="${d}">${l}</button>`).join('')}</div>
           <div class="val" style="margin-top:10px">Výška financovania (€): <input inputmode="numeric" data-val value="${esc(r.hodnota || '')}" placeholder="${esc((String(u['Cena vozidla'] || '').replace(/\D/g, '')) || '')}"></div>
@@ -502,6 +505,8 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
     if (t.matches('[data-note]')) return save(id, { poznamka: t.value.slice(0, 2000) }, true);
     if (t.matches('[data-next]') || t.matches('[data-nextd]')) { const art = t.closest('article'); return save(id, { dalsiKrok: art.querySelector('[data-next]').value.trim().slice(0, 200), dalsiKrokDatum: art.querySelector('[data-nextd]').value }, t.matches('[data-next]')); }
     if (t.matches('[data-val]')) return save(id, { hodnota: t.value.replace(/\D/g, '') }, true);
+    if (t.matches('[data-riesi]')) { const nw = t.value, old = r.riesi || '—';
+      return save(id, { riesi: nw, aktivity: log(r, '👤 Odovzdané', `${old} → ${nw || '—'}${nw && nw !== myName() ? ' (odovzdal ' + myName() + ')' : ''}`) }); }
     if (t.matches('[data-odk]')) return save(id, { odkial: t.value, aktivity: log(r, '📍 Odkiaľ prišiel', t.value || '—') });
     if (t.matches('[data-dovod]')) return save(id, { dovod: t.value, aktivity: log(r, '❌ Dôvod', t.value) });
   });

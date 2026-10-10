@@ -113,6 +113,11 @@ export async function onRequest(ctx) {
   const owner = me.role === 'owner';
 
   if (path === 'me' && method === 'GET') return json({ ok: true, user: me });
+  // zoznam kolegov pre CRM (odovzdanie obchodu) – len meno a prihlasovacie meno, pre každého prihláseného
+  if (path === 'team' && method === 'GET') {
+    const r = await env.DB.prepare('SELECT login, name FROM users ORDER BY created_at').all();
+    return json({ ok: true, team: r.results.map((u) => ({ login: u.login, name: u.name || u.login })) });
+  }
 
   if (path === 'password' && method === 'POST') {
     const b = await body(request);
