@@ -145,7 +145,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 @media (max-width:640px){.filters input{flex:1 1 100%}}
 .filters input:focus,.filters select:focus{border-color:var(--brand);outline:none}
 #fCount{margin-left:auto;font-size:14px}
-.pcount{display:inline-block;margin-left:10px;padding:4px 10px;border-radius:999px;background:linear-gradient(135deg,var(--brand),var(--brand2));color:var(--on-brand);font:700 12px/1.2 var(--body);letter-spacing:.04em;text-transform:none;vertical-align:1px}
+.eyebrow .offcnt{display:inline-block;margin-left:10px;padding:4px 10px;border-radius:999px;background:linear-gradient(135deg,var(--brand),var(--brand2));color:var(--on-brand);font:700 12px/1.2 var(--body);letter-spacing:.04em;text-transform:none;vertical-align:1px}
 /* detail */
 dialog.det{border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:24px;padding:0;width:min(980px,calc(100vw - 24px));max-height:calc(100vh - 24px);overflow:auto}
 dialog.det::backdrop{background:rgb(0 0 0/.7);backdrop-filter:blur(4px)}
@@ -372,7 +372,7 @@ footer{border-top:1px solid var(--line);padding-block:40px;color:var(--mut);font
   <section id="ponuka" style="padding-top:0">
     <div class="wrap">
       <div class="head">
-        <div><span class="eyebrow">Aktuálna ponuka <span class="pcount" id="pCount" hidden></span></span><h2>Preverené autá, pripravené na splátky</h2></div>
+        <div><span class="eyebrow">Aktuálna ponuka <span class="offcnt" id="pCount" hidden></span></span><h2>Preverené autá, pripravené na splátky</h2></div>
         <p>Vyberte si z ponuky preverených áut. Financovanie pripravíme ku každému vozidlu.</p>
       </div>
       <div class="filters">
