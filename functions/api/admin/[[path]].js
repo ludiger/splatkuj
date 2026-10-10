@@ -4,7 +4,7 @@ import {
   json, noDb, schema, currentUser, createSession, sessionCookie, cookieOf, sha256,
   hashPassword, verifyPassword, passwordProblem, tooMany, failed, clearAttempts, audit, SESSION_DAYS, newRecoveryCode, normCode,
 } from '../../_lib/auth.js';
-import { fotoKey, fetchBazos, bazosInzerat } from '../../_lib/foto.js';
+import { fotoKey, fetchBazos, bazosInzerat, isExt, fetchExt } from '../../_lib/foto.js';
 
 const COLLS = new Set(['inzeraty', 'config', 'leady', 'reklamy']);
 const ID_RE = /^[A-Za-z0-9_.:@+-]{1,120}$/;
@@ -189,7 +189,18 @@ export async function onRequest(ctx) {
     const id = am[1];
     const row = await env.DB.prepare('SELECT data FROM docs WHERE coll = ? AND id = ?').bind('inzeraty', id).first();
     const doc = row ? JSON.parse(row.data) : {};
+    const ext = isExt(id);
     let nums = Array.isArray(doc.fotky) ? doc.fotky : null;
+    if (ext && (!nums || !nums.length)) {
+      // auto z vlastného webu predajcu: fotky sú adresy v poli imgs (1 = prvá)
+      const imgs = Array.isArray(doc.imgs) ? doc.imgs : [];
+      if (!imgs.length) return json({ ok: false, error: 'Auto nemá zoznam fotiek (imgs).' }, 404);
+      nums = imgs.map((_, i) => i + 1);
+      if (row) {
+        doc.fotky = nums; doc.fotkyAt = new Date().toISOString();
+        await env.DB.prepare('UPDATE docs SET data = ?, updated = ? WHERE coll = ? AND id = ?').bind(JSON.stringify(doc), Date.now(), 'inzeraty', id).run();
+      }
+    }
     if (!nums || !nums.length) {
       const slug = ((doc.url || '').match(/inzerat\/\d+\/([^/?#]+\.php)/) || [])[1];
       const info = slug ? await bazosInzerat(id, slug) : null;
@@ -206,7 +217,7 @@ export async function onRequest(ctx) {
         if (await env.FOTO.head(fotoKey(id, n, t))) { have++; continue; }
         if (budget <= 0) continue;
         budget--;
-        const buf = await fetchBazos(id, n, t);
+        const buf = ext ? await fetchExt((doc.imgs || [])[n - 1]) : await fetchBazos(id, n, t);
         if (!buf) { missing++; continue; }
         await env.FOTO.put(fotoKey(id, n, t), buf, { httpMetadata: { contentType: 'image/jpeg' } });
         saved++;

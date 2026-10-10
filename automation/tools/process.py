@@ -5,6 +5,7 @@ Spúšťa sa v pracovnom priečinku SK_ROOT (default /tmp/sk), kde sú:
   img/hq/<id>-<n>.jpg   (fotky nových áut z Bazoša, bez ružových okrajov)
   new.json   [{id,title,sub,price,year,km,power,fuel,gear,drive,tags,desc,loc,url,seller,why,picks:[f,w,s,k],webPhotos:[5 čísel]}]
   sold.json  ["adId", ...]   – autá, ktoré treba stiahnuť z webu a galérie
+  prices.json {"adId": novaCena, ...} – autá so zmenenou cenou (prepíše sa na webe, v galérii aj v dátach)
 Výstup: out/web/…, out/gal/…, out/admin/<id>.jpg a out/publish.json (čo publikovať / zmazať).
 """
 import json, os, re, sys, glob, shutil, subprocess
@@ -20,6 +21,7 @@ pay = lambda p: round(p * R / (1 - (1 + R) ** -96))
 
 new = J('new.json') if os.path.exists(f'{ROOT}/new.json') else []
 sold = J('sold.json') if os.path.exists(f'{ROOT}/sold.json') else []
+prices = {str(k): int(v) for k, v in (J('prices.json') if os.path.exists(f'{ROOT}/prices.json') else {}).items()}
 for d in ('out/web/img/p', 'out/gal/r', 'out/gal/t', 'out/gal/v', 'out/admin', 'img/p', 'ads/out', 'ads/video'):
     os.makedirs(f'{ROOT}/{d}', exist_ok=True)
 
@@ -47,6 +49,8 @@ for c in new:
         shutil.copy(f'{ROOT}/img/p/{i}-{n}.jpg', f'{ROOT}/out/web/img/p/{i}-{WEBN[k]}.jpg')
     a = Image.open(f'{ROOT}/img/p/{i}-{c["picks"][0]}.jpg').convert('RGB'); a.thumbnail((720, 720)); a.save(f'{ROOT}/out/admin/{i}.jpg', quality=78)
 cars = [c for c in cars if c['id'] not in sold]
+for c in cars:
+    if c['id'] in prices: c['price'] = prices[c['id']]
 W('data/all.json', cars); W('data/why.json', why); W('data/picks.json', picks)
 
 # 3) reklamy + videá pre nové autá
@@ -64,6 +68,8 @@ if nid:
 g = open(f'{ROOT}/gallery.html').read()
 m = re.search(r'const CARS = (\[.*?\]);\n', g); gc = json.loads(m.group(1))
 gc = [c for c in gc if c['id'] not in sold and c['id'] not in nid]
+for c in gc:
+    if c['id'] in prices: c['p'] = prices[c['id']]; c['m'] = pay(prices[c['id']])
 for c in reversed(new):
     gc.insert(0, {"id": c['id'], "t": c['title'], "s": c['sub'], "p": c['price'], "m": pay(c['price']), "y": c['year'], "km": c['km'],
                   "kw": c.get('power', ''), "f": c.get('fuel', ''), "loc": c.get('loc', ''), "w": c.get('why', '')})
@@ -75,6 +81,16 @@ s = open(f'{ROOT}/web.html').read()
 hm = re.search(r'const HIDE=new Set\((\[.*?\])\);', s)
 hide = sorted(set(json.loads(hm.group(1))) | set(sold))
 s = s[:hm.start(1)] + json.dumps(hide) + s[hm.end(1):]
+# zmena ceny: auto môže byť vo webe pod číslom inzerátu alebo pod menom (BID={cupra:'1951…'})
+bm = re.search(r'const BID=(\{.*?\});', s)
+bid = {}
+if bm:
+    for k, v in re.findall(r"['\"]?([\w-]+)['\"]?\s*:\s*['\"](\d+)['\"]", bm.group(1)): bid.setdefault(v, []).append(k)
+price_done = []
+for i, p in prices.items():
+    for key in [i] + bid.get(i, []):
+        s, n = re.subn(r'(\{[^{}]*?["\']?id["\']?\s*:\s*["\']' + re.escape(key) + r'["\'][^{}]*?["\']?price["\']?\s*:\s*)\d+', lambda m: m.group(1) + str(p), s)
+        if n: price_done.append(i); break
 web_new = [c for c in web_new if f'"id": "{c["id"]}"' not in s and f'"id":"{c["id"]}"' not in s]
 if web_new:
     k = s.index('  const BID={cupra'); k = s.rindex(';', 0, k)
@@ -93,4 +109,4 @@ for i in sold:
         for f in ('post', 'story'): pub['gal'][f'{x}/{i}-{f}.jpg'] = None
     pub['gal'][f'v/{i}.mp4'] = None
 W('out/publish.json', pub)
-print(json.dumps({"new": nid, "sold": sold, "web_files": len(pub['web']), "gal_files": len(pub['gal'])}))
+print(json.dumps({"new": nid, "sold": sold, "prices": price_done, "prices_missing": [i for i in prices if i not in price_done], "web_files": len(pub['web']), "gal_files": len(pub['gal'])}))

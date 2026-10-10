@@ -1,7 +1,8 @@
-// GET /api/foto/<bazosId>/<n>    -> fotka č. n k inzerátu (1200×900, najvyššia kvalita, akú Bazoš má)
-// GET /api/foto/<bazosId>/<n>/t  -> náhľad
+// GET /api/foto/<id>/<n>    -> fotka č. n k inzerátu (1200×900, najvyššia kvalita, akú Bazoš má)
+// GET /api/foto/<id>/<n>/t  -> náhľad
 // Ak je pripojený R2 bucket FOTO, fotka sa pri prvom zobrazení natrvalo uloží a ostane aj po zmazaní inzerátu.
-import { fotoKey, fetchBazos } from '../../_lib/foto.js';
+// Autá z vlastných webov predajcov (id 9xxxxxxxx): fotka č. n = n-tá adresa v poli imgs dokumentu inzerátu.
+import { fotoKey, fetchBazos, fetchExt, isExt, getDoc } from '../../_lib/foto.js';
 
 const IMG = { 'content-type': 'image/jpeg', 'cache-control': 'public, max-age=2592000, immutable' };
 
@@ -13,7 +14,14 @@ export async function onRequestGet({ params, env, waitUntil }) {
     const o = await env.FOTO.get(fotoKey(id, n, thumb));
     if (o) return new Response(o.body, { headers: IMG });
   }
-  const buf = await fetchBazos(id, n, thumb);
+  let buf = null;
+  if (isExt(id)) {
+    const doc = await getDoc(env, id);
+    const u = doc && Array.isArray(doc.imgs) ? doc.imgs[+n - 1] : null;
+    buf = u ? await fetchExt(u) : null;
+  } else {
+    buf = await fetchBazos(id, n, thumb);
+  }
   if (!buf) return new Response('Not found', { status: 404 });
   if (env.FOTO) waitUntil(env.FOTO.put(fotoKey(id, n, thumb), buf, { httpMetadata: { contentType: 'image/jpeg' } }));
   return new Response(buf, { headers: IMG });

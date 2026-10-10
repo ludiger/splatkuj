@@ -724,8 +724,10 @@ dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-f
     return {rows, groups};
   }
   async function loadMore(c){
-    if (!LIVE || !bzSlug(c)) return;
-    let d; try { const r = await fetch(`/api/inzerat/${apiId(c)}?p=${encodeURIComponent(RL[bzId(c)] ? ((c.url||'').match(/inzerat\/\d+\/([^/?#]+)/)||[])[1] || bzSlug(c) : bzSlug(c))}`); d = await r.json(); } catch { return; }
+    const ext = /^9\d{8}$/.test(String(apiId(c))); // auto z vlastného webu predajcu (nie z Bazoša)
+    if (!LIVE || (!bzSlug(c) && !ext)) return;
+    const pq = ext ? 'web' : (RL[bzId(c)] ? ((c.url||'').match(/inzerat\/\d+\/([^/?#]+)/)||[])[1] || bzSlug(c) : bzSlug(c));
+    let d; try { const r = await fetch(`/api/inzerat/${apiId(c)}?p=${encodeURIComponent(pq)}`); d = await r.json(); } catch { return; }
     if (cur !== c || !d || !d.ok) return;
     if (d.n > 5){ XN[bzId(c)] = Array.from({length: d.n}, (_, i) => i + 1).filter(n => !PN.includes(n)); c.photos = 5 + XN[bzId(c)].length;
       $('dThumbs').innerHTML = Array.from({length:c.photos},(_,i)=>`<button type="button" data-p="${i+1}" aria-label="Fotka ${i+1}"></button>`).join('');

@@ -29,6 +29,22 @@ Legenda: **VY** = robí majiteľ, **CLAUDE** = robí Claude, **SPOLU** = spoloč
 - [ ] VY – Zapnúť upozornenia: do telefónu nainštalovať aplikáciu ntfy, odoberať novú tému s dlhým náhodným názvom (napr. splatkuj- + 20 náhodných znakov) a ten istý názov pridať v Cloudflare (Pages → splatkuj → Settings → Variables and Secrets) ako secret `NTFY_TOPIC`. Názov témy neposielať do chatu.
 - [ ] CLAUDE – Po pridaní: redeploy a skúšobný dopyt.
 
+## 2b. Predajcovia, kontrola cien a dávkové spracovanie (10. 10. 2026)
+- [x] CLAUDE – Noví predajcovia v admine: Martin Trenčín, Autoslovakia (Tomáš, Levice), Predajca Nitra, Viktor (B. Bystrica). Ich 75 áut je zapísaných v admine s needsAds=true (bez fotiek, reklám a webu).
+- [x] CLAUDE – Kontrola zmeny ceny pri každej kontrole (Bazoš aj vlastné weby): /api/inzerat vracia aj `price`, automatika pri zmene prepíše cenu v admine, na webe aj v galérii reklám (`automation/tools/process.py` → prices.json).
+- [x] CLAUDE – Podpora áut z vlastných webov predajcov (zatiaľ Cooldrive): čísla 9xxxxxxxx, fotky z poľa `imgs`, existencia podľa VIN (`functions/_lib/foto.js`), čítačka `automation/tools/web_sources.js`.
+- [x] CLAUDE – Úsporný beh: najviac 12 spracovaných áut za beh, zvyšok čaká (needsAds=true) na ďalší beh.
+- [ ] CLAUDE – Pridať predajcu Cooldrive (5 kategórií, ~35 áut) a JD Autobazár (Bazoš: hľadanie podľa tel. 0918 811 395 + profil „Jan“) do adminu a prvé autá spracovať na skúšku.
+- [ ] CLAUDE – Doplniť do 75 čakajúcich áut polia kw, drive, tags, yearText (pre spracovanie v ďalších behoch).
+- [ ] CLAUDE – Mazda Prešov (mazdaihned.sk): zistiť, či sa dá ponuka čítať spoľahlivo (odkaz z chatu je dočasná adresa ich aplikácie).
+- [ ] CLAUDE – Aktualizovať prompt naplánovanej úlohy podľa automation/PROMPT.md (zmena promptu musí schváliť majiteľ v aplikácii na počítači).
+
+## 2c. Úpravy z druhej stránky kolegu (vrátime sa k tomu)
+- [x] Spôsob predaja („Ako sa auto predalo?“ – cez nás / cez predajcu) – už je v admine v časti Predané a v analytike.
+- [ ] CLAUDE – Analytika: prepínač, ktorý skryje predané autá, aby sa ukazovali len údaje o autách na predaj.
+- [ ] SPOLU – Kalkulačka podľa ročníka auta: maximálna doba splácania podľa veku auta (napr. pri aute 2017 sa nedá zvoliť 8 rokov), akontácia predvolene 0 %. Treba presné pravidlo (max. vek auta na konci splácania alebo tabuľka ročník → max. doba) a súhlas majiteľa – dnes je na webe všade 96 mesiacov.
+- [ ] VY – Poslať PDF s postupom k API (bez kľúča); kľúč vložiť len v Cloudflare ako secret (pozri bod 2).
+
 ## 3. Sociálne siete – automatické zverejňovanie áut
 - [ ] VY – Prihlásiť Instagram (firemný) vo Windsor.ai.
 - [ ] VY – Prihlásiť TikTok v Higgsfield.
