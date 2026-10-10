@@ -7,4 +7,4 @@
 - `ads_batch.py` – zo screenshotov urobí fotky, reklamy (post, story), video a doplní galériu
 - Hotové autá dostanú v admine needsAds=false, webApi=true (na webe ostávajú cez /api/ponuka).
 
-Stav: hotových 7 áut (plan j 0–27). Pokračuje sa od j = 28 (auto 195157428).
+Stav: hotových 7 (po každej dávke spusti python3 build_admin.py!) áut (plan j 0–27). Pokračuje sa od j = 28 (auto 195157428).
