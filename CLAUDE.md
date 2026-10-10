@@ -14,6 +14,13 @@ Splatkuj.sk je sprostredkovateľ financovania ojazdených áut (predtým značka
 - **Automatika** – naplánovaná úloha v Claude 1× denne (7:52), prompt je v `automation/PROMPT.md`, nástroje v `automation/tools`, dáta v `automation/data`, prenos do repozitára `tools/sync_repo.py`.
 - E-mail info@splatkuj.sk – Cloudflare Email Routing → preposiela sa do Gmailu majiteľa.
 
+## Dokumenty (čítaj podľa potreby)
+- `docs/PLAN.md` – plán a stav úloh (čo je hotové, čo ďalej). Po dokončení bodu ho odškrtni.
+- `docs/laura-scenar.md` – scenár rozhovoru Laury.
+- `docs/zasady-znacky.md` – 12 princípov budovania značky (Žltá kniha), podľa nich overovať rozhodnutia o značke.
+- `docs/strategia-znacky.md` (+ PDF) – strategický základ značky.
+- `PREVOD-NA-FIREMNY-UCET.md` – postup prechodu na firemný účet Claude.
+
 ## Pravidlá (od majiteľa)
 - Nové autá od sledovaných predajcov spracovať bez pýtania (fotky, reklamy, video, web).
 - Pole `sellerId` pri existujúcich autách nikdy nemeniť.
