@@ -48,6 +48,9 @@ header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:co
 .nav .btn{padding:13px 20px;font-size:14px}
 @media (max-width:900px){.links{display:none}}
 @media (max-width:480px){.nav .btn{display:none}}
+.nav-r{display:flex;align-items:center;gap:10px}
+.nav .login{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;color:var(--mut);border:1px solid var(--line);text-decoration:none}
+.nav .login:hover{color:var(--fg);border-color:var(--mut)}
 
 /* hero */
 .hero{padding-block:clamp(40px,6vw,80px) clamp(56px,7vw,96px);position:relative;overflow:hidden}
@@ -265,7 +268,10 @@ footer{border-top:1px solid var(--line);padding-block:40px;color:var(--mut);font
     <nav class="links" aria-label="Hlavná navigácia">
       <a href="#ponuka">Ponuka</a><a href="#kalkulacka">Kalkulačka</a><a href="#postup">Ako to funguje</a><a href="#o-nas">O nás</a><a href="https://www.splatkuj.sk/blog/">Blog</a><a href="#kontakt">Kontakt</a>
     </nav>
-    <a class="btn btn-brand" href="#kontakt">Chcem auto na splátky</a>
+    <div class="nav-r">
+      <a class="btn btn-brand" href="#kontakt">Chcem auto na splátky</a>
+      <a class="login" href="https://www.splatkuj.sk/admin/login" rel="nofollow" title="Prihlásenie pre tím Splatkuj.sk" aria-label="Prihlásenie pre tím"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></a>
+    </div>
   </div>
 </header>
 
