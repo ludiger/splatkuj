@@ -144,14 +144,14 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 .filters input{flex:0 1 380px}
 @media (max-width:640px){.filters input{flex:1 1 100%}}
 .filters input:focus,.filters select:focus{border-color:var(--brand);outline:none}
-.fbar{display:flex;align-items:center;gap:16px;margin:0 0 22px}
+.fbar{display:flex;align-items:stretch;gap:16px;margin:0 0 22px}
 .fbar .filters{flex:1;justify-content:flex-start;margin:0}
 .fbar .filters{gap:8px}
 .fbar .filters input{flex:1 1 170px}
 .filters select{-webkit-appearance:none;appearance:none;padding-right:34px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%239ca2ad' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;cursor:pointer}
 @media (max-width:900px){.fbar{flex-direction:column-reverse;align-items:stretch}.fbar .stock{align-self:flex-end}}
-@media (max-width:640px){.fbar{gap:12px}.fbar .filters{display:grid;grid-template-columns:1fr 1fr;gap:8px}.fbar .filters input{grid-column:1/-1}.fbar .filters select{width:100%;font-size:14px;padding:11px 30px 11px 12px;background-position:right 10px center}.fbar .filters select:last-child{grid-column:1/-1}.fbar .stock{align-self:stretch;display:flex;justify-content:space-between;align-items:center;padding:10px 16px;text-align:left}.fbar .stock small{margin:0}.fbar .stock b{font-size:22px}}
-.stock{flex:none;background:linear-gradient(135deg,var(--brand),var(--brand2));color:var(--on-brand);border-radius:14px;padding:9px 18px;line-height:1.05;text-align:center}
+@media (max-width:640px){.fbar{gap:12px}.fbar .filters{display:grid;grid-template-columns:1fr 1fr;gap:8px}.fbar .filters input{grid-column:1/-1}.fbar .filters select{width:100%;font-size:14px;padding:11px 30px 11px 12px;background-position:right 10px center}.fbar .filters select:last-child{grid-column:1/-1}.fbar .stock{align-self:stretch;display:flex;flex-direction:row;justify-content:space-between;align-items:center;padding:10px 16px;text-align:left;min-width:0}.fbar .stock small{margin:0}.fbar .stock b{font-size:22px}}
+.stock{flex:none;display:flex;flex-direction:column;justify-content:center;min-width:170px;background:linear-gradient(135deg,var(--brand),var(--brand2));color:var(--on-brand);border-radius:14px;padding:9px 18px;line-height:1.05;text-align:center}
 .stock small{display:block;font:700 10px/1 var(--body);letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px}
 .stock b{font:900 26px/1.1 var(--display)} .stock b span{font-size:14px}
 /* detail */
@@ -390,7 +390,7 @@ footer{border-top:1px solid var(--line);padding-block:40px;color:var(--mut);font
         <select id="fFuel" aria-label="Palivo"></select>
         <select id="fMax" aria-label="Maximálna cena"><option value="">Akákoľvek cena</option><option value="10000">do 10 000 €</option><option value="15000">do 15 000 €</option><option value="20000">do 20 000 €</option><option value="25000">do 25 000 €</option><option value="30000">do 30 000 €</option></select>
         <select id="fPay" aria-label="Maximálna mesačná splátka"><option value="">Akákoľvek splátka</option><option value="100">splátka do 100 €</option><option value="150">splátka do 150 €</option><option value="200">splátka do 200 €</option><option value="250">splátka do 250 €</option><option value="300">splátka do 300 €</option><option value="400">splátka do 400 €</option><option value="500">splátka do 500 €</option></select>
-        <select id="fSort" aria-label="Zoradiť"><option value="">Odporúčané</option><option value="pa">Najlacnejšie</option><option value="pd">Najdrahšie</option><option value="y">Najnovšie</option></select>
+        <select id="fSort" aria-label="Zoradiť podľa"><option value="">Zoradiť: odporúčané</option><option value="pa">Cena: od najnižšej</option><option value="pd">Cena: od najvyššej</option><option value="y">Rok: od najnovšieho</option><option value="yo">Rok: od najstaršieho</option><option value="ka">Najazdené km: od najmenej</option><option value="kd">Najazdené km: od najviac</option><option value="wd">Výkon: od najvyššieho</option><option value="fa">Palivo (A – Z)</option></select>
       </div>
         <div class="stock" aria-live="polite"><small>Aktuálny počet vozidiel</small><b class="num" id="fCount"></b></div>
       </div>
@@ -682,7 +682,10 @@ dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-f
     const q=$('fQ').value.trim().toLowerCase(), b=$('fBrand').value, f=$('fFuel').value, mx=+$('fMax').value||Infinity, mp=+$('fPay').value||Infinity, so=$('fSort').value;
     let r=CARS.map((c,ix)=>({c,ix})).filter(({c})=>(!b||BR(c)===b)&&(!f||c.fuel===f)&&c.price<=mx&&(mp===Infinity||monthly(c.price,0,96,9.9).m<=mp)&&(!q||(c.title+' '+c.sub+' '+(c.loc||'')).toLowerCase().includes(q)));
     if(so==='pa')r.sort((a,b)=>a.c.price-b.c.price); if(so==='pd')r.sort((a,b)=>b.c.price-a.c.price);
-    if(so==='y')r.sort((a,b)=>parseInt(String(b.c.year).slice(-4))-parseInt(String(a.c.year).slice(-4))||0);
+    const yr=c=>parseInt(String(c.year).slice(-4))||0, kmN=c=>+String(c.km||'').replace(/\D/g,'')||0, kwN=c=>parseInt(String(c.power||''))||0;
+    if(so==='y')r.sort((a,b)=>yr(b.c)-yr(a.c)); if(so==='yo')r.sort((a,b)=>(yr(a.c)||9999)-(yr(b.c)||9999));
+    if(so==='ka')r.sort((a,b)=>(kmN(a.c)||1e9)-(kmN(b.c)||1e9)); if(so==='kd')r.sort((a,b)=>kmN(b.c)-kmN(a.c));
+    if(so==='wd')r.sort((a,b)=>kwN(b.c)-kwN(a.c)); if(so==='fa')r.sort((a,b)=>String(a.c.fuel||'').localeCompare(String(b.c.fuel||''),'sk')||a.c.price-b.c.price);
     $('fCount').innerHTML=r.length+' <span>'+(r.length===1?'auto':r.length<5&&r.length>1?'autá':'áut')+'</span>';
     $('cars').innerHTML = r.length? r.slice(0,shown).map(({c,ix})=>card(c,ix)).join('') : '<p class="mut" style="grid-column:1/-1">Žiadne auto nezodpovedá filtru. Skúste upraviť výber.</p>';
     $('more').hidden = r.length<=shown;

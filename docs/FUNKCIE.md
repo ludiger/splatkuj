@@ -12,8 +12,8 @@ Posledná aktualizácia: 10. 10. 2026
 
 **Aktuálna ponuka áut**
 - Všetky aktívne autá od sledovaných predajcov (Bazoš aj vlastné weby predajcov).
-- Zelený údaj **Aktuálny počet vozidiel** vpravo od filtrov (mení sa podľa filtra).
-- **Filtre:** vyhľadávanie modelu, značka, palivo, cena do, **splátka do** (100–500 €/mes.), zoradenie (odporúčané, najlacnejšie, najdrahšie, najnovšie). Na mobile v dvoch stĺpcoch.
+- Zelený údaj **Aktuálny počet vozidiel** vpravo od filtrov na výšku oboch riadkov (mení sa podľa filtra).
+- **Filtre:** vyhľadávanie modelu, značka, palivo, cena do, **splátka do** (100–500 €/mes.), zoradenie (odporúčané, cena od najnižšej / najvyššej, rok od najnovšieho / najstaršieho, najazdené km od najmenej / najviac, výkon od najvyššieho, palivo A – Z). Na mobile v dvoch stĺpcoch.
 - **Karta auta:** fotka, „splátka od“, rok, km, výkon, palivo, výbava (štítky).
 - **Detail auta:** galéria všetkých fotiek, technické údaje, výbava zoskupená podľa kategórií, popis od predajcu, odkaz na pôvodný inzerát, tlačidlo na chat s Laurou.
 - Autá, ktoré automatika ešte plne nespracovala, sa na webe zobrazujú hneď (fotky zo zálohy cez `/api/foto`). Po spracovaní ich nahradí plná verzia s vybranými fotkami a pečiatkou Splatkuj.
@@ -113,3 +113,4 @@ Formát: dátum – čo pribudlo alebo sa zmenilo (kto).
 - **10. 10. 2026** – E-mail marketing: súhlas v Laure, Ochrana osobných údajov, export CSV v Dopytoch, týždenný Newsletter v admine (Claude).
 - **10. 10. 2026** – Admin Dopyty: tlačidlo Zmazať pre majiteľa (Claude).
 - **10. 10. 2026** – Dokument FUNKCIE.md s prehľadom funkcií a denníkom zmien (Claude).
+- **10. 10. 2026** – Web: rozšírené zoradenie (cena, rok, km, výkon, palivo – oboma smermi), počet vozidiel na výšku dvoch riadkov filtrov (Claude).
