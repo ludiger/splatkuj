@@ -24,7 +24,7 @@ Posledná aktualizácia: 10. 10. 2026
 
 **Služby** – kúpa auta na splátky, predaj vozidla, poistenie vozidla.
 
-**Ďalšie časti** – blog (`blog/posts`), sekcia „Našli ste auto inde?“, kontaktný formulár, cookies so súhlasom (nevyhnutné / analytické / marketingové), Ochrana osobných údajov (vrátane e-mailových ponúk so súhlasom), prihlásenie do adminu (ikona v hlavičke a odkaz v pätičke).
+**Ďalšie časti** – blog (`blog/posts`), sekcia „Našli ste auto inde?“, kontaktný formulár (dopyt ide do adminu → Dopyty a na Telegram; „Mám záujem“ v detaile doplní odkaz na auto), cookies so súhlasom (nevyhnutné / analytické / marketingové), Ochrana osobných údajov (vrátane e-mailových ponúk so súhlasom), prihlásenie do adminu (ikona v hlavičke a odkaz v pätičke).
 
 ## 2. Laura – virtuálna asistentka na webe
 
@@ -115,3 +115,4 @@ Formát: dátum – čo pribudlo alebo sa zmenilo (kto).
 - **10. 10. 2026** – Dokument FUNKCIE.md s prehľadom funkcií a denníkom zmien (Claude).
 - **10. 10. 2026** – Web: rozšírené zoradenie (cena, rok, km, výkon, palivo – oboma smermi), počet vozidiel na výšku dvoch riadkov filtrov (Claude).
 - **10. 10. 2026** – Admin → Inzeráty: klik na auto otvorí náš inzerát na webe, ikonka ↗ pôvodný inzerát (Bazoš / web predajcu); web vie otvoriť detail auta odkazom `#detail-<číslo>` (Claude).
+- **10. 10. 2026** – Kontaktný formulár na webe funguje: dopyt sa uloží do adminu → Dopyty (zdroj „kontaktný formulár“, kraj, typ financovania) a príde upozornenie na Telegram; tlačidlo „Mám záujem“ v detaile auta vloží do formulára aj odkaz na auto (Claude).

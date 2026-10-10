@@ -527,7 +527,8 @@ footer{border-top:1px solid var(--line);padding-block:40px;color:var(--mut);font
         <label>Typ financovania<select id="f-type" name="type"><option>Úver</option><option>Leasing</option><option>Neviem, poraďte mi</option></select></label>
         <label class="full">O aké auto máte záujem?<textarea id="f-msg" name="msg" placeholder="Napr. Cupra Formentor 2023, splátka do 350 € mesačne"></textarea></label>
         <button class="btn btn-brand full" type="submit" style="justify-content:center">Odoslať nezáväzný dopyt</button>
-        <p class="ok" id="ok" hidden>Ďakujeme. Toto je náhľad webu, formulár sa prepojí s vaším e-mailom pri spustení stránky.</p>
+        <p class="ok" id="ok" hidden role="status"></p>
+        <small class="full" style="color:var(--mut);font-size:12px">Údaje použijeme len na vybavenie vášho dopytu. Viac v časti <a href="#" data-legal="privacy" style="color:inherit">Ochrana osobných údajov</a>.</small>
       </form>
     </div>
   </section>
@@ -786,8 +787,30 @@ dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-f
   $('dClose').addEventListener('click', () => det.close());
   det.addEventListener('click', e => { if (e.target === det) det.close(); });
   det.addEventListener('close', () => { try { history.replaceState(null, '', location.pathname + location.search); } catch {} });
-  $('dCta').addEventListener('click', () => { $('f-msg').value = `${cur.title}, ${cur.year}, ${fmt(cur.price)}`; det.close(); });
-  $('lead').addEventListener('submit', e => { e.preventDefault(); $('ok').hidden = false; });
+  // „Mám záujem“ v detaile auta: do formulára názov auta + odkaz naň
+  let formCar = null;
+  const carLink = c => 'https://www.splatkuj.sk/#detail-' + bzId(c);
+  $('dCta').addEventListener('click', () => { formCar = cur; $('f-msg').value = `${cur.title}, ${cur.year}, ${fmt(cur.price)}\n${carLink(cur)}`; det.close(); });
+  // kontaktný formulár → dopyt do adminu (Dopyty) + upozornenie na Telegram
+  $('lead').addEventListener('submit', async e => { e.preventDefault();
+    const f = e.target, ok = $('ok'), btn = f.querySelector('button[type=submit]');
+    const name = $('f-name').value.trim(), phone = $('f-phone').value.trim(), msg = $('f-msg').value.trim();
+    const say = (t, bad) => { ok.textContent = t; ok.hidden = false; ok.style.borderColor = bad ? '#e5484d' : ''; };
+    if (name.length < 2) { say('Prosím, vyplňte meno a priezvisko.', 1); $('f-name').focus(); return; }
+    if ((phone.match(/\d/g) || []).length < 9) { say('Prosím, zadajte telefónne číslo, na ktorom vás zastihneme.', 1); $('f-phone').focus(); return; }
+    const car = formCar && msg.includes(carLink(formCar)) ? formCar : null;
+    const udaje = { Kraj: $('f-region').value, 'Typ financovania': $('f-type').value };
+    btn.disabled = true; say('Odosielam…');
+    try {
+      const r = await fetch('/api/lead', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
+        meno: name, tel: phone, zaujem: 'financovanie', auto: car ? `${car.title}, ${car.year}, ${fmt(car.price)}` : msg.slice(0, 300),
+        autoId: car ? String(bzId(car)) : '', odkaz: car ? carLink(car) : '', inzerat: car && car.url || '', zdroj: 'kontaktný formulár', udaje,
+        text: `Dobrý deň, mám záujem o financovanie auta.\nMeno: ${name}\nTelefón: ${phone}\nKraj: ${udaje.Kraj}\nTyp financovania: ${udaje['Typ financovania']}${msg ? '\nSpráva: ' + msg : ''}` }) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.ok) throw new Error(j.error || r.status);
+      f.reset(); formCar = null; say('Ďakujeme, dopyt sme prijali. Ozveme sa vám čo najskôr – zvyčajne ešte v ten istý deň.');
+    } catch (err) { say('Dopyt sa nepodarilo odoslať. Skúste to prosím znova alebo nám zavolajte na 0903 427 088.', 1); }
+    btn.disabled = false; });
   $('dChat').addEventListener('click', () => { const c = cur; det.close(); window.SKchat?.car(c); });
   window.SK = {CARS, openCar, photo, monthly, slug};
   detailLink(false);
