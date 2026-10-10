@@ -1,5 +1,6 @@
 // /api/chat – Laura na webe odpovedá cez Claude API.
 // Kľúč je v Cloudflare ako tajná premenná ANTHROPIC_API_KEY (nikdy nie v kóde ani v repozitári).
+// Ak je kľúč vytvorený mimo pracovného priestoru (workspace), treba aj premennú ANTHROPIC_WORKSPACE_ID.
 // Ochrana kreditu: max. 40 správ z jednej IP za hodinu, max. 600 správ denne spolu, krátke odpovede.
 import { json, schema } from '../_lib/auth.js';
 
@@ -54,7 +55,11 @@ export async function onRequestPost({ request, env }) {
   try {
     r = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'content-type': 'application/json', 'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
+      headers: {
+        'content-type': 'application/json', 'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01',
+        // kľúč organizácie bez pracovného priestoru potrebuje ID priestoru (premenná ANTHROPIC_WORKSPACE_ID v Cloudflare, nie je tajná)
+        ...(env.ANTHROPIC_WORKSPACE_ID ? { 'anthropic-workspace-id': env.ANTHROPIC_WORKSPACE_ID } : {}),
+      },
       body: JSON.stringify({ model: MODEL, max_tokens: 500, system: POLICY + '\n\nKONTEXT WEBU:\n' + ctx, messages: turns }),
     });
     d = await r.json().catch(() => ({}));
