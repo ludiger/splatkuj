@@ -34,10 +34,12 @@ Legenda: **VY** = robí majiteľ, **CLAUDE** = robí Claude, **SPOLU** = spoloč
 - [x] CLAUDE – Kontrola zmeny ceny pri každej kontrole (Bazoš aj vlastné weby): /api/inzerat vracia aj `price`, automatika pri zmene prepíše cenu v admine, na webe aj v galérii reklám (`automation/tools/process.py` → prices.json).
 - [x] CLAUDE – Podpora áut z vlastných webov predajcov (zatiaľ Cooldrive): čísla 9xxxxxxxx, fotky z poľa `imgs`, existencia podľa VIN (`functions/_lib/foto.js`), čítanie webu na serveri (`functions/_lib/web.js`, POST /api/admin/web/list|detail|import).
 - [x] CLAUDE – Úsporný beh: najviac 12 spracovaných áut za beh, zvyšok čaká (needsAds=true) na ďalší beh.
-- [ ] CLAUDE – Pridať predajcu Cooldrive (5 kategórií, ~35 áut) a JD Autobazár (Bazoš: hľadanie podľa tel. 0918 811 395 + profil „Jan“) do adminu a prvé autá spracovať na skúšku.
-- [ ] CLAUDE – Doplniť do 75 čakajúcich áut polia kw, drive, tags, yearText (pre spracovanie v ďalších behoch).
+- [x] CLAUDE – Predajca Cooldrive (type web, 5 kategórií, 35 áut) a JD Autobazár (Bazoš: hľadanie podľa tel. 0918 811 395 + profil „Jan“) sú v admine. Skúšobné auto Mazda 6 (910000050) zapísané, 29 fotiek zálohovaných v R2, kontrola existencie a ceny funguje. Ostatné autá Cooldrive a JD pridá ranná automatika (po dávkach).
+- [x] CLAUDE – Doplnené polia kw, drive, tags, yearText do 75 čakajúcich áut.
 - [ ] CLAUDE – Mazda Prešov (mazdaihned.sk): zistiť, či sa dá ponuka čítať spoľahlivo (odkaz z chatu je dočasná adresa ich aplikácie).
-- [ ] CLAUDE – Aktualizovať prompt naplánovanej úlohy podľa automation/PROMPT.md (zmena promptu musí schváliť majiteľ v aplikácii na počítači).
+- [x] CLAUDE – Prompt naplánovanej úlohy aktualizovaný podľa automation/PROMPT.md (schválené na Mac mini).
+- [ ] CLAUDE – GRECAR (grecar.de/autobazar): odkazy sa menia → auto rozpoznávať podľa VIN, inak podľa značka+model+rok+km+výkon (+ prvá fotka); pri zmene odkazu ho len prepísať, nie označiť ako predané.
+- [ ] SPOLU – Skontrolovať prvé ranné behy (dávky po 12 autách; vo fronte je ~76 áut + nové od Cooldrive a JD).
 
 ## 2c. Úpravy z druhej stránky kolegu (vrátime sa k tomu)
 - [x] Spôsob predaja („Ako sa auto predalo?“ – cez nás / cez predajcu) – už je v admine v časti Predané a v analytike.
