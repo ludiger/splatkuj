@@ -216,6 +216,36 @@ export async function onRequest(ctx) {
     return json({ ok: true, photos: nums.length, saved, have, missing, remaining: Math.max(0, total - have - saved - missing) });
   }
 
+  // Upratanie fotiek predaných áut: POST cleanup – 7 dní po predaji zmaže z R2 všetky fotky okrem prvej
+  // (prvá ostane ako náhľad v admine v časti Predané). Spúšťa sa sama pri otvorení adminu (raz denne).
+  if (path === 'cleanup' && method === 'POST') {
+    if (!env.FOTO) return json({ ok: true, cars: 0, deleted: 0 });
+    const KEEP_DAYS = 7, limit = Date.now() - KEEP_DAYS * 864e5;
+    const { results } = await env.DB.prepare('SELECT id, data FROM docs WHERE coll = ?').bind('inzeraty').all();
+    let cars = 0, deleted = 0;
+    for (const r of results || []) {
+      if (cars >= 15) break; // po dávkach, aby to nebolo pomalé
+      const d = JSON.parse(r.data || '{}');
+      if (d.status !== 'predany' || !d.soldAt || d.fotkyZmazane) continue;
+      if (Date.parse(d.soldAt) > limit) continue;
+      if (!/^\d{9}$/.test(r.id)) continue;
+      const first = Array.isArray(d.fotky) && d.fotky.length ? d.fotky[0] : 1;
+      const keep = new Set([fotoKey(r.id, first, false), fotoKey(r.id, first, true)]);
+      let cursor;
+      do {
+        const l = await env.FOTO.list({ prefix: `bazos/${r.id}/`, cursor });
+        const del = l.objects.map((o) => o.key).filter((k) => !keep.has(k));
+        if (del.length) { await env.FOTO.delete(del); deleted += del.length; }
+        cursor = l.truncated ? l.cursor : undefined;
+      } while (cursor);
+      d.fotky = [first]; d.fotkyZmazane = new Date().toISOString();
+      await env.DB.prepare('UPDATE docs SET data = ?, updated = ? WHERE coll = ? AND id = ?').bind(JSON.stringify(d), Date.now(), 'inzeraty', r.id).run();
+      cars++;
+    }
+    if (cars) await audit(env, me.login, 'cleanup', `fotky predaných áut: ${cars} áut, ${deleted} súborov`).catch(() => {});
+    return json({ ok: true, cars, deleted });
+  }
+
   // Hromadný zápis (prenos dát a automatická kontrola): {docs:[{coll,id,data,mode:'set'|'merge'|'delete'}]}
   if (path === 'bulk' && method === 'POST') {
     const b = await body(request);

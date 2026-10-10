@@ -12,6 +12,13 @@
     return j;
   }
   window.SKapi = api;
+  // raz denne upratať fotky predaných áut (7 dní po predaji ostane len 1 náhľad)
+  try {
+    const k = 'skCleanup', day = new Date().toISOString().slice(0, 10);
+    if (localStorage.getItem(k) !== day && location.pathname.indexOf('/admin/login') !== 0) {
+      api('cleanup', { method: 'POST', body: '{}' }).then(() => { try { localStorage.setItem(k, day); } catch {} }).catch(() => {});
+    }
+  } catch {}
 
   // ---- databáza (polling každých 15 s + okamžite po vlastnom zápise) ----
   const watchers = new Set();

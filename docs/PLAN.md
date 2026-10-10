@@ -9,7 +9,7 @@ Legenda: **VY** = robí majiteľ, **CLAUDE** = robí Claude, **SPOLU** = spoloč
 - [x] Web www.splatkuj.sk (Cloudflare Pages) s autami od sledovaných predajcov, kalkulačka (96 mesiacov), Laura (fotka + video).
 - [x] Reklamy, videá a texty pre každé auto (galéria www.splatkuj.sk/admin/reklamy).
 - [x] Admin s heslami (majiteľ + kolegyňa), predané autá, analytika, dopyty z Laury (/admin/dopyty), záchranné kódy.
-- [x] Trvalá záloha fotiek v R2.
+- [x] Trvalá záloha fotiek v R2. 7 dní po predaji sa fotky auta zmažú, ostane len 1 náhľad (POST /api/admin/cleanup, spúšťa sa sám raz denne pri otvorení adminu).
 - [x] Automatika (naplánovaná úloha) – raz denne ráno, nové + predané + znovu vložené autá.
 - [x] Doména na Cloudflare, e-mail info@splatkuj.sk (Email Routing do Gmailu).
 - [x] Firemný účet Claude (info@splatkuj.sk, Max), GitHub pripojený, projekt Splatkuj.sk.
