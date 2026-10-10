@@ -115,6 +115,8 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
 .odk.need select{border-color:var(--amber)}
 .tm{font:800 13px/1 Figtree;padding:6px 10px;border-radius:999px;font-variant-numeric:tabular-nums;white-space:nowrap}
 .tm.ok{background:rgba(20,180,126,.16);color:var(--brand2)} .tm.warn{background:rgba(242,184,75,.16);color:var(--amber)} .tm.over{background:var(--red);color:#fff;animation:blink 1.2s infinite}
+.okc{font:800 12.5px/1 Figtree;padding:6px 11px;border-radius:999px;border:1px solid var(--brand);background:var(--brand);color:var(--on);cursor:pointer;white-space:nowrap}.okc:hover{background:var(--brand2)}
+.card .okc{justify-self:start;margin-top:3px}
 .tm.done{background:var(--panel2);color:var(--mut);font-weight:700} .tm.done.late{color:var(--amber)}
 @keyframes blink{50%{opacity:.6}}
 .flash{outline:2px solid var(--brand);outline-offset:2px}
@@ -298,7 +300,7 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
     if (c) { const d = Date.parse(c) - Date.parse(r.prijate); if (r.rucne || isNaN(d)) return '';
       return `<span class="tm done${d > LIMIT ? ' late' : ''}" title="Čas od prijatia dopytu po prvé oslovenie">✓ oslovený za ${dur(d)}</span>`; }
     if (stOf(r) !== 'novy') return '';
-    const [k, t] = tmTxt(r.prijate); return `<span class="tm ${k}" data-tm="${esc(r.prijate)}" role="timer">${t}</span>`; };
+    const [k, t] = tmTxt(r.prijate); return `<span class="tm ${k}" data-tm="${esc(r.prijate)}" role="timer">${t}</span><button type="button" class="okc" data-contact title="Klient je oslovený – zastaví časomieru a posunie dopyt na Prvý kontakt">✓ Oslovil som</button>`; };
   setInterval(() => document.querySelectorAll('[data-tm]').forEach((el) => { const [k, t] = tmTxt(el.dataset.tm); el.className = 'tm ' + k; el.textContent = t; }), 1000);
 
   const FILTERS = {
@@ -480,6 +482,10 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
     if (stb && r) return setStage(r, stb.dataset.st);
     const mv = t.closest('[data-mv]');
     if (mv && r) { const flow = ST.filter(([, , g]) => g !== 'lost').map(([k]) => k), fi = flow.indexOf(stOf(r)), ni = fi + +mv.dataset.mv; if (fi >= 0 && flow[ni]) return setStage(r, flow[ni]); return; }
+    if (t.closest('[data-contact]') && r) { const now = new Date().toISOString();
+      const d = { prvyKontaktAt: now, aktivity: log(r, '📞 Hovor', 'Prvé oslovenie klienta'), ...(r.riesi ? {} : { riesi: myName() }) };
+      if (stOf(r) === 'novy') { d.stav = 'kontakt'; d.aktivity = [...d.aktivity, { cas: now, kto: myName(), typ: '🔀 Fáza', text: `${STL.novy} → ${STL.kontakt}` }]; }
+      return save(id, d); }
     if (t.closest('[data-take]')) return save(id, { riesi: myName(), aktivity: log(r, '👤 Prevzal', myName()) });
     const inb = t.closest('[data-in]');
     if (inb) { const d = new Date(); d.setDate(d.getDate() + +inb.dataset.in); const v = d.toISOString().slice(0, 10); const art = t.closest('article'); art.querySelector('[data-nextd]').value = v;
