@@ -119,6 +119,10 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
 .card .okc{justify-self:start;margin-top:3px}
 .tm.done{background:var(--panel2);color:var(--mut);font-weight:700} .tm.done.late{color:var(--amber)}
 @keyframes blink{50%{opacity:.6}}
+.wa{display:grid;gap:8px;margin-top:10px}
+.wa .row select{background:var(--ink);border:1px solid var(--line);border-radius:9px;padding:8px 10px;color:var(--fg);font:14px Figtree;min-width:0;flex:1 1 220px}
+.wa textarea{min-height:150px;line-height:1.5}
+.btn.wa-go{background:#25D366;border-color:#25D366;color:#062b14}
 .flash{outline:2px solid var(--brand);outline-offset:2px}
 </style>
 </head>
@@ -221,6 +225,33 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
       'Pripomenúť poistenie a servis o rok',
     ] },
   };
+  // ---------- šablóny správ klientovi podľa fázy (WhatsApp / SMS) – Fáza 2 strategického plánu ----------
+  // {ja} = meno operátora, {auto} = auto zo žiadosti, {doklady} = podklady podľa zdroja príjmu. Úrokovú sadzbu nikdy neuvádzať.
+  const MSG = [
+    ['nedvihal', 'Nedvíha – skúšali sme volať', 'Dobrý deň, tu {ja} zo Splatkuj.sk. Ďakujeme za vašu žiadosť o financovanie {auto}. Skúšali sme vám volať – kedy sa vám môžeme ozvať? Pokojne odpíšte sem, keď sa vám to hodí.'],
+    ['podklady', 'Prosba o podklady', 'Dobrý deň, tu {ja} zo Splatkuj.sk. Ďakujem za príjemný rozhovor. Aby sme vašu žiadosť o financovanie {auto} vybavili čo najrýchlejšie, pošlite mi prosím sem na WhatsApp (alebo na info@splatkuj.sk):\n{doklady}\nStačia čitateľné fotky z mobilu. Ďakujem!'],
+    ['pripomienka', 'Pripomienka podkladov', 'Dobrý deň, tu {ja} zo Splatkuj.sk. Len pripomínam podklady k vašej žiadosti o financovanie {auto}:\n{doklady}\nKeď ich pošlete, hneď žiadosť odošleme na posúdenie. Ak vám niečo nie je jasné, pokojne sa ozvite.'],
+    ['prijate', 'Podklady prijaté', 'Dobrý deň, ďakujeme, podklady k žiadosti o financovanie {auto} sme dostali. Skontrolujeme ich a žiadosť odošleme na posúdenie. Ozveme sa vám hneď, ako budeme vedieť viac.\n{ja}, Splatkuj.sk'],
+    ['posudenie', 'Žiadosť na posúdení', 'Dobrý deň, vašu žiadosť o financovanie {auto} sme odoslali na posúdenie. Výsledok zvyčajne prichádza v ten istý alebo nasledujúci pracovný deň – hneď vám dáme vedieť.\n{ja}, Splatkuj.sk'],
+    ['schvalene', 'Schválené 🎉', 'Dobrý deň, máme dobrú správu – financovanie {auto} je schválené! 🎉 Dohodnime si prosím termín podpisu zmluvy. Kedy sa vám to hodí?\n{ja}, Splatkuj.sk'],
+    ['zmluva', 'Termín podpisu', 'Dobrý deň, potvrdzujem termín podpisu zmluvy k {auto}: [DÁTUM a ČAS], [MIESTO]. Prineste si prosím občiansky preukaz a druhý doklad totožnosti. Ak by vám termín nevyhovoval, dajte mi vedieť.\n{ja}, Splatkuj.sk'],
+    ['uzavrete', 'Poďakovanie po odovzdaní', 'Dobrý deň, gratulujeme k novému autu a ďakujeme za dôveru! 🚗 Ak ste boli s nami spokojní, budeme veľmi radi za krátke hodnotenie a za odporúčanie známym, ktorí hľadajú auto na splátky. Šťastnú cestu!\n{ja}, Splatkuj.sk'],
+    ['zamietnute', 'Zamietnuté – slušne', 'Dobrý deň, žiaľ, financovanie {auto} sa tentoraz nepodarilo schváliť. Ak sa vaša situácia zmení, prípadne ak vám vie pomôcť niekto z rodiny, komu dôverujete, radi to s vami skúsime znova.\n{ja}, Splatkuj.sk'],
+  ];
+  const MSG_ST = { novy: 'nedvihal', kontakt: 'podklady', podklady: 'prijate', posudenie: 'posudenie', schvalene: 'schvalene', zmluva: 'zmluva', uzavrete: 'uzavrete', zamietnute: 'zamietnute', nezaujem: 'nedvihal', nedostupny: 'nedvihal' };
+  const doklady = (u) => { const z = u['Zdroj príjmu'] || '';
+    return ['• občiansky preukaz (obe strany) a druhý doklad (vodičský preukaz alebo pas)',
+      /SZČO|Firma|Právnická|s\.r\.o/i.test(z) ? '• daňové priznanie za posledný rok s potvrdením o podaní' : /Dôchod/i.test(z) ? '• rozhodnutie o dôchodku alebo výpis z účtu s dôchodkom' : '• potvrdenie o príjme alebo výpisy z účtu za posledné 3 mesiace',
+      '• technický preukaz auta (alebo fotku z inzerátu, ak ho ešte nemáte)'].join('\n'); };
+  const fillMsg = (key, r) => { const m = MSG.find(([k]) => k === key) || MSG[0], u = udaje(r);
+    return m[2].replace(/\{ja\}/g, myName().split(' ')[0]).replace(/\{auto\}/g, r.auto ? r.auto.split(',')[0] : 'auta').replace(/\{doklady\}/g, doklady(u)); };
+  const intl = (tel) => { const d = String(tel || '').replace(/[^\d+]/g, ''); return d.replace(/^\+/, '').replace(/^00/, '').replace(/^0/, '421'); };
+  const waBox = (r) => { const key = MSG_ST[stOf(r)] || 'nedvihal', tel = intl(r.tel);
+    if (!tel) return '';
+    return `<details class="more" data-wabox data-k="wa"><summary>💬 Správa klientovi na WhatsApp / SMS – ${esc((MSG.find(([k]) => k === key) || MSG[0])[1])}</summary>
+      <div class="wa"><div class="row"><select data-watpl aria-label="Šablóna správy">${MSG.map(([k, l]) => `<option value="${k}"${k === key ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select></div>
+      <textarea data-watxt aria-label="Text správy">${esc(fillMsg(key, r))}</textarea>
+      <div class="row"><span class="who">Text pred odoslaním môžete upraviť. Odoslanie sa zapíše do aktivít.</span><span class="sp"></span><button type="button" class="btn ghost" data-wasms>✉️ SMS</button><button type="button" class="btn wa-go" data-wago>💬 Otvoriť WhatsApp</button></div></div></details>`; };
   // ---------- odkiaľ prišiel zákazník (Fáza 1 strategického plánu) ----------
   const SRC = ['Bazoš', 'Facebook', 'Instagram', 'TikTok', 'Google', 'Web (priamo)', 'Odporúčanie', 'Stály zákazník', 'Predajca / partner', 'Iné'];
   const HEARD = { 'Odporúčanie známeho': 'Odporúčanie', 'Už som bol(a) zákazník': 'Stály zákazník', 'Od predajcu auta': 'Predajca / partner' };
@@ -345,7 +376,9 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
         return String(b.prijate).localeCompare(String(a.prijate)); });
     if (view === 'board') return board(list);
     if (!list.length) { $('out').innerHTML = `<div class="empty"><b>${rows.length ? 'Nič tu nie je' : 'Zatiaľ žiadne dopyty'}</b>${rows.length ? 'Skúste iný filter.' : 'Keď klient na webe vyplní kontakt, objaví sa tu.'}</div>`; return; }
+    const was = {}; document.querySelectorAll('#out [data-id] details[data-k]').forEach((d) => { was[d.closest('[data-id]').dataset.id + '|' + d.dataset.k] = d.open; });
     $('out').innerHTML = `<div class="list">${list.map(card).join('')}</div>`;
+    document.querySelectorAll('#out [data-id] details[data-k]').forEach((d) => { const k = d.closest('[data-id]').dataset.id + '|' + d.dataset.k; if (k in was) d.open = was[k]; });
     if (openId) { const el = document.querySelector(`[data-id="${CSS.escape(openId)}"]`); if (el) { el.querySelector('details.more')?.setAttribute('open', ''); el.classList.add('flash'); el.scrollIntoView({ block: 'center' }); setTimeout(() => el.classList.remove('flash'), 1500); } openId = null; }
   }
   function board(list) {
@@ -424,9 +457,10 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
           <ul class="acts">${acts.slice().reverse().map((a) => `<li>${esc(a.typ || '')} ${esc(a.text || '')}<small>${esc(fmt(a.cas))} · ${esc(a.kto || '')}</small></li>`).join('') || '<li><small>Zatiaľ nič. Po každom hovore sem zapíšte, čo sa dohodlo.</small></li>'}</ul>
         </div>
       </div>
-      <details class="more" data-callbox${st === 'novy' || st === 'kontakt' ? ' open' : ''}><summary>📞 Call skript – čo povedať klientovi</summary>${callScript(r, u)}</details>
-      ${r.prepis ? `<details class="more"><summary>💬 Celý rozhovor (${esc(r.kanal || (r.zdroj && /Facebook|Instagram/.test(r.zdroj) ? r.zdroj : 'Laura na webe'))})</summary><div class="prepis">${esc(r.prepis)}</div></details>` : ''}
-      <details class="more"><summary>Údaje zo žiadosti${Object.keys(u).length ? ` (${Object.keys(u).length})` : ''}</summary>
+      ${waBox(r)}
+      <details class="more" data-callbox data-k="call"${st === 'novy' || st === 'kontakt' ? ' open' : ''}><summary>📞 Call skript – čo povedať klientovi</summary>${callScript(r, u)}</details>
+      ${r.prepis ? `<details class="more" data-k="prepis"><summary>💬 Celý rozhovor (${esc(r.kanal || (r.zdroj && /Facebook|Instagram/.test(r.zdroj) ? r.zdroj : 'Laura na webe'))})</summary><div class="prepis">${esc(r.prepis)}</div></details>` : ''}
+      <details class="more" data-k="udaje"><summary>Údaje zo žiadosti${Object.keys(u).length ? ` (${Object.keys(u).length})` : ''}</summary>
         <dl>${Object.entries(u).map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${link(v)}</dd></div>`).join('')}${r.zdroj ? `<div><dt>Zdroj</dt><dd>${esc(r.zdroj)}</dd></div>` : ''}${r.text && !Object.keys(u).length ? `<div style="grid-column:1/-1"><dt>Správa</dt><dd style="white-space:pre-wrap">${esc(r.text)}</dd></div>` : ''}</dl>
         <textarea data-note placeholder="Interná poznámka…" aria-label="Poznámka" style="margin-top:10px">${esc(r.poznamka || '')}</textarea>
       </details>
@@ -485,6 +519,11 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
     if (stb && r) return setStage(r, stb.dataset.st);
     const mv = t.closest('[data-mv]');
     if (mv && r) { const flow = ST.filter(([, , g]) => g !== 'lost').map(([k]) => k), fi = flow.indexOf(stOf(r)), ni = fi + +mv.dataset.mv; if (fi >= 0 && flow[ni]) return setStage(r, flow[ni]); return; }
+    const wg = t.closest('[data-wago],[data-wasms]');
+    if (wg && r) { const box = t.closest('[data-wabox]'), txt = box.querySelector('[data-watxt]').value.trim(), tpl = box.querySelector('[data-watpl]'), tel = intl(r.tel);
+      if (!txt) return; const isWa = wg.matches('[data-wago]');
+      window.open(isWa ? 'https://wa.me/' + tel + '?text=' + encodeURIComponent(txt) : 'sms:+' + tel + '?&body=' + encodeURIComponent(txt), '_blank', 'noopener');
+      return save(id, { aktivity: log(r, '💬 SMS / WhatsApp', (isWa ? 'WhatsApp' : 'SMS') + ' – ' + tpl.options[tpl.selectedIndex].text), ...(r.prvyKontaktAt ? {} : { prvyKontaktAt: new Date().toISOString() }) }); }
     if (t.closest('[data-contact]') && r) { const now = new Date().toISOString();
       const d = { prvyKontaktAt: now, aktivity: log(r, '📞 Hovor', 'Prvé oslovenie klienta'), ...(r.riesi ? {} : { riesi: myName() }) };
       if (stOf(r) === 'novy') { d.stav = 'kontakt'; d.aktivity = [...d.aktivity, { cas: now, kto: myName(), typ: '🔀 Fáza', text: `${STL.novy} → ${STL.kontakt}` }]; }
@@ -505,6 +544,8 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
     if (t.matches('[data-note]')) return save(id, { poznamka: t.value.slice(0, 2000) }, true);
     if (t.matches('[data-next]') || t.matches('[data-nextd]')) { const art = t.closest('article'); return save(id, { dalsiKrok: art.querySelector('[data-next]').value.trim().slice(0, 200), dalsiKrokDatum: art.querySelector('[data-nextd]').value }, t.matches('[data-next]')); }
     if (t.matches('[data-val]')) return save(id, { hodnota: t.value.replace(/\D/g, '') }, true);
+    if (t.matches('[data-watpl]')) { t.closest('[data-wabox]').querySelector('[data-watxt]').value = fillMsg(t.value, r); return; }
+    if (t.matches('[data-watxt]')) return;
     if (t.matches('[data-riesi]')) { const nw = t.value, old = r.riesi || '—';
       return save(id, { riesi: nw, aktivity: log(r, '👤 Odovzdané', `${old} → ${nw || '—'}${nw && nw !== myName() ? ' (odovzdal ' + myName() + ')' : ''}`) }); }
     if (t.matches('[data-odk]')) return save(id, { odkial: t.value, aktivity: log(r, '📍 Odkiaľ prišiel', t.value || '—') });
