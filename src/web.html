@@ -355,7 +355,7 @@ footer{border-top:1px solid var(--line);padding-block:40px;color:var(--mut);font
   <div class="wrap">
     <div class="svc" aria-label="Naše služby">
       <button type="button" class="svc-i a" data-svc="buy"><span class="svc-ic"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 9.5v5M18 9.5v5"/></svg></span><span><b>Kúpiť auto na splátky</b><small>Od 0 % akontácie, schválenie do 30 minút</small></span></button>
-      <button type="button" class="svc-i" data-svc="sell"><span class="svc-ic"><svg viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.5"/></svg></span><span><b>Chcem predať vozidlo</b><small>Pomôžeme vám predať auto rýchlo a za dobrú cenu</small></span></button>
+      <button type="button" class="svc-i" data-svc="sell"><span class="svc-ic"><svg viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.5"/></svg></span><span><b>Chcem predať vozidlo</b><small>Zaradíme ho zadarmo do ponuky so splátkou</small></span></button>
       <button type="button" class="svc-i" data-svc="ins"><span class="svc-ic"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M12 7v10M7.5 11.5h9"/></svg></span><span><b>Poistenie vozidla</b><small>Výhodné PZP aj havarijné poistenie</small></span></button>
     </div>
   </div>
@@ -426,6 +426,7 @@ window.SKref = () => { try { return sessionStorage.getItem('sk_ref') || ''; } ca
       <div class="fbar">
       <div class="filters">
         <input id="fQ" type="search" placeholder="Hľadať model, napr. Kodiaq" aria-label="Hľadať model">
+        <select id="fCat" aria-label="Kategória vozidla" hidden></select>
         <select id="fBrand" aria-label="Značka"></select>
         <select id="fFuel" aria-label="Palivo"></select>
         <select id="fMax" aria-label="Maximálna cena"><option value="">Akákoľvek cena</option><option value="10000">do 10 000 €</option><option value="15000">do 15 000 €</option><option value="20000">do 20 000 €</option><option value="25000">do 25 000 €</option><option value="30000">do 30 000 €</option></select>
@@ -612,7 +613,7 @@ window.SKref = () => { try { return sessionStorage.getItem('sk_ref') || ''; } ca
   <div class="wrap">
     <div class="foot">
       <a class="logo" href="#top"><svg><use href="#mark"/></svg><span class="wm">splatkuj<i>.sk</i></span></a>
-      <span>© 2026 Splatkuj.sk (predtým Autá za babku) · Financovanie vozidiel po celom Slovensku · <a href="#" data-legal="privacy" style="color:var(--mut)">Ochrana osobných údajov</a> · <a href="#" data-legal="cookies" style="color:var(--mut)">Zásady cookies</a> · <a href="#" data-cookie-settings style="color:var(--mut)">Nastavenia cookies</a> · <a href="https://www.splatkuj.sk/admin/login" rel="nofollow" style="color:var(--mut)" title="Prihlásenie pre tím Splatkuj.sk">Prihlásenie</a></span>
+      <span>© 2026 Splatkuj.sk (predtým Autá za babku) · Financovanie vozidiel po celom Slovensku · <a href="/predat/" style="color:var(--mut)">Predať auto (zadarmo)</a> · <a href="#" data-legal="privacy" style="color:var(--mut)">Ochrana osobných údajov</a> · <a href="#" data-legal="cookies" style="color:var(--mut)">Zásady cookies</a> · <a href="#" data-cookie-settings style="color:var(--mut)">Nastavenia cookies</a> · <a href="https://www.splatkuj.sk/admin/login" rel="nofollow" style="color:var(--mut)" title="Prihlásenie pre tím Splatkuj.sk">Prihlásenie</a></span>
     </div>
     <p class="legal">Všetky výpočty na tejto stránke sú orientačné a nepredstavujú záväznú ponuku. Reprezentatívny príklad a RPMN uvádzame pri konkrétnej ponuke. Spoločnosť pôsobí ako sprostredkovateľ financovania.</p>
     <p class="legal" id="firmInfo">Prevádzkovateľ: <b>LPFinance s.r.o.</b>, IČO: 56022352<!--FIRMA--></p>
@@ -746,15 +747,17 @@ dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-f
   const fmt = n => new Intl.NumberFormat('sk-SK').format(n) + ' €';
   const BR = c => { const m=c.title.match(/^(Alfa Romeo|Mercedes-Benz)/i); const w=m?m[1]:c.title.split(' ')[0]; return w.toUpperCase()==='SEAT'?'Seat':w.toUpperCase()==='BMW'?'BMW':w; };
   const brands=[...new Set(CARS.map(BR))].sort();
-  const fillSel = () => { const b0=$('fBrand').value, f0=$('fFuel').value;
+  const CAT = c => c.cat || 'Osobné auto';
+  const fillSel = () => { const b0=$('fBrand').value, f0=$('fFuel').value, c0=$('fCat').value, cats=[...new Set(CARS.map(CAT))];
+    $('fCat').innerHTML='<option value="">Všetky vozidlá</option>'+['Osobné auto','Motocykel','Dodávka / úžitkové','Karavan / obytné','Nákladné','Iné'].filter(x=>cats.includes(x)).map(x=>`<option>${x}</option>`).join(''); $('fCat').hidden = cats.length < 2; $('fCat').value=c0;
     $('fBrand').innerHTML='<option value="">Všetky značky</option>'+[...new Set(CARS.map(BR))].sort().map(b=>`<option>${b}</option>`).join('');
     $('fFuel').innerHTML='<option value="">Každé palivo</option>'+[...new Set(CARS.map(c=>c.fuel).filter(f=>f&&f!=='—'))].sort().map(b=>`<option>${b}</option>`).join('');
     $('fBrand').value=b0; $('fFuel').value=f0; };
   fillSel();
   let shown=12;
   function list(){
-    const q=$('fQ').value.trim().toLowerCase(), b=$('fBrand').value, f=$('fFuel').value, mx=+$('fMax').value||Infinity, mp=+$('fPay').value||Infinity, so=$('fSort').value;
-    let r=CARS.map((c,ix)=>({c,ix})).filter(({c})=>(!b||BR(c)===b)&&(!f||c.fuel===f)&&c.price<=mx&&(mp===Infinity||monthly(c.price,0,96,9.9).m<=mp)&&(!q||(c.title+' '+c.sub+' '+(c.loc||'')).toLowerCase().includes(q)));
+    const q=$('fQ').value.trim().toLowerCase(), ct=$('fCat').value, b=$('fBrand').value, f=$('fFuel').value, mx=+$('fMax').value||Infinity, mp=+$('fPay').value||Infinity, so=$('fSort').value;
+    let r=CARS.map((c,ix)=>({c,ix})).filter(({c})=>(!ct||CAT(c)===ct)&&(!b||BR(c)===b)&&(!f||c.fuel===f)&&c.price<=mx&&(mp===Infinity||monthly(c.price,0,96,9.9).m<=mp)&&(!q||(c.title+' '+c.sub+' '+(c.loc||'')).toLowerCase().includes(q)));
     if(so==='pa')r.sort((a,b)=>a.c.price-b.c.price); if(so==='pd')r.sort((a,b)=>b.c.price-a.c.price);
     const yr=c=>parseInt(String(c.year).slice(-4))||0, kmN=c=>+String(c.km||'').replace(/\D/g,'')||0, kwN=c=>parseInt(String(c.power||''))||0;
     if(so==='y')r.sort((a,b)=>yr(b.c)-yr(a.c)); if(so==='yo')r.sort((a,b)=>(yr(a.c)||9999)-(yr(b.c)||9999));
@@ -765,7 +768,7 @@ dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-f
     $('more').hidden = r.length<=shown;
   }
   // zelený odznak s počtom áut v aktuálnej ponuke
-  ['fQ','fBrand','fFuel','fMax','fPay','fSort'].forEach(id=>$(id).addEventListener('input',()=>{shown=12;list();}));
+  ['fQ','fCat','fBrand','fFuel','fMax','fPay','fSort'].forEach(id=>$(id).addEventListener('input',()=>{shown=12;list();}));
   $('more').addEventListener('click',()=>{shown+=12;list();});
   const card = (c,ix) => `
     <button class="car" type="button" data-ix="${ix}" aria-label="Detail: ${c.title}">
@@ -1207,7 +1210,9 @@ video.lau{transform:scale(1.6);transform-origin:50% 33%}
   // odkaz splatkuj.sk/#laura (alebo ?laura) otvorí rovno chat s Laurou – do profilu na Instagrame/Facebooku, automatických odpovedí a reklám
   else if (/^#laura$/i.test(location.hash) || /[?&]laura\b/i.test(location.search)) setTimeout(() => openP(), 600);
   async function sellFlow(){ lead.zaujem = 'predaj'; lead.zdroj = lead.zdroj || 'služba: predaj vozidla';
-    await bot('Radi vám pomôžeme predať auto 🚗 Napíšte prosím značku, model, rok, najazdené km a vašu predstavu o cene.'); step = 'sellcar'; input.focus(); }
+    await bot('Radi vám pomôžeme 🚗 Len na vysvetlenie: <b>Splatkuj.sk je portál s autami na splátky</b> – nie sme výkup ani autobazár. Vaše auto zaradíme <b>zadarmo</b> do našej ponuky a kupujúci ho uvidia aj s mesačnou splátkou. Financovanie kupujúcemu vybavíme my, vy dostanete celú sumu naraz.');
+    await bot('Najrýchlejšie to je cez krátky formulár: vyplníte údaje, nafotíte auto mobilom a pošlete (asi 5 minút). Po kontrole auto zverejníme.');
+    chips([['📸 Pridať auto s fotkami', '/predat/?z=laura', 'main'], ['✍️ Napísať údaje sem', async () => { await bot('Dobre. Napíšte prosím značku, model, rok, najazdené km a vašu predstavu o cene. Fotky vám potom pošleme cez odkaz.'); step = 'sellcar'; input.focus(); }]]); }
   async function insFlow(){ lead.zaujem = 'poistenie'; lead.zdroj = lead.zdroj || 'služba: poistenie';
     await bot('Pripravíme vám porovnanie povinného zmluvného (PZP) aj havarijného poistenia.');
     await bot('Aké poistenie vás zaujíma?');
@@ -1351,7 +1356,7 @@ video.lau{transform:scale(1.6);transform-origin:50% 33%}
     if (step === 'phone'){ const d = t.replace(/[^\d+]/g,''); if (d.replace(/\D/g,'').length < 9) return bot('Toto číslo sa mi nezdá úplné. Skúste ho napísať napr. v tvare 0905 123 456.'); lead.phone = t.trim().slice(0,20); return askEmail(); }
     if (step === 'email'){ const m = t.trim().toLowerCase(); if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/.test(m)) return bot('Tento e-mail sa mi nezdá správny. Skúste ho napísať napr. v tvare jan.novak@gmail.com.'); lead.email = m.slice(0,120); lead.marketing = 'ano'; lead.marketingAt = new Date().toISOString(); lead.marketingText = MKT_CONSENT; step = null; await bot('Ďakujem, ponuky vám budeme posielať raz týždenne. Odhlásiť sa môžete jedným klikom v každom e-maile.'); return finish(); }
     if (step === 'link') return gotLink(t);
-    if (step === 'sellcar'){ lead.car = t.trim().slice(0,200); step = null; await bot('Ďakujem! Ozveme sa vám s odhadom ceny a návrhom, ako auto predať.'); return askName2(); }
+    if (step === 'sellcar'){ lead.car = t.trim().slice(0,200); step = null; await bot('Ďakujem! Auto po kontrole zaradíme do ponuky zadarmo. Fotky môžete pridať aj cez formulár www.splatkuj.sk/predat.'); return askName2(); }
     if (step === 'inscar'){ lead.car = t.trim().slice(0,200); step = null; return askName2(); }
     if (step === 'year'){ lead.rok = t.trim().slice(0,30); step = null; log.querySelectorAll('.skc-chips[data-live]').forEach(x=>x.remove()); return askName(); }
     if (step === 'odkedy'){ lead.odkedy = t.trim().slice(0,40); step = null; return askMoney(); }

@@ -26,7 +26,7 @@ export async function onRequestGet({ env }) {
       fuel: d.fuel || '—', gear: d.gear || '—', drive: d.drive || '—',
       photos: n ? Math.min(n, 5) : 5, nimg: n,
       tags: Array.isArray(d.tags) ? d.tags.slice(0, 6) : [], desc: d.desc || '', why: d.why || '', eq: [],
-      loc: String(d.location || '').replace(/^\d{3} ?\d{2} /, ''), url: d.url || '', seller: d.sellerId || '',
+      loc: String(d.location || '').replace(/^\d{3} ?\d{2} /, ''), url: d.src === 'predaj' ? '' : d.url || '', seller: d.sellerId || '', cat: d.cat || 'Osobné auto',
       added: d.addedAt || '',
     });
   }

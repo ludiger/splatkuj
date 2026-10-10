@@ -123,6 +123,9 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
 .wa .row select{background:var(--ink);border:1px solid var(--line);border-radius:9px;padding:8px 10px;color:var(--fg);font:14px Figtree;min-width:0;flex:1 1 220px}
 .wa textarea{min-height:150px;line-height:1.5}
 .btn.wa-go{background:#25D366;border-color:#25D366;color:#062b14}
+.sell{background:var(--panel2);border:1px solid rgba(20,180,126,.4);border-radius:12px;padding:12px 14px;display:grid;gap:10px}
+.sell .strip{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}.sell .strip a{flex:none}.sell .strip img{height:78px;border-radius:8px;display:block}
+.sell .row b{font-size:14px}
 .flash{outline:2px solid var(--brand);outline-offset:2px}
 </style>
 </head>
@@ -430,6 +433,26 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
       <p class="tip">Po hovore: zapíšte aktivitu, presuňte fázu (Prvý kontakt / Zber podkladov) a nastavte Ďalší krok s termínom.</p>
     </div>`;
   }
+  // ---------- predaj auta (formulár /predat): fotky, schválenie na web, predané ----------
+  const sellBox = (r) => { if (r.zaujem !== 'predaj' || !/^98\d{7}$/.test(String(r.predajId || ''))) return '';
+    const id = r.predajId, n = arr(r.fotky).length || +udaje(r)['Počet fotiek'] || 0;
+    const st = r.webStav === 'na webe' ? `<span class="tag mk">✓ na webe od ${esc(fmt(r.webOd))}</span><a class="btn ghost" href="https://www.splatkuj.sk/#detail-${esc(id)}" target="_blank" rel="noopener">Zobraziť na webe ↗</a><button type="button" class="btn ghost" data-sold>Predané – stiahnuť z webu</button>`
+      : r.webStav === 'predane' ? `<span class="tag">Predané ${esc(fmt(r.webPredane))}</span>`
+      : `<span class="who">Skontrolujte údaje a fotky, potom:</span><button type="button" class="btn" data-approve>✅ Schváliť a dať na web</button>`;
+    return `<div class="sell"><div class="row"><b>🚗 Auto na zaradenie do ponuky (zadarmo) · ${n} fotiek</b></div>
+      <div class="strip">${Array.from({ length: Math.min(n, 20) }, (_, i) => `<a href="/api/foto/${esc(id)}/${i + 1}" target="_blank" rel="noopener"><img loading="lazy" src="/api/foto/${esc(id)}/${i + 1}/t" alt="Fotka ${i + 1}"></a>`).join('')}</div>
+      <div class="row">${st}</div></div>`; };
+  const listingOf = (r) => { let v = {}; try { v = typeof r.vozidlo === 'string' ? JSON.parse(r.vozidlo) : (r.vozidlo || {}); } catch {}
+    const id = r.predajId, n = arr(r.fotky).length || 1, price = +v.cena || 0, now = new Date().toISOString();
+    const eq = Array.isArray(v.vybava) ? v.vybava : [];
+    return { adId: id, src: 'predaj', status: 'aktivny', needsAds: true, webApi: true, sellerId: 'sukromny',
+      title: (v.znacka + ' ' + v.model).trim(), carTitle: (v.znacka + ' ' + v.model).trim(), price: price.toLocaleString('sk-SK') + ' €', priceNum: price,
+      year: +v.rok || '', yearText: (v.mesiac ? v.mesiac + '/' : '') + (v.rok || ''), km: +v.km || 0, kw: +v.kw || 0, fuel: v.palivo || '', gear: v.prevodovka || '', drive: v.pohon || '',
+      body: v.karoseria || '', cat: v.kategoria || 'Osobné auto', color: v.farba || '', stav: v.stav || '', mark: v.vin || '', location: v.lokalita || '',
+      tags: eq.filter((x) => !/Servisná|Prvý majiteľ|Nehavarované|Kúpené/.test(x)).slice(0, 6), desc: String(v.popis || '').slice(0, 240),
+      popis: [v.popis || '', eq.length ? 'Výbava: ' + eq.join(', ') : '', v.stav ? 'Stav: ' + v.stav : ''].filter(Boolean).join('\n\n'),
+      imgs: Array.from({ length: n }, (_, i) => 'r2:' + (i + 1)), url: 'https://www.splatkuj.sk/admin/dopyty/#' + r.leadId, leadId: r.leadId,
+      predajca: { meno: r.meno || '', tel: r.tel || '' }, addedAt: now, checkedAt: now }; };
   function card(r) {
     const st = stOf(r), g = STG[st], u = udaje(r), acts = arr(r.aktivity), kroky = obj(r.kroky)[st] || [];
     const tel = String(r.tel || '').replace(/[^\d+]/g, '');
@@ -457,6 +480,7 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
           <ul class="acts">${acts.slice().reverse().map((a) => `<li>${esc(a.typ || '')} ${esc(a.text || '')}<small>${esc(fmt(a.cas))} · ${esc(a.kto || '')}</small></li>`).join('') || '<li><small>Zatiaľ nič. Po každom hovore sem zapíšte, čo sa dohodlo.</small></li>'}</ul>
         </div>
       </div>
+      ${sellBox(r)}
       ${waBox(r)}
       <details class="more" data-callbox data-k="call"${st === 'novy' || st === 'kontakt' ? ' open' : ''}><summary>📞 Call skript – čo povedať klientovi</summary>${callScript(r, u)}</details>
       ${r.prepis ? `<details class="more" data-k="prepis"><summary>💬 Celý rozhovor (${esc(r.kanal || (r.zdroj && /Facebook|Instagram/.test(r.zdroj) ? r.zdroj : 'Laura na webe'))})</summary><div class="prepis">${esc(r.prepis)}</div></details>` : ''}
@@ -519,6 +543,13 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
     if (stb && r) return setStage(r, stb.dataset.st);
     const mv = t.closest('[data-mv]');
     if (mv && r) { const flow = ST.filter(([, , g]) => g !== 'lost').map(([k]) => k), fi = flow.indexOf(stOf(r)), ni = fi + +mv.dataset.mv; if (fi >= 0 && flow[ni]) return setStage(r, flow[ni]); return; }
+    if (t.closest('[data-approve]') && r) { const b = t.closest('[data-approve]'); b.disabled = true; b.textContent = 'Zverejňujem…';
+      try { await db.doc('inzeraty/' + r.predajId).set(listingOf(r)); const now = new Date().toISOString();
+        return save(id, { webStav: 'na webe', webOd: now, aktivity: log(r, '✅ Na webe', 'Auto schválené a zaradené do ponuky (č. ' + r.predajId + ')'), ...(r.prvyKontaktAt ? {} : { prvyKontaktAt: now }) }); }
+      catch (err) { b.disabled = false; b.textContent = '✅ Schváliť a dať na web'; return alertBox('Zverejnenie sa nepodarilo: ' + err.message); } }
+    if (t.closest('[data-sold]') && r) { const now = new Date().toISOString();
+      try { await db.doc('inzeraty/' + r.predajId).update({ status: 'predany', soldAt: now }); return save(id, { webStav: 'predane', webPredane: now, aktivity: log(r, '🏁 Predané', 'Auto stiahnuté z webu') }); }
+      catch (err) { return alertBox('Nepodarilo sa: ' + err.message); } }
     const wg = t.closest('[data-wago],[data-wasms]');
     if (wg && r) { const box = t.closest('[data-wabox]'), txt = box.querySelector('[data-watxt]').value.trim(), tpl = box.querySelector('[data-watpl]'), tel = intl(r.tel);
       if (!txt) return; const isWa = wg.matches('[data-wago]');

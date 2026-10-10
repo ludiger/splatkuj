@@ -32,6 +32,7 @@ export async function bazosInzerat(id, slug) {
 // ── Autá z vlastných webov predajcov (nie z Bazoša) ──────────────────────────
 // Dostanú 9-miestne číslo začínajúce deviatkou (rozsah, ktorý Bazoš ešte desaťročia nepoužije):
 //   91xxxxxxx = cooldrive.sk (xxxxxxx = číslo stránky „/m50“ → 910000050)
+//   98xxxxxxx = súkromní predajcovia z formulára /predat (src:"predaj"; fotky sú v R2 pod bazos/<id>/<n>.jpg)
 // V dokumente inzerátu sú: url (stránka auta u predajcu), imgs (adresy fotiek v poradí), mark (VIN – podľa neho
 // poznáme, že inzerát ešte existuje), popis (výbava a údaje z webu).
 export const isExt = (id) => /^9\d{8}$/.test(String(id || ''));
@@ -60,6 +61,8 @@ export function extPrice(h, url) {
 
 // Čerstvý stav auta z webu predajcu: {exists, price}. exists=false, keď stránka zmizla alebo na nej už nie je VIN.
 export async function extState(doc, fresh) {
+  // auto od súkromného predajcu (formulár /predat, číslo 98xxxxxxx) – nemá inzerát inde, predaj označí admin ručne
+  if (doc && doc.src === 'predaj') return { exists: doc.status !== 'predany', price: +doc.priceNum || null };
   if (!doc || !extHostOk(doc.url)) return { exists: false, error: 'zlý odkaz' };
   let r;
   try {

@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Predať auto cez Splatkuj.sk – zadarmo</title>
+<meta name="description" content="Zaradíme vaše auto zadarmo do ponuky Splatkuj.sk so splátkou pre kupujúcich. Vyplňte údaje, nafoťte auto mobilom a pošlite – trvá to pár minút.">
+<meta name="theme-color" content="#0d0e11">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/predat/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/predat/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Predať auto">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Figtree:wght@400;500;600;700;800&family=Unbounded:wght@800&display=swap">
+<style>
+:root{--ink:#0d0e11;--panel:#16181d;--panel2:#1d2027;--line:#2a2e37;--fg:#f3f4f6;--mut:#9ca2ad;--brand:#16B57F;--brand2:#45D99B;--on:#03140D;--red:#f0616d;color-scheme:dark}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;background:var(--ink);color:var(--fg);font:16px/1.55 Figtree,system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px calc(40px + env(safe-area-inset-bottom))}
+header{display:flex;align-items:center;justify-content:space-between;padding:14px 0;gap:10px}
+.logo{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--fg);font:800 20px/1 Unbounded,sans-serif;letter-spacing:-.04em}
+.logo img{width:34px;height:34px}.logo span{color:var(--brand)}
+header a.back{color:var(--mut);font-size:14px;text-decoration:none}
+h1{font:900 clamp(28px,7vw,40px)/1.08 Archivo,sans-serif;font-stretch:115%;margin:18px 0 10px}
+h1 em{font-style:normal;color:var(--brand)}
+.lead{color:#c9ced6;margin:0 0 18px}
+.why{display:grid;gap:10px;margin:0 0 22px;padding:0;list-style:none}
+.why li{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;gap:12px;align-items:flex-start}
+.why b{display:block}.why small{color:var(--mut);font-size:14px}
+.why i{font-style:normal;flex:none;width:34px;height:34px;border-radius:10px;background:rgba(22,181,127,.15);display:grid;place-items:center;font-size:18px}
+.steps{display:flex;gap:6px;margin:6px 0 18px}
+.steps span{flex:1;height:6px;border-radius:9px;background:var(--line)}.steps span.on{background:var(--brand)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px 16px}
+.card h2{font:800 20px/1.2 Archivo,sans-serif;font-stretch:110%;margin:0 0 4px}
+.card .sub{color:var(--mut);font-size:14px;margin:0 0 14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.full{grid-column:1/-1}
+@media(max-width:520px){.grid{grid-template-columns:1fr}}
+label{display:grid;gap:5px;font-size:13.5px;font-weight:700;color:#c9ced6}
+label small{font-weight:500;color:var(--mut)}
+input,select,textarea{width:100%;background:var(--ink);border:1px solid var(--line);border-radius:12px;padding:13px 12px;color:var(--fg);font:16px Figtree,sans-serif;min-width:0}
+textarea{min-height:110px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--brand)}
+.bad{border-color:var(--red)!important}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{font:700 14px/1 Figtree;padding:11px 13px;border-radius:999px;border:1px solid var(--line);background:var(--ink);color:var(--fg);cursor:pointer}
+.chips button[aria-pressed=true]{background:var(--brand);border-color:var(--brand);color:var(--on)}
+.nav{display:flex;gap:10px;margin-top:18px}
+.btn{flex:1;font:800 16px/1 Figtree;padding:16px;border-radius:14px;border:1px solid var(--brand);background:var(--brand);color:var(--on);cursor:pointer;text-align:center;text-decoration:none}
+.btn.ghost{background:transparent;color:var(--fg);border-color:var(--line);flex:0 0 auto;padding:16px 18px}
+.btn:disabled{opacity:.55;cursor:default}
+.tips{margin:0 0 14px;padding:12px 14px;border-radius:12px;background:rgba(22,181,127,.08);border:1px solid rgba(22,181,127,.3);font-size:14px}
+.tips ol{margin:6px 0 0;padding-left:20px}
+.drop{display:grid;place-items:center;gap:6px;border:2px dashed var(--line);border-radius:16px;padding:22px 12px;text-align:center;cursor:pointer;color:#c9ced6}
+.drop b{font-size:17px;color:var(--fg)}
+.photos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+@media(min-width:560px){.photos{grid-template-columns:repeat(4,1fr)}}
+.ph{position:relative;aspect-ratio:4/3;border-radius:10px;overflow:hidden;background:var(--panel2)}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.ph .x,.ph .st{position:absolute;top:5px;border:0;border-radius:999px;font:800 12px/1 Figtree;cursor:pointer;padding:6px 8px}
+.ph .x{right:5px;background:rgba(0,0,0,.65);color:#fff}
+.ph .st{left:5px;background:rgba(0,0,0,.65);color:#fff}
+.ph.main{outline:3px solid var(--brand)}.ph.main .st{background:var(--brand);color:var(--on)}
+.bar{height:8px;border-radius:9px;background:var(--line);overflow:hidden;margin-top:12px}.bar i{display:block;height:100%;width:0;background:var(--brand);transition:width .2s}
+.pay{margin-top:10px;padding:12px 14px;border-radius:12px;background:var(--panel2);font-size:14px;color:#c9ced6}.pay b{color:var(--brand2);font-size:18px}
+.chk{display:flex;gap:10px;align-items:flex-start;font-weight:500;font-size:14px;color:#c9ced6}.chk input{width:22px;height:22px;flex:none;margin-top:1px;accent-color:var(--brand)}
+.err{color:var(--red);font-weight:700;font-size:14px;margin:10px 0 0;min-height:1em}
+.done{text-align:center;padding:30px 16px}.done .ic{font-size:54px}
+.how{display:grid;gap:8px;counter-reset:s;margin:0 0 22px;padding:0;list-style:none}
+.how li{counter-increment:s;display:flex;gap:12px;align-items:center;font-size:15px}
+.how li::before{content:counter(s);flex:none;width:28px;height:28px;border-radius:50%;background:var(--panel2);border:1px solid var(--line);display:grid;place-items:center;font-weight:800;color:var(--brand2)}
+footer{color:var(--mut);font-size:12.5px;margin-top:26px;line-height:1.5}footer a{color:var(--mut)}
+.install{display:none;margin:0 0 16px;font-size:14px}.install button{all:unset;cursor:pointer;color:var(--brand2);font-weight:800;text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="logo" href="/"><img src="/favicon.svg" alt="">splatkuj<span>.sk</span></a>
+    <a class="back" href="/">← Späť na web</a>
+  </header>
+
+  <section id="intro">
+    <h1>Predajte auto <em>rýchlejšie</em> – so splátkou pre kupujúcich</h1>
+    <p class="lead"><b>Splatkuj.sk je portál s autami na splátky.</b> Vaše auto zaradíme <b>zadarmo</b> do našej ponuky a kupujúci ho uvidia aj s mesačnou splátkou od 0 % akontácie. Financovanie kupujúcemu vybavíme my, vy dostanete celú sumu naraz.</p>
+    <ul class="why">
+      <li><i>€</i><span><b>Zadarmo, bez provízie od vás</b><small>Zarábame na financovaní kupujúceho, nie na vás.</small></span></li>
+      <li><i>📈</i><span><b>Viac záujemcov</b><small>Auto na splátky si môže dovoliť viac ľudí – aj tí, čo nemajú celú sumu hneď.</small></span></li>
+      <li><i>🚗</i><span><b>Nie sme výkup ani autobazár</b><small>Auto ostáva vaše a u vás, kým ho nepredáte. Cenu určujete vy.</small></span></li>
+    </ul>
+    <ol class="how">
+      <li>Vyplníte údaje a nafotíte auto mobilom (asi 5 minút).</li>
+      <li>Auto skontrolujeme a zverejníme v ponuke so splátkou.</li>
+      <li>Keď sa ozve záujemca, vybavíme mu financovanie a dohodneme obhliadku s vami.</li>
+    </ol>
+    <p class="install" id="install">📲 Chcete to mať ako aplikáciu? <button type="button" id="installBtn">Pridať na plochu</button></p>
+    <button class="btn" type="button" id="go" style="width:100%">Pridať auto zadarmo</button>
+  </section>
+
+  <form id="f" hidden novalidate>
+    <div class="steps" aria-hidden="true"><span></span><span></span><span></span></div>
+
+    <fieldset class="card" data-step="1" style="border:1px solid var(--line);margin:0">
+      <h2>1. Vozidlo</h2><p class="sub">Čím presnejšie údaje, tým rýchlejšie auto zverejníme.</p>
+      <div class="grid">
+        <div class="full"><label>Kategória</label><div class="chips" id="cat" role="group" aria-label="Kategória"></div></div>
+        <label>Značka *<input name="znacka" list="brands" autocomplete="off" required maxlength="40" placeholder="napr. Škoda"></label>
+        <label>Model *<input name="model" required maxlength="80" placeholder="napr. Octavia Combi 2.0 TDI"></label>
+        <label>Rok výroby *<select name="rok" required></select></label>
+        <label>Najazdené km *<input name="km" inputmode="numeric" required maxlength="9" placeholder="napr. 148000"></label>
+        <label>Palivo<select name="palivo"><option value="">Vyberte</option><option>Diesel</option><option>Benzín</option><option>Hybrid</option><option>Plug-in hybrid</option><option>Elektro</option><option>LPG</option><option>CNG</option></select></label>
+        <label>Prevodovka<select name="prevodovka"><option value="">Vyberte</option><option>Manuál</option><option>Automat</option></select></label>
+        <label>Výkon (kW)<input name="kw" inputmode="numeric" maxlength="4" placeholder="napr. 110"></label>
+        <label>Pohon<select name="pohon"><option value="">Vyberte</option><option>Predný</option><option>Zadný</option><option>4x4</option></select></label>
+        <label>Karoséria<select name="karoseria"><option value="">Vyberte</option><option>Sedan</option><option>Hatchback</option><option>Kombi</option><option>SUV</option><option>MPV</option><option>Kupé</option><option>Kabriolet</option><option>Pick-up</option><option>Dodávka</option><option>Iná</option></select></label>
+        <label>Farba<input name="farba" maxlength="40" placeholder="napr. sivá metalíza"></label>
+        <label>Stav<select name="stav"><option value="">Vyberte</option><option>Bez poškodenia</option><option>Drobné vady (škrabance)</option><option>Poškodené</option><option>Nepojazdné</option></select></label>
+        <label>VIN <small>(nepovinné)</small><input name="vin" maxlength="17" autocapitalize="characters" placeholder="17 znakov z technického preukazu"></label>
+        <div class="full"><label>Výbava <small>(ťuknite na všetko, čo auto má)</small></label><div class="chips" id="eq" role="group" aria-label="Výbava"></div></div>
+        <label class="full">Popis <small>(servisná história, počet majiteľov, čo je nové…)</small><textarea name="popis" maxlength="3000" placeholder="napr. Prvý majiteľ, kupované na Slovensku, servisná knižka, nové pneumatiky 2025, nehavarované."></textarea></label>
+      </div>
+      <p class="err" data-err></p>
+      <div class="nav"><button class="btn" type="button" data-next>Ďalej: fotky</button></div>
+    </fieldset>
+
+    <fieldset class="card" data-step="2" hidden style="border:1px solid var(--line);margin:0">
+      <h2>2. Fotky</h2><p class="sub">Najviac 20 fotiek. Prvá (označená ★) bude hlavná.</p>
+      <div class="tips"><b>Ako nafotiť auto, aby sa predalo:</b>
+        <ol><li>Predok auta zboku (šikmo) – hlavná fotka</li><li>Zadok zboku, oba boky</li><li>Palubná doska a tachometer s km</li><li>Predné a zadné sedadlá, kufor</li><li>Prípadné vady zblízka</li></ol>
+        <small>Foťte cez deň, auto čisté, na šírku.</small></div>
+      <label class="drop" for="file"><span style="font-size:30px">📷</span><b>Odfotiť alebo vybrať fotky</b><small>Ťuknite sem – môžete vybrať viac fotiek naraz</small></label>
+      <input id="file" type="file" accept="image/*" multiple hidden>
+      <div class="photos" id="photos"></div>
+      <div class="bar" id="bar" hidden><i></i></div>
+      <p class="err" data-err></p>
+      <div class="nav"><button class="btn ghost" type="button" data-prev>Späť</button><button class="btn" type="button" data-next>Ďalej: cena a kontakt</button></div>
+    </fieldset>
+
+    <fieldset class="card" data-step="3" hidden style="border:1px solid var(--line);margin:0">
+      <h2>3. Cena a kontakt</h2><p class="sub">Kontakt nezverejňujeme – záujemcov vybavujeme my a s obhliadkou vás spojíme.</p>
+      <div class="grid">
+        <label>Cena (€) *<input name="cena" inputmode="numeric" required maxlength="8" placeholder="napr. 14500"></label>
+        <label>Kde je auto *<input name="lokalita" required maxlength="80" placeholder="obec alebo okres"></label>
+        <div class="full pay" id="pay" hidden>Kupujúci uvidia orientačnú splátku od <b id="payV"></b> mesačne (96 mesiacov, bez akontácie).</div>
+        <label>Meno a priezvisko *<input name="meno" required maxlength="80" autocomplete="name"></label>
+        <label>Telefón *<input name="tel" type="tel" required maxlength="20" autocomplete="tel" placeholder="09xx xxx xxx"></label>
+        <label>E-mail <small>(nepovinné)</small><input name="email" type="email" maxlength="120" autocomplete="email"></label>
+        <label>Odkiaľ o nás viete? <small>(nepovinné)</small><select name="odkial"><option value="">Vyberte</option><option>Bazoš</option><option>Facebook</option><option>Instagram</option><option>TikTok</option><option>Google</option><option>Odporúčanie</option></select></label>
+        <label class="full chk"><input type="checkbox" name="suhlas"> <span>Som vlastník auta alebo mám súhlas vlastníka. Súhlasím so zverejnením údajov o aute a fotiek na Splatkuj.sk a so spracúvaním mojich kontaktných údajov na účel predaja auta (zásady ochrany osobných údajov nájdete v pätičke na <a href="/" style="color:var(--brand2)">www.splatkuj.sk</a>). Zaradenie je zadarmo.</span></label>
+      </div>
+      <p class="err" data-err></p>
+      <div class="nav"><button class="btn ghost" type="button" data-prev>Späť</button><button class="btn" type="submit" id="send">Odoslať auto</button></div>
+    </fieldset>
+  </form>
+
+  <section id="done" class="card done" hidden>
+    <div class="ic">✅</div>
+    <h2>Ďakujeme, auto sme dostali!</h2>
+    <p class="sub" style="font-size:16px">Skontrolujeme údaje a fotky a auto zverejníme v ponuke so splátkou. Ak budeme niečo potrebovať, ozveme sa vám na telefón.</p>
+    <div class="nav"><a class="btn" href="/#ponuka">Pozrieť ponuku áut</a></div>
+    <div class="nav"><button class="btn ghost" type="button" id="another" style="flex:1">Pridať ďalšie auto</button></div>
+  </section>
+
+  <datalist id="brands"></datalist>
+  <footer>Splatkuj.sk – LPFinance s.r.o., IČO 56022352, Nábrežie mládeže 569/81, 949 01 Nitra · <a href="tel:+421903427088">0903 427 088</a> · <a href="mailto:info@splatkuj.sk">info@splatkuj.sk</a><br>Splátky sú orientačné a nepredstavujú záväznú ponuku. Spoločnosť pôsobí ako sprostredkovateľ financovania.</footer>
+</div>
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const F = $('#f'), MAX = 20;
+  const CATS = ['Osobné auto', 'Motocykel', 'Dodávka / úžitkové', 'Karavan / obytné', 'Nákladné', 'Iné'];
+  const EQ = ['Klimatizácia', 'Automatická klíma', 'Navigácia', 'Cúvacia kamera', 'Parkovacie senzory', 'Tempomat', 'Adaptívny tempomat', 'Vyhrievané sedadlá', 'Kožené sedadlá', 'LED svetlá', 'Panoráma', 'Ťažné zariadenie', 'Bezkľúčové štartovanie', 'Apple CarPlay / Android Auto', 'Elektrické okná', 'Zimné pneumatiky', 'Servisná knižka', 'Prvý majiteľ', 'Nehavarované', 'Kúpené na Slovensku'];
+  const BR = ['Alfa Romeo','Audi','BMW','Citroën','Cupra','Dacia','Fiat','Ford','Honda','Hyundai','Jaguar','Jeep','Kia','Land Rover','Lexus','Mazda','Mercedes-Benz','MG','Mini','Mitsubishi','Nissan','Opel','Peugeot','Porsche','Renault','Seat','Škoda','Subaru','Suzuki','Tesla','Toyota','Volkswagen','Volvo','Yamaha','Honda moto','KTM','Harley-Davidson','Iveco','MAN','Hymer','Knaus'];
+  let cat = CATS[0], eq = new Set(), id = null, photos = [], step = 0, uploadedSig = '';
+  $('#brands').innerHTML = BR.map((b) => `<option value="${b}">`).join('');
+  const y = new Date().getFullYear();
+  F.rok.innerHTML = '<option value="">Vyberte</option>' + Array.from({ length: y - 1969 }, (_, i) => `<option>${y - i}</option>`).join('');
+  const chips = (el, items, isOn, onTap) => { el.innerHTML = items.map((x) => `<button type="button" aria-pressed="${isOn(x)}">${x}</button>`).join(''); el.onclick = (e) => { const b = e.target.closest('button'); if (!b) return; onTap(b.textContent); chips(el, items, isOn, onTap); }; };
+  chips($('#cat'), CATS, (x) => x === cat, (x) => { cat = x; });
+  chips($('#eq'), EQ, (x) => eq.has(x), (x) => { eq.has(x) ? eq.delete(x) : eq.add(x); });
+  // odkiaľ prišiel (rovnako ako na webe – len zdroj, žiadne osobné údaje)
+  const ref = (() => { try { return sessionStorage.getItem('sk_ref') || new URLSearchParams(location.search).get('z') || (document.referrer ? new URL(document.referrer).hostname : 'priamo'); } catch { return ''; } })();
+  const api = async (path, opt) => { const r = await fetch('/api/predaj' + path, opt); const j = await r.json().catch(() => ({})); if (!r.ok || !j.ok) throw new Error(j.error || 'Nepodarilo sa spojiť so serverom, skúste to znova.'); return j; };
+  const show = (n) => { step = n; $$('fieldset[data-step]').forEach((f) => { f.hidden = +f.dataset.step !== n; }); $$('.steps span').forEach((s, i) => s.classList.toggle('on', i < n)); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  const err = (t) => { const e = $(`fieldset[data-step="${step}"] [data-err]`); if (e) e.textContent = t || ''; return false; };
+  const bad = (el, t) => { el.classList.add('bad'); el.focus(); el.addEventListener('input', () => el.classList.remove('bad'), { once: true }); return err(t); };
+  $('#go').onclick = () => { $('#intro').hidden = true; F.hidden = false; show(1); };
+  // ---------- fotky: zmenšenie v mobile (rýchle nahrávanie) ----------
+  async function shrink(file, max, q) {
+    let bmp; try { bmp = await createImageBitmap(file, { imageOrientation: 'from-image' }); } catch { bmp = await new Promise((ok, no) => { const im = new Image(); im.onload = () => ok(im); im.onerror = no; im.src = URL.createObjectURL(file); }); }
+    const w = bmp.width, h = bmp.height, k = Math.min(1, max / Math.max(w, h));
+    const c = document.createElement('canvas'); c.width = Math.round(w * k); c.height = Math.round(h * k);
+    c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+    for (let qq = q; qq > 0.4; qq -= 0.1) { const b = await new Promise((ok) => c.toBlob(ok, 'image/jpeg', qq)); if (b && b.size < 2.4e6) return b; }
+    throw new Error('Fotka je príliš veľká.');
+  }
+  const paint = () => {
+    $('#photos').innerHTML = photos.map((p, i) => `<div class="ph${i === 0 ? ' main' : ''}"><img src="${p.url}" alt="Fotka ${i + 1}"><button type="button" class="st" data-main="${i}" aria-label="Nastaviť ako hlavnú">${i === 0 ? '★ hlavná' : '★'}</button><button type="button" class="x" data-del="${i}" aria-label="Odstrániť fotku">✕</button></div>`).join('');
+  };
+  $('#file').onchange = async (e) => {
+    const files = [...e.target.files].filter((f) => /^image\//.test(f.type) || /\.(jpe?g|png|heic|webp)$/i.test(f.name)); e.target.value = '';
+    err('');
+    for (const f of files) { if (photos.length >= MAX) { err('Najviac 20 fotiek.'); break; }
+      try { const full = await shrink(f, 1600, 0.85), th = await shrink(f, 480, 0.75); photos.push({ full, th, url: URL.createObjectURL(th) }); paint(); }
+      catch { err('Niektorú fotku sa nepodarilo načítať (skúste formát JPG).'); } }
+  };
+  $('#photos').onclick = (e) => { const d = e.target.closest('[data-del]'), m = e.target.closest('[data-main]');
+    if (d) { photos.splice(+d.dataset.del, 1); paint(); } if (m) { const [p] = photos.splice(+m.dataset.main, 1); photos.unshift(p); paint(); } };
+  async function upload() {
+    const sig = photos.map((p) => p.url).join('|'); if (sig === uploadedSig && id) return;
+    if (!id) id = (await api('/start', { method: 'POST' })).id;
+    const bar = $('#bar'), fill = $('#bar i'); bar.hidden = false; fill.style.width = '2%';
+    for (let i = 0; i < photos.length; i++) {
+      for (const [blob, t] of [[photos[i].full, ''], [photos[i].th, '/t']]) {
+        let ok = false; for (let a = 0; a < 3 && !ok; a++) { try { await api(`/foto/${id}/${i + 1}${t}`, { method: 'POST', headers: { 'content-type': 'image/jpeg' }, body: blob }); ok = true; } catch (x) { if (a === 2) throw x; await new Promise((r) => setTimeout(r, 800)); } }
+      }
+      fill.style.width = Math.round(100 * (i + 1) / photos.length) + '%';
+    }
+    uploadedSig = sig;
+  }
+  // ---------- kroky ----------
+  const v = (n) => String(F[n].value || '').trim();
+  F.addEventListener('click', async (e) => {
+    if (e.target.closest('[data-prev]')) return show(step - 1);
+    if (!e.target.closest('[data-next]')) return;
+    err('');
+    if (step === 1) {
+      if (!v('znacka')) return bad(F.znacka, 'Vyplňte značku.');
+      if (!v('model')) return bad(F.model, 'Vyplňte model.');
+      if (!v('rok')) return bad(F.rok, 'Vyberte rok výroby.');
+      if (!/^\d{1,7}$/.test(v('km').replace(/\s/g, ''))) return bad(F.km, 'Vyplňte najazdené km (len číslo).');
+      return show(2);
+    }
+    if (step === 2) {
+      if (!photos.length) return err('Pridajte aspoň jednu fotku – najlepšie 8 a viac.');
+      const b = e.target.closest('[data-next]'); b.disabled = true; b.textContent = 'Nahrávam fotky…';
+      try { await upload(); show(3); } catch (x) { err(x.message); } finally { b.disabled = false; b.textContent = 'Ďalej: cena a kontakt'; }
+    }
+  });
+  const pay = () => { const p = +v('cena').replace(/\D/g, ''); if (p < 1000) { $('#pay').hidden = true; return; } const r = 9.9 / 100 / 12, m = p * r / (1 - Math.pow(1 + r, -96)); $('#payV').textContent = Math.round(m) + ' €'; $('#pay').hidden = false; };
+  F.cena.addEventListener('input', pay);
+  F.addEventListener('submit', async (e) => {
+    e.preventDefault(); err('');
+    if (+v('cena').replace(/\D/g, '') < 300) return bad(F.cena, 'Vyplňte cenu v eurách.');
+    if (!v('lokalita')) return bad(F.lokalita, 'Napíšte, kde je auto.');
+    if (v('meno').split(/\s+/).length < 2) return bad(F.meno, 'Vyplňte meno aj priezvisko.');
+    if ((v('tel').match(/\d/g) || []).length < 9) return bad(F.tel, 'Vyplňte telefónne číslo.');
+    if (!F.suhlas.checked) return err('Potvrďte prosím súhlas na konci formulára.');
+    const btn = $('#send'); btn.disabled = true; btn.textContent = 'Odosielam…';
+    try {
+      await upload();
+      await api('', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
+        id, nfoto: photos.length, kategoria: cat, znacka: v('znacka'), model: v('model'), rok: v('rok'), km: v('km').replace(/\D/g, ''), palivo: v('palivo'), prevodovka: v('prevodovka'),
+        kw: v('kw'), pohon: v('pohon'), karoseria: v('karoseria'), farba: v('farba'), stav: v('stav'), vin: v('vin'), vybava: [...eq], popis: v('popis'),
+        cena: v('cena').replace(/\D/g, ''), lokalita: v('lokalita'), meno: v('meno'), tel: v('tel'), email: v('email'), odkial: v('odkial'), ref, suhlas: true }) });
+      F.hidden = true; $('#done').hidden = false; window.scrollTo({ top: 0 });
+    } catch (x) { err(x.message); } finally { btn.disabled = false; btn.textContent = 'Odoslať auto'; }
+  });
+  $('#another').onclick = () => location.reload();
+  // ---------- inštalácia ako aplikácia ----------
+  let deferred = null;
+  window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferred = e; $('#install').style.display = 'block'; });
+  $('#installBtn').onclick = async () => { if (deferred) { deferred.prompt(); deferred = null; $('#install').style.display = 'none'; } };
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/predat/sw.js', { scope: '/predat/' }).catch(() => {});
+})();
+</script>
+</body>
+</html>

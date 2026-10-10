@@ -43,6 +43,8 @@ Majiteľ 10. 10. 2026: tento dokument je naša biblia a riadime sa ním. Fázy i
 - [ ] Automatické postovanie reklám na FB a IG (pozri bod 3).
 - [ ] Program recenzií po odovzdaní auta – cieľ 150 recenzií s hodnotením 4,8+.
 - [ ] Partnerstvá s predajcami z Bazoša (stránka Spolupráca).
+- [x] Predaj auta pre súkromných predajcov zadarmo – stránka /predat (aplikácia na plochu), schválenie v CRM, auto na web so splátkou (10. 10. 2026).
+- [ ] VY – Podmienky financovania pre motocykle, dodávky a karavany (dnes sa im počíta rovnaká orientačná splátka ako autám).
 - [ ] Prvý kolega na prvý kontakt a doklady pri ~10 autách mesačne.
 
 ### Prechod autazababku.sk → splatkuj.sk
