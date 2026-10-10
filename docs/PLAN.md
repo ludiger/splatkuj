@@ -114,7 +114,8 @@ Majiteľ 10. 10. 2026: tento dokument je naša biblia a riadime sa ním. Fázy i
 - [x] CLAUDE – Zapísané všetky autá Cooldrive (34), JD Autobazár (5) a Zoltan (9); na webe je 207 áut.
 - [x] CLAUDE – Admin → Inzeráty: klik na auto = náš inzerát na webe, ikonka ↗ = pôvodný inzerát (Bazoš / web predajcu).
 - [x] CLAUDE – Žiadosť o úver v 3 krokoch na webe (osobné údaje, zdroj príjmu, deti a auto) + overenie IČO v registroch (RPO, záloha Register účtovných závierok); Laura sa pýta na rovnaké údaje.
-- [ ] CLAUDE – Reklamy (stránka Reklamy na siete) pre všetky autá – dnes je tam 90 plne spracovaných; zvyšných ~117 spracovať dávkami (fotky na reklamu, texty, video).
+- [x] CLAUDE – Reklamy pre všetky autá: namiesto dávok šablóny na kliknutie (/admin/reklamy/tvorba, 10. 10. 2026); fotky zvyšných áut sa ukladajú do zálohy.
+- [ ] CLAUDE – Ďalšie šablóny podľa sezóny/kampane (leto, Black Friday, elektro…) a tematický newsletter (elektroautá, SUV na leto, kombi na dovolenku, Vianoce).
 - [ ] CLAUDE – Nová sekcia/stránka **Spolupráca** (predajcovia áut, poskytovatelia súvisiacich služieb, marketingoví partneri) s formulárom „Stať sa partnerom“ – podľa vzoru starej stránky Autá za babku.
 - [ ] SPOLU – **Motocykle a dodávky** v ponuke: kategórie na webe a v admine, filter, a podmienky financovania (max. vek, doba, akontácia – dodá majiteľ / financujúce spoločnosti).
 - [ ] SPOLU – **Laura na Facebooku a Instagrame** (Messenger a Instagram Direct cez Meta API): VY – Meta Business účet, prepojená FB stránka a IG firemný účet, vytvorenie Meta aplikácie; CLAUDE – webhook v Cloudflare, rovnaké správanie ako na webe, dopyty do adminu; potom schválenie aplikácie Metou.
