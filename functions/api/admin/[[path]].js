@@ -6,6 +6,7 @@ import {
 } from '../../_lib/auth.js';
 import { fotoKey, fetchBazos, bazosInzerat, isExt, fetchExt } from '../../_lib/foto.js';
 import { SITES } from '../../_lib/web.js';
+import { notify, notifyEnabled } from '../../_lib/notify.js';
 
 const COLLS = new Set(['inzeraty', 'config', 'leady', 'reklamy']);
 const ID_RE = /^[A-Za-z0-9_.:@+-]{1,120}$/;
@@ -226,6 +227,13 @@ export async function onRequest(ctx) {
     }
     const total = nums.length * 2;
     return json({ ok: true, photos: nums.length, saved, have, missing, remaining: Math.max(0, total - have - saved - missing) });
+  }
+
+  // Skúšobné push upozornenie (ntfy): POST notify-test -> {enabled, sent, status, error, topicLen, topicOk} – názov témy sa nevracia
+  if (path === 'notify-test' && method === 'POST') {
+    const t = String(env.NTFY_TOPIC || '');
+    const res = notifyEnabled(env) ? await notify(env, { title: 'Skúška upozornenia', message: 'Ak toto vidíte, upozornenia na nové dopyty fungujú. ✅', click: 'https://www.splatkuj.sk/admin/dopyty/', tags: ['white_check_mark'] }) : { sent: false };
+    return json({ ok: true, enabled: notifyEnabled(env), ...res, topicLen: t.length, topicOk: /^[-_A-Za-z0-9]{1,64}$/.test(t), topicTrimmed: t === t.trim() });
   }
 
   // Autá z vlastných webov predajcov (napr. Cooldrive) – web sa číta na serveri, adresy fotiek ostávajú v databáze.
