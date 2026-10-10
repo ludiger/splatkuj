@@ -58,6 +58,9 @@ Legenda: **VY** = robí majiteľ, **CLAUDE** = robí Claude, **SPOLU** = spoloč
 - [ ] VY – Vybrať e-mailový nástroj (Mailchimp, Ecomail, SmartEmailing…), importovať export so súhlasom a nastaviť značku odhlásenia v Newsletteri.
 - [ ] VY – Overiť s právnikom znenie súhlasu a text v Ochrane osobných údajov (marketing).
 
+- [x] CLAUDE – Dokument `docs/FUNKCIE.md` (prehľad všetkých funkcií + denník zmien); pravidlo v CLAUDE.md, aby sa pri každej zmene aktualizoval. Kópia je aj v projekte Splatkuj.sk v Claude.
+- [x] CLAUDE – Zapísané všetky autá Cooldrive (34), JD Autobazár (5) a Zoltan (9); na webe je 207 áut.
+
 ## 3. Sociálne siete – automatické zverejňovanie áut
 - [ ] VY – Prihlásiť Instagram (firemný) vo Windsor.ai.
 - [ ] VY – Prihlásiť TikTok v Higgsfield.
