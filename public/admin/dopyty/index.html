@@ -32,7 +32,13 @@ input[type=search]{flex:1 1 220px;min-width:0;background:var(--panel);border:1px
 .col{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:8px;min-height:120px}
 .col h3{margin:0 2px 2px;font:700 13px/1.2 Figtree;display:flex;justify-content:space-between;color:var(--mut)}
 .col h3 b{color:var(--fg)}
-.card{all:unset;cursor:pointer;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:9px 10px;display:grid;gap:3px;font-size:13px}
+.card{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:9px 10px;display:grid;gap:3px;font-size:13px;cursor:grab}
+.card[draggable=true]:active{cursor:grabbing}.card.drag{opacity:.45}
+.card .op{all:unset;cursor:pointer;display:grid;gap:3px}
+.card .mv{display:flex;gap:6px;margin-top:6px}
+.card .mv button{flex:1;font:800 13px/1 Figtree;padding:7px 0;border-radius:8px;border:1px solid var(--line);background:var(--ink);color:var(--fg);cursor:pointer}
+.card .mv button:hover{border-color:var(--brand);color:var(--brand2)}.card .mv button:disabled{opacity:.3;cursor:default}
+.col.over{border-color:var(--brand);background:rgba(20,180,126,.08)}
 .card:hover{border-color:var(--brand)}
 .card b{font-size:14px}.card small{color:var(--mut)}
 .card .tm{justify-self:start;margin-top:3px;font-size:12px;padding:5px 8px}
@@ -338,12 +344,16 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
     if (openId) { const el = document.querySelector(`[data-id="${CSS.escape(openId)}"]`); if (el) { el.querySelector('details.more')?.setAttribute('open', ''); el.classList.add('flash'); el.scrollIntoView({ block: 'center' }); setTimeout(() => el.classList.remove('flash'), 1500); } openId = null; }
   }
   function board(list) {
-    const cols = ST.filter(([, , g]) => g !== 'lost');
+    const cols = ST.filter(([, , g]) => g !== 'lost'), flow = cols.map(([k]) => k);
     const lost = list.filter((r) => STG[stOf(r)] === 'lost');
-    $('out').innerHTML = `<div class="board">${cols.map(([k, l]) => { const c = list.filter((r) => stOf(r) === k);
-      return `<div class="col"><h3>${l} <b>${c.length}</b></h3>${c.map((r) => `<button type="button" class="card" data-open="${esc(r.leadId)}"><b>${esc(r.meno)}</b><small>${esc(r.auto || ZA[r.zaujem] || '')}</small>${timer(r)}${dueTxt(r)}${r.riesi ? `<small>👤 ${esc(r.riesi)}</small>` : ''}</button>`).join('')}</div>`; }).join('')}
-      <div class="col"><h3>Stratené <b>${lost.length}</b></h3>${lost.slice(0, 30).map((r) => `<button type="button" class="card" data-open="${esc(r.leadId)}"><b>${esc(r.meno)}</b><small>${esc(STL[stOf(r)])}${r.dovod ? ' · ' + esc(r.dovod) : ''}</small></button>`).join('')}</div></div>`;
+    const bc = (r, extra) => { const st = stOf(r), fi = flow.indexOf(st);
+      return `<div class="card" draggable="true" data-id="${esc(r.leadId)}" data-card="${esc(r.leadId)}"><button type="button" class="op" data-open="${esc(r.leadId)}"><b>${esc(r.meno)}</b><small>${extra || esc(r.auto || ZA[r.zaujem] || '')}</small></button>${timer(r)}${dueTxt(r)}${r.riesi ? `<small>👤 ${esc(r.riesi)}</small>` : ''}
+        <div class="mv"><button type="button" data-mv="-1" title="O fázu späť" aria-label="O fázu späť"${fi <= 0 ? ' disabled' : ''}>◀</button><button type="button" data-mv="1" title="O fázu ďalej" aria-label="O fázu ďalej"${fi < 0 || fi >= flow.length - 1 ? ' disabled' : ''}>▶</button></div></div>`; };
+    $('out').innerHTML = `<p class="who" style="margin:0 0 8px">Kartu presuňte potiahnutím myšou do inej fázy alebo šípkami ◀ ▶. Kliknutím na meno otvoríte detail.</p><div class="board">${cols.map(([k, l]) => { const c = list.filter((r) => stOf(r) === k);
+      return `<div class="col" data-col="${k}"><h3>${l} <b>${c.length}</b></h3>${c.map((r) => bc(r)).join('')}</div>`; }).join('')}
+      <div class="col" data-col="nezaujem"><h3>Stratené <b>${lost.length}</b></h3>${lost.slice(0, 30).map((r) => bc(r, esc(STL[stOf(r)]) + (r.dovod ? ' · ' + esc(r.dovod) : ''))).join('')}</div></div>`;
   }
+
   // ---------- call skript (personalizovaný podľa dopytu) ----------
   function callScript(r, u) {
     const ja = esc(myName().split(' ')[0]);
@@ -440,6 +450,13 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
   });
   // ---------- ukladanie ----------
   const find = (id) => rows.find((x) => x.leadId === id);
+  const setStage = (r, ns) => { const os = stOf(r); if (!r || ns === os) return;
+    const d = { stav: ns, aktivity: log(r, '🔀 Fáza', `${STL[os]} → ${STL[ns]}`) };
+    if (!r.prvyKontaktAt) d.prvyKontaktAt = contactAt(r) || new Date().toISOString();
+    if (!r.riesi) d.riesi = myName();
+    if (ns === 'uzavrete') d.uzavreteAt = new Date().toISOString();
+    if (STG[ns] === 'lost' || ns === 'uzavrete') d.dalsiKrokDatum = '';
+    return save(r.leadId, d); };
   const save = async (id, data, quiet) => {
     const r = find(id); const meta = { upravil: myName(), upravene: new Date().toISOString() };
     if (r) Object.assign(r, data, meta);
@@ -460,13 +477,9 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
     const op = t.closest('[data-open]'); if (op) { openId = op.dataset.open; filter = 'all'; setView('list'); $('q').value = ''; render(); return; }
     const id = idOf(t); if (!id) return; const r = find(id);
     const stb = t.closest('[data-st]');
-    if (stb && r) { const ns = stb.dataset.st, os = stOf(r); if (ns === os) return;
-      const d = { stav: ns, aktivity: log(r, '🔀 Fáza', `${STL[os]} → ${STL[ns]}`) };
-      if (!r.prvyKontaktAt) d.prvyKontaktAt = contactAt(r) || new Date().toISOString();
-      if (!r.riesi) d.riesi = myName();
-      if (ns === 'uzavrete') d.uzavreteAt = new Date().toISOString();
-      if (STG[ns] === 'lost' || ns === 'uzavrete') { d.dalsiKrokDatum = ''; }
-      return save(id, d); }
+    if (stb && r) return setStage(r, stb.dataset.st);
+    const mv = t.closest('[data-mv]');
+    if (mv && r) { const flow = ST.filter(([, , g]) => g !== 'lost').map(([k]) => k), fi = flow.indexOf(stOf(r)), ni = fi + +mv.dataset.mv; if (fi >= 0 && flow[ni]) return setStage(r, flow[ni]); return; }
     if (t.closest('[data-take]')) return save(id, { riesi: myName(), aktivity: log(r, '👤 Prevzal', myName()) });
     const inb = t.closest('[data-in]');
     if (inb) { const d = new Date(); d.setDate(d.getDate() + +inb.dataset.in); const v = d.toISOString().slice(0, 10); const art = t.closest('article'); art.querySelector('[data-nextd]').value = v;
@@ -486,6 +499,13 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
     if (t.matches('[data-odk]')) return save(id, { odkial: t.value, aktivity: log(r, '📍 Odkiaľ prišiel', t.value || '—') });
     if (t.matches('[data-dovod]')) return save(id, { dovod: t.value, aktivity: log(r, '❌ Dôvod', t.value) });
   });
+  // ťahanie kariet v lieviku
+  let dragId = null;
+  $('out').addEventListener('dragstart', (e) => { const c = e.target.closest && e.target.closest('[data-card]'); if (!c) return; dragId = c.dataset.card; c.classList.add('drag'); e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', dragId); } catch {} });
+  $('out').addEventListener('dragend', () => { dragId = null; document.querySelectorAll('.drag,.col.over').forEach((x) => x.classList.remove('drag', 'over')); });
+  $('out').addEventListener('dragover', (e) => { const col = e.target.closest && e.target.closest('[data-col]'); if (!col || !dragId) return; e.preventDefault(); document.querySelectorAll('.col.over').forEach((x) => x !== col && x.classList.remove('over')); col.classList.add('over'); });
+  $('out').addEventListener('drop', (e) => { const col = e.target.closest && e.target.closest('[data-col]'); if (!col || !dragId) return; e.preventDefault(); const r = find(dragId); dragId = null;
+    if (r) { const ns = col.dataset.col; if (ns === 'nezaujem' && STG[stOf(r)] === 'lost') return render(); setStage(r, ns); } });
   $('out').addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.matches('[data-act]')) { e.preventDefault(); e.target.closest('article').querySelector('[data-addact]').click(); } });
   // ---------- ručné zadanie dopytu ----------
   const af = $('addForm');
