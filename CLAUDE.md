@@ -21,6 +21,7 @@ Splatkuj.sk je sprostredkovateľ financovania ojazdených áut (predtým značka
 - `docs/zasady-znacky.md` – 12 princípov budovania značky (Žltá kniha), podľa nich overovať rozhodnutia o značke.
 - `docs/strategia-znacky.md` (+ PDF) – strategický základ značky. **Záväzný – riadime sa ním (pozri Pravidlá).**
 - **Príručky (Claude Docs, so snímkami):** „Splatkuj.sk – príručka (web, dopyty a CRM)“ https://claude.ai/artifact/4abVH1HPj3J5ARhLYwDWHS a „Splatkuj.sk vs. Autá za babku – predajný manuál“ https://claude.ai/artifact/6tdXMRUcm5XwbuHZGm6BrS. **Pri každej zmene funkcie, ktorú vidí používateľ (web, Laura, admin, CRM), aktualizuj aj príslušnú časť príručky** (text, prípadne novú snímku – v CRM len s ukážkovými, nie skutočnými údajmi klientov).
+- **Kontrolný zoznam podľa strategického plánu** (Claude Docs, odškrtáva majiteľ aj Claude): https://claude.ai/artifact/DUyQJVGiotLsGvXy1D3wMj – **po dokončení úlohy z biblie ju tam odškrtni** (a súčasne v `docs/PLAN.md`).
 - `PREVOD-NA-FIREMNY-UCET.md` – postup prechodu na firemný účet Claude.
 
 ## Pravidlá (od majiteľa)
