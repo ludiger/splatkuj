@@ -80,12 +80,15 @@ export async function onRequestGet({ request }) {
   }
   const ico = (sp.get('ico') || '').replace(/\D/g, '');
   if (ico.length !== 8) return json({ ok: false, error: 'IČO musí mať 8 číslic' }, 400);
+  // oba registre naraz – vyhrá prvý, ktorý firmu nájde (RPO býva občas pomalé alebo nedostupné)
   let down = 0;
-  for (const src of [rpoByIco, ruzByIco]) {
-    try {
-      const f = await src(ico);
-      if (f && f.name) { f.ageMonths = f.established ? Math.floor((Date.now() - Date.parse(f.established)) / (30.44 * 864e5)) : null; return json(f); }
-    } catch { down++; }
-  }
+  const found = await new Promise((resolve) => {
+    let left = 2;
+    for (const src of [rpoByIco, ruzByIco]) {
+      src(ico).then((f) => { if (f && f.name) resolve(f); else if (!--left) resolve(null); })
+        .catch(() => { down++; if (!--left) resolve(null); });
+    }
+  });
+  if (found) { found.ageMonths = found.established ? Math.floor((Date.now() - Date.parse(found.established)) / (30.44 * 864e5)) : null; return json(found); }
   return down === 2 ? json({ ok: false, error: 'register neodpovedá' }, 502) : json({ ok: false, error: 'nenašlo sa' }, 404);
 }
