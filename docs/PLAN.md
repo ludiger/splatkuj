@@ -66,6 +66,11 @@ Legenda: **VY** = robí majiteľ, **CLAUDE** = robí Claude, **SPOLU** = spoloč
 - [ ] CLAUDE – Nová sekcia/stránka **Spolupráca** (predajcovia áut, poskytovatelia súvisiacich služieb, marketingoví partneri) s formulárom „Stať sa partnerom“ – podľa vzoru starej stránky Autá za babku.
 - [ ] SPOLU – **Motocykle a dodávky** v ponuke: kategórie na webe a v admine, filter, a podmienky financovania (max. vek, doba, akontácia – dodá majiteľ / financujúce spoločnosti).
 - [ ] SPOLU – **Laura na Facebooku a Instagrame** (Messenger a Instagram Direct cez Meta API): VY – Meta Business účet, prepojená FB stránka a IG firemný účet, vytvorenie Meta aplikácie; CLAUDE – webhook v Cloudflare, rovnaké správanie ako na webe, dopyty do adminu; potom schválenie aplikácie Metou.
+  - [x] CLAUDE – server /api/social (rozhovor + dopyt s prepisom do CRM, Telegram), odkaz splatkuj.sk/#laura.
+  - [ ] VY – účet ManyChat (platený plán kvôli External Request), pripojiť FB stránku a firemný Instagram.
+  - [ ] VY – v Cloudflare pridať secret SOCIAL_SECRET (dlhé náhodné heslo) a rovnaké heslo zadať v ManyChate do hlavičky x-sk-secret.
+  - [ ] SPOLU – v ManyChate nastaviť Default Reply → External Request POST https://www.splatkuj.sk/api/social (channel, user_id, name, text) → odpoveď poslať klientovi; otestovať.
+  - [ ] VY – do profilu na Instagrame/Facebooku a do automatických odpovedí dať odkaz www.splatkuj.sk/#laura.
 
 ## 3. Sociálne siete – automatické zverejňovanie áut
 - [ ] VY – Prihlásiť Instagram (firemný) vo Windsor.ai.

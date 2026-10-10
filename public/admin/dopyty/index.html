@@ -91,6 +91,10 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
 .call h5{margin:12px 0 4px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--brand2)}
 .call p{margin:4px 0;font-size:14px}.call .say{border-left:3px solid var(--brand);padding-left:10px}.call .say::before{content:'🗣 ';}
 .call .tip{color:var(--mut);font-size:13px}.call dl{margin-top:6px}
+.addgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}@media(max-width:760px){.addgrid{grid-template-columns:1fr}}
+.addgrid label{display:grid;gap:4px;font-size:12.5px;color:var(--mut);font-weight:700}
+.addgrid input,.addgrid select{background:var(--ink);border:1px solid var(--line);border-radius:9px;padding:9px 10px;color:var(--fg);font:14px Figtree}
+.prepis{white-space:pre-wrap;font-size:13px;line-height:1.55;background:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px 12px;max-height:340px;overflow:auto;margin-top:8px}
 .flash{outline:2px solid var(--brand);outline-offset:2px}
 </style>
 </head>
@@ -106,11 +110,26 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
     <input type="search" id="q" placeholder="Hľadať meno, telefón, auto…" aria-label="Hľadať v dopytoch">
   </div>
   <div class="exp">
+    <button type="button" id="addBtn" style="border-color:#16B57F;color:#16B57F;font-weight:800">➕ Nový dopyt (ručne)</button>
     <button type="button" id="expMk" title="Len kontakty, ktoré dali súhlas so zasielaním ponúk e-mailom">📧 Export pre e-mail marketing (CSV)</button>
     <button type="button" id="expAll" title="Všetky dopyty na internú evidenciu – nie na marketing">⬇ Export všetkých dopytov (Excel)</button>
     <a href="/admin/newsletter/">📰 Týždenný newsletter</a>
     <span class="hint">Na marketing používajte len export so súhlasom.</span>
   </div>
+  <form id="addForm" class="ld g-new" hidden style="margin-bottom:14px">
+    <div class="hd"><b>Nový dopyt – ručné zadanie</b><span class="when">napr. z telefonátu, osobne, z Facebooku / Instagramu</span></div>
+    <div class="addgrid">
+      <label>Meno a priezvisko *<input name="meno" required maxlength="80"></label>
+      <label>Telefón *<input name="tel" type="tel" required maxlength="20"></label>
+      <label>E-mail<input name="email" type="email" maxlength="120"></label>
+      <label>Záujem<select name="zaujem"><option value="financovanie">Financovanie</option><option value="predaj">Predaj auta</option><option value="poistenie">Poistenie</option></select></label>
+      <label>Zdroj<select name="zdroj"><option>Telefonát</option><option>Facebook Messenger</option><option>Instagram</option><option>WhatsApp</option><option>Osobne</option><option>Odporúčanie</option><option>E-mail</option><option>Iné</option></select></label>
+      <label>Auto (názov, rok, cena)<input name="auto" maxlength="200" placeholder="napr. Škoda Octavia 2019, 13 900 €"></label>
+      <label style="grid-column:1/-1">Odkaz na auto / inzerát<input name="odkaz" maxlength="300" placeholder="https://…"></label>
+      <label style="grid-column:1/-1">Poznámka / priebeh rozhovoru<textarea name="poznamka" maxlength="4000" placeholder="Čo klient chce, príjem, akontácia, dohodnutý ďalší krok…"></textarea></label>
+    </div>
+    <div class="row"><span class="sp"></span><button type="button" class="btn ghost" id="addCancel">Zrušiť</button><button type="submit" class="btn">Uložiť dopyt</button></div>
+  </form>
   <div id="out"><div class="empty"><b>Načítavam…</b></div></div>
 </div>
 <script>
@@ -303,6 +322,7 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
         </div>
       </div>
       <details class="more" data-callbox${st === 'novy' || st === 'kontakt' ? ' open' : ''}><summary>📞 Call skript – čo povedať klientovi</summary>${callScript(r, u)}</details>
+      ${r.prepis ? `<details class="more"><summary>💬 Celý rozhovor (${esc(r.kanal || (r.zdroj && /Facebook|Instagram/.test(r.zdroj) ? r.zdroj : 'Laura na webe'))})</summary><div class="prepis">${esc(r.prepis)}</div></details>` : ''}
       <details class="more"><summary>Údaje zo žiadosti${Object.keys(u).length ? ` (${Object.keys(u).length})` : ''}</summary>
         <dl>${Object.entries(u).map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${link(v)}</dd></div>`).join('')}${r.zdroj ? `<div><dt>Zdroj</dt><dd>${esc(r.zdroj)}</dd></div>` : ''}${r.text && !Object.keys(u).length ? `<div style="grid-column:1/-1"><dt>Správa</dt><dd style="white-space:pre-wrap">${esc(r.text)}</dd></div>` : ''}</dl>
         <textarea data-note placeholder="Interná poznámka…" aria-label="Poznámka" style="margin-top:10px">${esc(r.poznamka || '')}</textarea>
@@ -377,6 +397,21 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
     if (t.matches('[data-dovod]')) return save(id, { dovod: t.value, aktivity: log(r, '❌ Dôvod', t.value) });
   });
   $('out').addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.matches('[data-act]')) { e.preventDefault(); e.target.closest('article').querySelector('[data-addact]').click(); } });
+  // ---------- ručné zadanie dopytu ----------
+  const af = $('addForm');
+  $('addBtn').addEventListener('click', () => { af.hidden = !af.hidden; if (!af.hidden) af.meno.focus(); });
+  $('addCancel').addEventListener('click', () => { af.reset(); af.hidden = true; });
+  af.addEventListener('submit', async (e) => { e.preventDefault();
+    const v = Object.fromEntries(new FormData(af)); Object.keys(v).forEach((k) => v[k] = String(v[k]).trim());
+    if (v.meno.length < 2 || (v.tel.match(/\d/g) || []).length < 9) return alertBox('Vyplňte meno a telefón (aspoň 9 číslic).');
+    const id = new Date().toISOString().replace(/[-:T.Z]/g, '').slice(0, 14) + '-' + Math.random().toString(16).slice(2, 8);
+    const now = new Date().toISOString();
+    const doc = { leadId: id, meno: v.meno, tel: v.tel, email: v.email, zaujem: v.zaujem, zdroj: v.zdroj + ' (ručne)', auto: v.auto, odkaz: /^https?:\/\//.test(v.odkaz) ? v.odkaz : '',
+      poznamka: v.poznamka, stav: 'novy', prijate: now, riesi: myName(), rucne: true,
+      aktivity: [{ cas: now, kto: myName(), typ: '✍️ Zadané ručne', text: v.zdroj + (v.poznamka ? ' – ' + v.poznamka.slice(0, 300) : '') }], upravil: myName(), upravene: now };
+    try { await db.doc('leady/' + id).set(doc); rows.push(doc); af.reset(); af.hidden = true; openId = id; filter = 'all'; render(); }
+    catch (err) { alertBox('Uloženie sa nepodarilo: ' + err.message); }
+  });
   // pri písaní neprekresľovať (obnova každých 15 s)
   db.collection('leady').onSnapshot((s) => { const a = document.activeElement; if (a && a.closest && a.closest('#out') && a.matches('input,textarea,select')) return; rows = s.docs.map((d) => ({ ...d.data(), leadId: d.id })); render(); });
 })();

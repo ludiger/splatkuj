@@ -25,7 +25,8 @@ export async function onRequestPost({ request, env, waitUntil }) {
   for (const [key, v] of Object.entries(b).slice(0, 60)) {
     if (!/^[A-Za-z0-9_]{1,40}$/.test(key)) continue;
     if (v == null) continue;
-    clean[key] = typeof v === 'object' ? JSON.stringify(v).slice(0, 2000) : String(v).slice(0, 2000);
+    const max = key === 'prepis' ? 12000 : 2000; // prepis rozhovoru môže byť dlhší
+    clean[key] = typeof v === 'object' ? JSON.stringify(v).slice(0, max) : String(v).slice(0, max);
   }
   if (!clean.tel && !clean.email && !clean.meno) return json({ ok: false, error: 'Chýba kontakt.' }, 400);
   const id = new Date().toISOString().replace(/[-:T.Z]/g, '').slice(0, 14) + '-' + randomHex(3);

@@ -1090,10 +1090,12 @@ video.lau{transform:scale(1.6);transform-origin:50% 33%}
 
   const scroll = () => requestAnimationFrame(() => { log.scrollTop = log.scrollHeight; });
   function el(tag, cls, html){ const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
-  function me(t){ const m = el('div','skc-m me'); m.textContent = t; log.append(m); scroll(); }
+  // prepis rozhovoru – pošle sa s dopytom do adminu (CRM), aby bol celý záznam pri klientovi
+  const PREPIS = []; const rec = (k, t) => { const x = String(t || '').replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').trim(); if (x) PREPIS.push(new Date().toLocaleTimeString('sk-SK', { hour: '2-digit', minute: '2-digit' }) + ' ' + k + ': ' + x); if (PREPIS.length > 120) PREPIS.shift(); };
+  function me(t){ rec('Klient', t); const m = el('div','skc-m me'); m.textContent = t; log.append(m); scroll(); }
   function wait(ms){ return new Promise(r => setTimeout(r, ms)); }
   async function bot(t, delay){ const ty = el('div','skc-typing','<i></i><i></i><i></i>'); log.append(ty); scroll();
-    await wait(delay ?? Math.min(1100, 350 + t.length * 7)); ty.remove(); const m = el('div','skc-m bot'); m.innerHTML = t; log.append(m); scroll(); return m; }
+    await wait(delay ?? Math.min(1100, 350 + t.length * 7)); ty.remove(); rec('Laura', t); const m = el('div','skc-m bot'); m.innerHTML = t; log.append(m); scroll(); return m; }
   function chips(list, back){ log.querySelectorAll('.skc-chips[data-live]').forEach(c => c.remove());
     const w = el('div','skc-chips'); w.dataset.live = '1';
     if (back) list = [...list, ['↩ Späť', back, 'back']];
@@ -1197,6 +1199,8 @@ video.lau{transform:scale(1.6);transform-origin:50% 33%}
   const m0 = location.hash.match(/^#auto-(?:[a-z0-9-]*-)?([a-z0-9]+)$/i);
   const adCar = m0 && SK.CARS.find(c => bid(c) === m0[1] || c.id === m0[1]);
   if (adCar){ store.set('skc-seen','1'); setTimeout(() => { started = true; fromAd(adCar); }, 700); }
+  // odkaz splatkuj.sk/#laura (alebo ?laura) otvorí rovno chat s Laurou – do profilu na Instagrame/Facebooku, automatických odpovedí a reklám
+  else if (/^#laura$/i.test(location.hash) || /[?&]laura\b/i.test(location.search)) setTimeout(() => openP(), 600);
   async function sellFlow(){ lead.zaujem = 'predaj'; lead.zdroj = lead.zdroj || 'služba: predaj vozidla';
     await bot('Radi vám pomôžeme predať auto 🚗 Napíšte prosím značku, model, rok, najazdené km a vašu predstavu o cene.'); step = 'sellcar'; input.focus(); }
   async function insFlow(){ lead.zaujem = 'poistenie'; lead.zdroj = lead.zdroj || 'služba: poistenie';
@@ -1330,7 +1334,7 @@ video.lau{transform:scale(1.6);transform-origin:50% 33%}
         meno: lead.name, tel: lead.phone, zaujem: lead.zaujem || 'financovanie', auto: lead.car || '', autoId: curCar ? String(curCar.id) : '',
         odkaz: curCar ? 'https://splatkuj.sk/#auto-' + SK.slug(curCar) : '', inzerat: curCar && curCar.url || '', zdroj: lead.zdroj || '',
         poistenie: lead.poistenie || '', udaje: ex, text: txt,
-        email: lead.email || '', marketing: lead.marketing || '', marketingAt: lead.marketingAt || '', marketingText: lead.marketing === 'ano' ? MKT_CONSENT : '' })}).catch(() => {});
+        email: lead.email || '', marketing: lead.marketing || '', marketingAt: lead.marketingAt || '', marketingText: lead.marketing === 'ano' ? MKT_CONSENT : '', prepis: PREPIS.join('\n').slice(-12000) })}).catch(() => {});
     }
     await bot(`Výborne, máme všetko 👍\n\n<b>${esc(lead.name)}</b> · ${esc(lead.phone)}${lead.email ? ' · ' + esc(lead.email) : ''}${lead.car ? '\n' + esc(lead.car) : ''}\n\nPošlite nám to jedným klikom a ozveme sa vám čo najskôr – zvyčajne ešte v ten istý deň.`, 900);
     chips([['💬 Poslať cez WhatsApp', 'https://wa.me/' + PHONE_INT + '?text=' + encodeURIComponent(txt), 'main'], ['✉️ Poslať SMS', 'sms:+' + PHONE_INT + '?&body=' + encodeURIComponent(txt)], ['📞 Zavolať ' + PHONE, 'tel:+' + PHONE_INT]]); }

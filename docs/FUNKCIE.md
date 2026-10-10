@@ -81,6 +81,7 @@ Beží **každý deň o 7:52** na Mac mini (potrebuje Chrome s rozšírením Cla
 | `/api/admin/…` | prihlásenie, používatelia, dáta adminu, záloha fotiek (`archiv`), upratanie fotiek (`cleanup`), weby predajcov (`web/…`), newsletter, test upozornení, nastavenie Telegramu |
 | `/api/lead` | uloženie dopytu od Laury + upozornenie; GET = stav upozornení |
 | `/api/chat` | Laura cez Claude API; GET = či je zapnutá |
+| `/api/social` | Laura na Facebooku a Instagrame cez schválený nástroj (ManyChat – External Request); overenie hlavičkou `x-sk-secret` = secret `SOCIAL_SECRET`; rozhovor v D1 (konverzacie), pri telefóne vznikne dopyt v CRM s prepisom + Telegram |
 | `/api/ponuka` | autá z adminu, ktoré ešte čakajú na spracovanie (web ich zobrazí hneď) |
 | `/api/inzerat/<id>` | čerstvý stav inzerátu: existuje?, cena, počet fotiek, popis |
 | `/api/foto/<id>/<n>` | fotka auta (z R2 zálohy, inak z Bazoša alebo z webu predajcu) |
@@ -125,3 +126,4 @@ Formát: dátum – čo pribudlo alebo sa zmenilo (kto).
 - **10. 10. 2026** – Reklamy (post, story, video) dávkovo aj pre autá, ktoré boli na webe len cez /api/ponuka; takéto autá majú v admine webApi=true a na webe ostávajú cez /api/ponuka s fotkami zo zálohy (Claude).
 - **10. 10. 2026** – Žiadosť o úver: typ financovania len Autoúver a Úver; pri aute do roku 2014 sa automaticky zvolí Úver (autoúver sa nedá vybrať), pri novšom Autoúver (Claude).
 - **10. 10. 2026** – CRM: pri každom dopyte „📞 Call skript – čo povedať klientovi“ – personalizovaný podľa údajov zo žiadosti (meno, auto, príjem, akontácia, splátka, typ financovania): úvod, overenie auta, príjem a registre, podmienky, odpovede na námietky, podklady a ďalší krok; pri nových dopytoch je otvorený (Claude).
+- **10. 10. 2026** – CRM: ručné zadanie dopytu (➕ Nový dopyt – telefonát, Facebook, Instagram, WhatsApp, osobne…); pri dopyte „💬 Celý rozhovor“ – web Laura posiela s dopytom celý prepis chatu; nové /api/social pre Lauru na Facebooku a Instagrame (cez ManyChat) s ukladaním rozhovoru a dopytu do CRM; odkaz splatkuj.sk/#laura otvorí rovno chat s Laurou (Claude).
