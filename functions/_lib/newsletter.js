@@ -32,7 +32,7 @@ function card(d, extra) {
   const id = d.adId || d._id, title = d.carTitle || d.title || '';
   // hlavná fotka auta na webe (rovnaká ako v ponuke); pole photo v admine môže mať starú adresu z pôvodného úložiska
   // spracované auto má fotky na webe (znovu vložené pod pôvodným číslom); čakajúce (needsAds) zo zálohy /api/foto
-  const img = d.needsAds === true ? `${SITE}/api/foto/${id}/1` : `${SITE}/img/p/${d.relistedFrom || id}-1.jpg`;
+  const img = (d.needsAds === true || d.webApi === true) ? `${SITE}/api/foto/${id}/1` : `${SITE}/img/p/${d.relistedFrom || id}-1.jpg`;
   const url = `${SITE}/?z=email#auto-${slug(title + ' ' + (d.year || ''))}-${id}`;
   const p = num(d);
   const meta = [d.yearText || d.year, d.km ? Number(d.km).toLocaleString('sk-SK').replace(/\s/g, ' ') + ' km' : '', d.fuel, d.gear].filter(Boolean).join(' · ');

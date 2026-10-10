@@ -1,4 +1,5 @@
-// GET /api/ponuka – autá, ktoré sú v admine aktívne, ale ešte nemajú hotové reklamy a fotky na webe (needsAds=true).
+// GET /api/ponuka – autá, ktoré sú v admine aktívne, ale nie sú v statickom webe: čakajú na plné spracovanie (needsAds=true)
+// alebo majú reklamy hotové dávkovo a fotky na webe idú zo zálohy (webApi=true).
 // Web ich pridá do ponuky hneď (fotky idú zo zálohy cez /api/foto). Keď automatika auto plne spracuje,
 // objaví sa v src/web.html a odtiaľto sa už nevracia. Predané autá (status != aktivny) sa nevracajú nikdy.
 // Vracia len údaje, ktoré sú aj na webe – nič interné (poznámky, VIN, predajca, adresy fotiek u predajcu).
@@ -13,7 +14,7 @@ export async function onRequestGet({ env }) {
   const cars = [];
   for (const r of results || []) {
     let d; try { d = JSON.parse(r.data); } catch { continue; }
-    if (d.status !== 'aktivny' || d.needsAds !== true) continue;
+    if (d.status !== 'aktivny' || (d.needsAds !== true && d.webApi !== true)) continue;
     const price = num(d); if (!price) continue;
     const id = String(d.adId || r.id);
     const kw = +d.kw || 0;
