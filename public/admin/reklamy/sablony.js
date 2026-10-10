@@ -96,7 +96,7 @@
     if (th.deco === 'halloween') {
       ctx.save(); ctx.fillStyle = 'rgba(255,236,170,.95)'; ctx.shadowColor = 'rgba(255,220,140,.8)'; ctx.shadowBlur = 40; ctx.beginPath(); ctx.arc(W * .5, 185, 40, 0, 7); ctx.fill(); ctx.restore();
       [[W * .4, 160, 26], [W * .58, 215, 22], [W * .32, 230, 18], [W * .62, 140, 16]].forEach(([x, y, s], i) => bat(ctx, x + Math.sin(phase * 2 + i) * 10, y + Math.cos(phase * 2 + i) * 6, s, 'rgba(8,4,12,.92)'));
-      pumpkinStack(ctx, W - 118, H > 1500 ? hero - 370 : hero - 168, H > 1500 ? 105 : 82); }
+       }
   }
   function ornament(ctx, x, y, s, col) { ctx.save(); const g = ctx.createRadialGradient(x - s * .3, y - s * .3, s * .1, x, y, s); g.addColorStop(0, '#fff'); g.addColorStop(.25, col); g.addColorStop(1, col);
     ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, s, 0, 7); ctx.fill(); ctx.fillStyle = '#c9a227'; ctx.fillRect(x - s * .25, y - s * 1.2, s * .5, s * .3); ctx.restore(); }
