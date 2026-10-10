@@ -1,0 +1,76 @@
+<title>Splatkuj rozcestník</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: brand bar, then groups of link tiles; one column on phones */
+:root{
+  --bg:#f3f6f4; --panel:#ffffff; --line:#dbe3de; --fg:#0f1512; --mut:#5a6862;
+  --brand:#16B57F; --brand-ink:#0B0F0D; --chip:#e7f6ef;
+  --display:'Unbounded','Arial Black',system-ui,sans-serif; --body:'Figtree',system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d0f13;--panel:#15181d;--line:#262b33;--fg:#f1f4f2;--mut:#9aa5a0;--chip:#15301f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0d0f13;--panel:#15181d;--line:#262b33;--fg:#f1f4f2;--mut:#9aa5a0;--chip:#15301f;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:15px/1.5 var(--body);margin:0}
+.wrap{max-width:980px;margin:0 auto;padding-inline:16px;padding-block:26px 56px}
+.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.top svg{width:48px;height:48px;flex:none}
+.wm{font:800 26px/1 var(--display);letter-spacing:-.04em}
+.wm i{font-style:normal;color:var(--brand)}
+.lead{color:var(--mut);margin:10px 0 0;max-width:62ch}
+section{margin-top:30px}
+h2{font:700 12px/1 var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin:0 0 12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+a.tile{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;align-items:center;text-decoration:none;color:inherit;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 16px;transition:border-color .15s,transform .15s}
+a.tile:hover{border-color:var(--brand);transform:translateY(-1px)}
+a.tile:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.ic{grid-row:span 2;width:40px;height:40px;border-radius:12px;background:var(--chip);color:var(--brand);display:grid;place-items:center;font:800 15px var(--display)}
+.main .ic{background:var(--brand);color:var(--brand-ink)}
+.t{font-weight:700;font-size:16px}
+.s{color:var(--mut);font-size:13.5px;line-height:1.35}
+.note{margin-top:30px;color:var(--mut);font-size:13px}
+@media (prefers-reduced-motion:reduce){a.tile{transition:none}a.tile:hover{transform:none}}
+</style>
+
+<div class="wrap">
+  <div class="top">
+    <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="18" fill="#16B57F"/><g transform="translate(8.5 9) scale(.72)"><path d="M14 52 H38 A10 10 0 0 0 38 32 H26 A10 10 0 0 1 26 12 H44" fill="none" stroke="#0B0F0D" stroke-width="12" stroke-linejoin="round" stroke-linecap="round"/><path d="M45 3.5 L60 12 L45 20.5 Z" fill="#0B0F0D" stroke="#0B0F0D" stroke-width="4" stroke-linejoin="round"/><path d="M14 52 H38 A10 10 0 0 0 38 32 H26 A10 10 0 0 1 26 12 H38" fill="none" stroke="#16B57F" stroke-width="2.6" stroke-dasharray="4 5" stroke-linecap="round"/></g></svg>
+    <span class="wm">splatkuj<i>.sk</i></span>
+  </div>
+  <p class="lead">Všetky stránky, na ktorých pracujeme, na jednom mieste. Klik otvorí stránku v novej karte.</p>
+
+  <section class="main">
+    <h2>Naše stránky</h2>
+    <div class="grid">
+      <a class="tile" href="https://www.splatkuj.sk/" target="_blank" rel="noopener"><span class="ic">W</span><span class="t">Web splatkuj.sk</span><span class="s">Ponuka áut, kalkulačka, Laura</span></a>
+      <a class="tile" href="https://www.splatkuj.sk/admin/" target="_blank" rel="noopener"><span class="ic">A</span><span class="t">Admin</span><span class="s">Inzeráty, predané autá, analytika (s heslom)</span></a>
+      <a class="tile" href="https://www.splatkuj.sk/admin/reklamy/" target="_blank" rel="noopener"><span class="ic">R</span><span class="t">Reklamy</span><span class="s">Posty, stories, videá a texty na kopírovanie</span></a>
+      <a class="tile" href="https://www.splatkuj.sk/admin/dopyty/" target="_blank" rel="noopener"><span class="ic">D</span><span class="t">Dopyty od Laury</span><span class="s">Klienti z chatu na webe</span></a>
+      <a class="tile" href="https://claude.ai/artifact/5zQhBWdaUw6B8n8ksj4FWJ" target="_blank" rel="noopener"><span class="ic">P</span><span class="t">Plán</span><span class="s">Čo je hotové a čo nás čaká</span></a>
+    </div>
+  </section>
+
+  <section>
+    <h2>Doména a e-mail</h2>
+    <div class="grid">
+      <a class="tile" href="https://dash.cloudflare.com/" target="_blank" rel="noopener"><span class="ic">CF</span><span class="t">Cloudflare</span><span class="s">Doména splatkuj.sk, DNS, e-mail</span></a>
+      <a class="tile" href="https://admin.websupport.sk/" target="_blank" rel="noopener"><span class="ic">WS</span><span class="t">Websupport</span><span class="s">Registrácia domény, nameservery</span></a>
+    </div>
+  </section>
+
+  <section>
+    <h2>Sledovaní predajcovia na Bazoši</h2>
+    <div class="grid">
+      <a class="tile" href="https://www.bazos.sk/hodnotenie.php?idmail=6037421&amp;idphone=4907201&amp;jmeno=Audi%20Predajca%20Andrej" target="_blank" rel="noopener"><span class="ic">B</span><span class="t">Audi Predajca Andrej</span><span class="s">Účet 1</span></a>
+      <a class="tile" href="https://www.bazos.sk/hodnotenie.php?idmail=6297575&amp;idphone=5321922&amp;jmeno=Audi%20Predajca%20Andrej" target="_blank" rel="noopener"><span class="ic">B</span><span class="t">Audi Predajca Andrej</span><span class="s">Účet 2</span></a>
+      <a class="tile" href="https://www.bazos.sk/hodnotenie.php?idmail=555779&amp;idphone=24547&amp;jmeno=Denis" target="_blank" rel="noopener"><span class="ic">B</span><span class="t">Predajca Denis</span><span class="s">Bazoš</span></a>
+      <a class="tile" href="https://www.bazos.sk/hodnotenie.php?idmail=3725731&amp;idphone=171798&amp;jmeno=erik" target="_blank" rel="noopener"><span class="ic">B</span><span class="t">Predajca Erik</span><span class="s">Bazoš</span></a>
+      <a class="tile" href="https://www.bazos.sk/hodnotenie.php?idmail=4412376&amp;idphone=90040&amp;jmeno=MF" target="_blank" rel="noopener"><span class="ic">B</span><span class="t">Predajca Matuš</span><span class="s">Bazoš</span></a>
+      <a class="tile" href="https://www.bazos.sk/hodnotenie.php?idmail=4667475&amp;idphone=3136411&amp;jmeno=Peter" target="_blank" rel="noopener"><span class="ic">B</span><span class="t">Predajca Peter</span><span class="s">Bazoš</span></a>
+      <a class="tile" href="https://www.bazos.sk/hodnotenie.php?idmail=1632788&amp;idphone=2861325&amp;jmeno=TIGUAN" target="_blank" rel="noopener"><span class="ic">B</span><span class="t">Jožko</span><span class="s">Bazoš</span></a>
+      <a class="tile" href="https://www.bazos.sk/search.php?hledat=0902782833&amp;rubriky=www&amp;Submit=H%C4%BEada%C5%A5&amp;kitx=ano" target="_blank" rel="noopener"><span class="ic">B</span><span class="t">Juro Šipoš</span><span class="s">Vyhľadávanie podľa telefónu</span></a>
+      <a class="tile" href="https://www.bazos.sk/search.php?hledat=0917881879&amp;rubriky=www&amp;Submit=H%C4%BEada%C5%A5&amp;kitx=ano" target="_blank" rel="noopener"><span class="ic">B</span><span class="t">Tibor Ferenczi</span><span class="s">Vyhľadávanie podľa telefónu</span></a>
+    </div>
+  </section>
+
+  <p class="note">Keď pribudne nová stránka, doplním ju sem.</p>
+</div>
