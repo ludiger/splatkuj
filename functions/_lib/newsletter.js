@@ -31,7 +31,7 @@ function isoWeek(dt) {
 function card(d, extra) {
   const id = d.adId || d._id, title = d.carTitle || d.title || '';
   // hlavná fotka auta na webe (rovnaká ako v ponuke); pole photo v admine môže mať starú adresu z pôvodného úložiska
-  const img = `${SITE}/img/p/${id}-1.jpg`;
+  const img = `${SITE}/img/p/${d.relistedFrom || id}-1.jpg`; // znovu vložené auto má fotky pod pôvodným číslom
   const url = `${SITE}/?z=email#auto-${slug(title + ' ' + (d.year || ''))}-${id}`;
   const p = num(d);
   const meta = [d.yearText || d.year, d.km ? Number(d.km).toLocaleString('sk-SK').replace(/\s/g, ' ') + ' km' : '', d.fuel, d.gear].filter(Boolean).join(' · ');
