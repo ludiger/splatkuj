@@ -5,6 +5,7 @@ import {
   hashPassword, verifyPassword, passwordProblem, tooMany, failed, clearAttempts, audit, SESSION_DAYS, newRecoveryCode, normCode,
 } from '../../_lib/auth.js';
 import { fotoKey, fetchBazos, bazosInzerat, isExt, fetchExt } from '../../_lib/foto.js';
+import { SITES } from '../../_lib/web.js';
 
 const COLLS = new Set(['inzeraty', 'config', 'leady', 'reklamy']);
 const ID_RE = /^[A-Za-z0-9_.:@+-]{1,120}$/;
@@ -225,6 +226,55 @@ export async function onRequest(ctx) {
     }
     const total = nums.length * 2;
     return json({ ok: true, photos: nums.length, saved, have, missing, remaining: Math.max(0, total - have - saved - missing) });
+  }
+
+  // Autá z vlastných webov predajcov (napr. Cooldrive) – web sa číta na serveri, adresy fotiek ostávajú v databáze.
+  // POST web/list   {site}            -> {cars:[{id,url}] – len autá, ktoré ešte nie sú v databáze, total}
+  // POST web/detail {site, url}       -> údaje o aute bez zoznamu fotiek (nimg = počet), na napísanie popisu
+  // POST web/import {site, url, data} -> zapíše nové auto (mode set): údaje z webu + data (carTitle, desc, why, tags…)
+  const wm = path.match(/^web\/(list|detail|import)$/);
+  if (wm && method === 'POST') {
+    const b = await body(request);
+    const S = SITES[b.site];
+    if (!S) return json({ ok: false, error: 'Neznámy web predajcu.' }, 400);
+    try {
+      if (wm[1] === 'list') {
+        const cfg = await env.DB.prepare('SELECT data FROM docs WHERE coll = ? AND id = ?').bind('config', 'main').first();
+        const src = ((cfg ? JSON.parse(cfg.data) : {}).sources || []).find((x) => x.type === 'web' && x.site === b.site);
+        if (!src) return json({ ok: false, error: 'Predajca s týmto webom nie je v nastaveniach.' }, 404);
+        const all = await S.list(src.links && src.links.length ? src.links : [src.url]);
+        const { results } = await env.DB.prepare('SELECT id FROM docs WHERE coll = ?').bind('inzeraty').all();
+        const have = new Set((results || []).map((r) => r.id));
+        return json({ ok: true, total: all.length, cars: all.filter((c) => !have.has(c.id)), sellerId: src.id, loc: src.loc || '' });
+      }
+      const url = String(b.url || '');
+      if (S.id(url) == null || !url.startsWith(S.origin + '/')) return json({ ok: false, error: 'Zlý odkaz.' }, 400);
+      const d = await S.detail(url);
+      if (d.gone) return json({ ok: false, error: 'Inzerát už nie je dostupný.', gone: true }, 404);
+      if (wm[1] === 'detail') {
+        const { imgs, popis, ...rest } = d;
+        return json({ ok: true, car: { ...rest, nimg: imgs.length, eq: d.eq.slice(0, 80) } });
+      }
+      const extra = b.data && typeof b.data === 'object' ? b.data : {};
+      const now = new Date().toISOString();
+      const p = d.price || +extra.priceNum || 0;
+      const doc = {
+        ...extra, adId: d.id, url: d.url, src: 'web', site: b.site, status: 'aktivny', needsAds: true,
+        addedAt: now, checkedAt: now, title: d.title, mark: d.mark, imgs: d.imgs, popis: d.popis,
+        priceNum: p, price: p ? p.toLocaleString('sk-SK').replace(/\s/g, ' ') + ' €' : '',
+        yearText: d.yearText, year: +((d.yearText || '').match(/\d{4}/) || [0])[0] || null, km: d.km, kw: d.kw,
+        fuel: extra.fuel || d.fuel, gear: extra.gear || d.gear, drive: extra.drive || d.drive,
+      };
+      if (!doc.sellerId) return json({ ok: false, error: 'Chýba sellerId.' }, 400);
+      if (!d.imgs.length) return json({ ok: false, error: 'Auto nemá fotky.' }, 422);
+      const ex = await env.DB.prepare('SELECT id FROM docs WHERE coll = ? AND id = ?').bind('inzeraty', d.id).first();
+      if (ex && !b.overwrite) return json({ ok: false, error: 'Auto už v databáze je.', exists: true }, 409);
+      await env.DB.prepare('INSERT INTO docs (coll, id, data, updated) VALUES (?, ?, ?, ?) ON CONFLICT(coll, id) DO UPDATE SET data = excluded.data, updated = excluded.updated')
+        .bind('inzeraty', d.id, JSON.stringify(doc), Date.now()).run();
+      return json({ ok: true, id: d.id, nimg: d.imgs.length, price: p });
+    } catch (e) {
+      return json({ ok: false, error: String(e && e.message || e).slice(0, 120) }, 502);
+    }
   }
 
   // Upratanie fotiek predaných áut: POST cleanup – 7 dní po predaji zmaže z R2 všetky fotky okrem prvej

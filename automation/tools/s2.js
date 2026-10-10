@@ -1,6 +1,6 @@
 // Vlož do bazos.sk karty: zobrazí fotku N inzerátu ID na ružovom pozadí (na zoom), alebo prehľad náhľadov všetkých fotiek.
-// Autá z vlastných webov predajcov: pred použitím nastav window.IMGS={'910000050':['https://cooldrive.sk/…/zoom/….jpg',…]} – fotka N = IMGS[id][N-1].
-window.IMGS=window.IMGS||{};window.SRC=(id,n,t)=>window.IMGS[id]?window.IMGS[id][n-1]:`https://www.bazos.sk/img/${n}${t?'t':''}/${id.slice(-3)}/${id}.jpg?t=${Date.now()}`;
+// Autá z vlastných webov predajcov (adId 9xxxxxxxx): fotky sa berú z https://www.splatkuj.sk/api/foto/<id>/<n> (server ich má podľa imgs v admine).
+window.IMGS=window.IMGS||{};window.SRC=(id,n,t)=>window.IMGS[id]?window.IMGS[id][n-1]:/^9\d{8}$/.test(id)?`https://www.splatkuj.sk/api/foto/${id}/${n}`:`https://www.bazos.sk/img/${n}${t?'t':''}/${id.slice(-3)}/${id}.jpg?t=${Date.now()}`;
 window.S2=(id,n)=>new Promise(res=>{document.getElementById('gs')?.remove();let g=document.getElementById('gg');if(!g){g=document.createElement('div');g.id='gg';g.style.cssText='position:fixed;left:0;top:0;width:100vw;height:100vh;background:#ff00ff;z-index:2147483647;';document.body.appendChild(g);}
 g.innerHTML='';const im=document.createElement('img');im.style.cssText='position:absolute;left:0;top:0;max-width:none';im.onload=()=>res(im.naturalWidth+'x'+im.naturalHeight);im.onerror=()=>res('err');setTimeout(()=>res('timeout'),8000);g.appendChild(im);im.src=window.SRC(id,n,false);});
 window.SHEET=async(cars)=>{document.getElementById('gg')?.remove();let g=document.getElementById('gs');if(!g){g=document.createElement('div');g.id='gs';g.style.cssText='position:fixed;inset:0;background:#fff;z-index:2147483647;overflow:hidden;font:bold 18px sans-serif';document.body.appendChild(g);}
