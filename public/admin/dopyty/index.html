@@ -87,6 +87,10 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
 .empty{padding:44px 16px;text-align:center;color:var(--mut);background:var(--panel);border:1px dashed var(--line);border-radius:16px}
 .empty b{display:block;color:var(--fg);font-size:17px;margin-bottom:4px}
 .exp{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 14px}.exp button,.exp a{font:600 13px/1 Figtree,system-ui;padding:9px 12px;border-radius:10px;border:1px solid rgba(127,127,127,.35);background:transparent;color:inherit;cursor:pointer;text-decoration:none}.exp button:hover,.exp a:hover{border-color:#16B57F}.exp .hint{font-size:12px;opacity:.65}
+.call{background:var(--panel2);border:1px solid rgba(20,180,126,.4);border-radius:12px;padding:4px 14px 12px;margin-top:2px}
+.call h5{margin:12px 0 4px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--brand2)}
+.call p{margin:4px 0;font-size:14px}.call .say{border-left:3px solid var(--brand);padding-left:10px}.call .say::before{content:'🗣 ';}
+.call .tip{color:var(--mut);font-size:13px}.call dl{margin-top:6px}
 .flash{outline:2px solid var(--brand);outline-offset:2px}
 </style>
 </head>
@@ -236,6 +240,42 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
       return `<div class="col"><h3>${l} <b>${c.length}</b></h3>${c.map((r) => `<button type="button" class="card" data-open="${esc(r.leadId)}"><b>${esc(r.meno)}</b><small>${esc(r.auto || ZA[r.zaujem] || '')}</small>${dueTxt(r)}${r.riesi ? `<small>👤 ${esc(r.riesi)}</small>` : ''}</button>`).join('')}</div>`; }).join('')}
       <div class="col"><h3>Stratené <b>${lost.length}</b></h3>${lost.slice(0, 30).map((r) => `<button type="button" class="card" data-open="${esc(r.leadId)}"><b>${esc(r.meno)}</b><small>${esc(STL[stOf(r)])}${r.dovod ? ' · ' + esc(r.dovod) : ''}</small></button>`).join('')}</div></div>`;
   }
+  // ---------- call skript (personalizovaný podľa dopytu) ----------
+  function callScript(r, u) {
+    const ja = esc(myName().split(' ')[0]), meno = esc(String(r.meno || '').split(' ')[0] || 'pán / pani');
+    const auto = r.auto ? esc(r.auto.split(',')[0]) : '';
+    const zdroj = u['Zdroj príjmu'] || '', prijem = u['Čistý mesačný príjem'] || u['Dôchodok mesačne'] || u['Fakturácia (priemer 3 mes.)'] || '';
+    const spl = u['Splátka od (orientačne)'] || '', akont = u['Akontácia'] || '', typ = u['Typ financovania'] || '';
+    const know = [['Auto', r.auto], ['Zdroj príjmu', zdroj], ['Príjem / fakturácia', prijem], ['Zamestnávateľ / firma', u['Zamestnávateľ'] || u['Názov spoločnosti']], ['Nástup / IČO', u['Nástup'] || u['IČO']], ['Akontácia', akont], ['Orientačná splátka', spl], ['Typ financovania', typ], ['Deti', u['Vyživované deti']], ['Exekúcie / registre', [u['Exekúcie'], u['Registre']].filter(Boolean).join(' / ')]].filter(([, v]) => v);
+    const ask = (k, q) => (know.some(([kk]) => kk === k) ? '' : `<p class="say">${q}</p>`);
+    return `<div class="call">
+      ${know.length ? `<h5>Čo už vieme zo žiadosti</h5><dl>${know.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>` : ''}
+      <h5>1. Úvod (prvých 15 sekúnd)</h5>
+      <p class="say">Dobrý deň, tu ${ja} zo Splatkuj.sk. Volám ohľadom vašej žiadosti o financovanie${auto ? ' auta ' + auto : ' auta'}. Hovorím s ${meno}? Máte teraz 3 minúty?</p>
+      <p class="tip">Ak nemá čas: „Kedy vám môžem zavolať?“ → zapíšte Ďalší krok s termínom.</p>
+      <h5>2. Overenie auta</h5>
+      <p class="say">${auto ? `Auto ${auto} je stále v predaji? Kupujete ho od autobazára alebo od súkromnej osoby?` : 'Máte už vybrané konkrétne auto? Pošlete mi prosím odkaz na inzerát.'}</p>
+      <p class="tip">Overte cenu, rok a km. Ak auto ešte nemá, ponúknite výber z ponuky na webe podľa rozpočtu.</p>
+      <h5>3. Príjem a registre</h5>
+      ${zdroj ? `<p class="say">V žiadosti máte ${esc(zdroj.toLowerCase())}${prijem ? ' a príjem/fakturáciu ' + esc(prijem) : ''} – sedí to tak?</p>` : '<p class="say">Aký je váš zdroj príjmu – zamestnanec, živnosť, firma alebo dôchodok? A približne aký máte mesačný príjem?</p>'}
+      ${ask('Nástup / IČO', 'Odkedy ste u súčasného zamestnávateľa (alebo odkedy máte živnosť)?')}
+      <p class="say">Máte momentálne nejaké exekúcie alebo omeškané splátky úverov?</p>
+      <p class="tip">Pri exekúcii slušne vysvetlite, že financovať nevieme, a nechajte kontakt na neskôr → fáza „Zamietnuté“, dôvod „Exekúcia / registre“.</p>
+      <h5>4. Podmienky</h5>
+      <p class="say">${akont ? `Počítali ste s akontáciou ${esc(akont)}.` : 'Chcete dať nejakú akontáciu, alebo radšej bez nej?'} ${spl ? `Orientačne by splátka vyšla ${esc(spl)}.` : ''} Aká mesačná splátka by vám vyhovovala?</p>
+      <p class="say">${typ === 'Úver' ? 'Pri tomto aute pôjde o klasický úver.' : 'Navrhujem autoúver – auto je vaše od začiatku.'} Presnú splátku, celkovú sumu aj všetky poplatky vám pošleme vopred, bez prekvapení.</p>
+      <p class="tip">Úrokovú sadzbu po telefóne nesľubujte – povedzte, že príde v konkrétnej ponuke. Schválenie nesľubujte, zvyčajne do 30 minút až 24 hodín.</p>
+      <h5>5. Námietky</h5>
+      <p class="tip"><b>„Je to drahé / aký je úrok?“</b> → Pripravíme presnú ponuku s celkovou sumou, porovnáte si ju bez záväzku.<br>
+      <b>„Nemám na akontáciu.“</b> → Financujeme aj od 0 % akontácie.<br>
+      <b>„Musím chodiť do banky?“</b> → Nie, všetko vybavíme online, osobne len pri podpise a odovzdaní auta.<br>
+      <b>„Ešte si to rozmyslím.“</b> → Rozumiem. Pošlem vám ponuku e-mailom/WhatsAppom a ozvem sa ${'<i>[deň]</i>'} – vyhovuje?</p>
+      <h5>6. Podklady a ďalší krok</h5>
+      <p class="say">Aby sme to vybavili čo najrýchlejšie, pošlite mi prosím na WhatsApp alebo na info@splatkuj.sk: občiansky preukaz z oboch strán, druhý doklad${/SZČO|Právnická/i.test(zdroj) ? ', daňové priznanie s potvrdením o podaní' : zdroj.includes('Dôchodca') ? ', rozhodnutie o dôchodku' : ', potvrdenie o príjme alebo výpisy z účtu za 3 mesiace'} a technický preukaz auta.</p>
+      <p class="say">Ozvem sa vám hneď, ako to bude posúdené. Ďakujem, pekný deň!</p>
+      <p class="tip">Po hovore: zapíšte aktivitu, presuňte fázu (Prvý kontakt / Zber podkladov) a nastavte Ďalší krok s termínom.</p>
+    </div>`;
+  }
   function card(r) {
     const st = stOf(r), g = STG[st], u = udaje(r), acts = arr(r.aktivity), kroky = obj(r.kroky)[st] || [];
     const tel = String(r.tel || '').replace(/[^\d+]/g, '');
@@ -262,6 +302,7 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brand)}
           <ul class="acts">${acts.slice().reverse().map((a) => `<li>${esc(a.typ || '')} ${esc(a.text || '')}<small>${esc(fmt(a.cas))} · ${esc(a.kto || '')}</small></li>`).join('') || '<li><small>Zatiaľ nič. Po každom hovore sem zapíšte, čo sa dohodlo.</small></li>'}</ul>
         </div>
       </div>
+      <details class="more" data-callbox${st === 'novy' || st === 'kontakt' ? ' open' : ''}><summary>📞 Call skript – čo povedať klientovi</summary>${callScript(r, u)}</details>
       <details class="more"><summary>Údaje zo žiadosti${Object.keys(u).length ? ` (${Object.keys(u).length})` : ''}</summary>
         <dl>${Object.entries(u).map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${link(v)}</dd></div>`).join('')}${r.zdroj ? `<div><dt>Zdroj</dt><dd>${esc(r.zdroj)}</dd></div>` : ''}${r.text && !Object.keys(u).length ? `<div style="grid-column:1/-1"><dt>Správa</dt><dd style="white-space:pre-wrap">${esc(r.text)}</dd></div>` : ''}</dl>
         <textarea data-note placeholder="Interná poznámka…" aria-label="Poznámka" style="margin-top:10px">${esc(r.poznamka || '')}</textarea>
