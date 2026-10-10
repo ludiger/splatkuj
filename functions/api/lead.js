@@ -33,7 +33,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
   await env.DB.prepare('INSERT INTO docs (coll, id, data, updated) VALUES (?, ?, ?, ?)').bind('leady', id, JSON.stringify(doc), now).run();
   // push upozornenie majiteľovi – na pozadí, aby nezdržalo odpoveď zákazníkovi
   if (notifyEnabled(env)) {
-    const p = notify(env, { title: doc.zdroj === 'kontaktný formulár' ? 'Nový dopyt z formulára' : 'Nový dopyt od Laury', message: leadMessage(doc), click: 'https://www.splatkuj.sk/admin/dopyty/', tags: ['bell'] });
+    const p = notify(env, { title: /formulár/.test(doc.zdroj || '') ? 'Nová žiadosť o úver z webu' : 'Nový dopyt od Laury', message: leadMessage(doc), click: 'https://www.splatkuj.sk/admin/dopyty/#' + id, tags: ['bell'] });
     if (typeof waitUntil === 'function') waitUntil(p); else await p;
   }
   return json({ ok: true, id });

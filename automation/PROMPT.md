@@ -59,5 +59,6 @@ D) ZÁVER
    - Ak nič: krátko, napr. "✅ Kontrola hotová: nič nové (83 áut skontrolovaných, 8 predajcov)."
    - Ak sa niečo pokazilo, napíš to do notifikácie.
    - Ak je dnes pondelok, pridaj na koniec: "📰 Newsletter na tento týždeň je pripravený: www.splatkuj.sk/admin/newsletter".
+   - CRM: v karte admina A('docs/leady') a spočítaj obchody, ktoré nie sú ukončené (stav nie je uzavrete, zamietnute, nezaujem, nedostupny): nové bez kontaktu (stav novy alebo prázdny) a tie, kde dalsiKrokDatum ≤ dnes. Ak je niečo z toho > 0, pridaj na koniec napr. "📞 CRM: 2 nové dopyty na zavolanie, 3 kroky na dnes (z toho 1 po termíne) – www.splatkuj.sk/admin/dopyty". Mená ani telefóny klientov do notifikácie nepíš.
 16. A('bulk',{docs:[{coll:'config',id:'main',mode:'merge',data:{lastRunAt: teraz, lastRunSummary:"…", lastScanAt: teraz, lastScanSummary:"…"}}]}). Polia sources ani triggerId nemeň. Zatvor svoje karty v Chrome.
 17. Na záver jedna veta so súhrnom.
