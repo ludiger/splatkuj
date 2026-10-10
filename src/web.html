@@ -146,7 +146,8 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 .filters input:focus,.filters select:focus{border-color:var(--brand);outline:none}
 .fbar{display:flex;align-items:center;gap:16px;margin:0 0 22px}
 .fbar .filters{flex:1;justify-content:flex-start;margin:0}
-.fbar .filters input{flex:1 1 220px}
+.fbar .filters{gap:8px}
+.fbar .filters input{flex:1 1 170px}
 .filters select{-webkit-appearance:none;appearance:none;padding-right:34px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%239ca2ad' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;cursor:pointer}
 @media (max-width:900px){.fbar{flex-direction:column-reverse;align-items:stretch}.fbar .stock{align-self:flex-end}}
 .stock{flex:none;background:linear-gradient(135deg,var(--brand),var(--brand2));color:var(--on-brand);border-radius:14px;padding:9px 18px;line-height:1.05;text-align:center}
@@ -664,13 +665,17 @@ dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-f
   const apiId = c => RL[bzId(c)] || bzId(c);
   const bzSlug = c => (BZ[bzId(c)]||[])[0] || ((c.url||'').match(/inzerat\/\d+\/([^/?#]+)/)||[])[1] || '';
   const XN = {};
-  const photo = (c,i) => i <= 5 ? `img/p/${bzId(c)}-${PN[(i-1)%5]}.jpg` : `/api/foto/${apiId(c)}/${(XN[bzId(c)]||[])[i-6]}`;
+  // c.ap = auto z adminu, ktoré ešte nemá spracované fotky na webe – všetky fotky idú zo zálohy /api/foto
+  const photo = (c,i) => c.ap ? `/api/foto/${apiId(c)}/${i}` : i <= 5 ? `img/p/${bzId(c)}-${PN[(i-1)%5]}.jpg` : `/api/foto/${apiId(c)}/${(XN[bzId(c)]||[])[i-6]}`;
   function paint(el,c,i,fit){ el.style.backgroundImage=`url(${photo(c,i)})`; el.style.backgroundSize=fit; el.style.backgroundPosition='center'; }
   const fmt = n => new Intl.NumberFormat('sk-SK').format(n) + ' €';
   const BR = c => { const m=c.title.match(/^(Alfa Romeo|Mercedes-Benz)/i); const w=m?m[1]:c.title.split(' ')[0]; return w.toUpperCase()==='SEAT'?'Seat':w.toUpperCase()==='BMW'?'BMW':w; };
   const brands=[...new Set(CARS.map(BR))].sort();
-  $('fBrand').innerHTML='<option value="">Všetky značky</option>'+brands.map(b=>`<option>${b}</option>`).join('');
-  $('fFuel').innerHTML='<option value="">Každé palivo</option>'+[...new Set(CARS.map(c=>c.fuel).filter(f=>f&&f!=='—'))].sort().map(b=>`<option>${b}</option>`).join('');
+  const fillSel = () => { const b0=$('fBrand').value, f0=$('fFuel').value;
+    $('fBrand').innerHTML='<option value="">Všetky značky</option>'+[...new Set(CARS.map(BR))].sort().map(b=>`<option>${b}</option>`).join('');
+    $('fFuel').innerHTML='<option value="">Každé palivo</option>'+[...new Set(CARS.map(c=>c.fuel).filter(f=>f&&f!=='—'))].sort().map(b=>`<option>${b}</option>`).join('');
+    $('fBrand').value=b0; $('fFuel').value=f0; };
+  fillSel();
   let shown=12;
   function list(){
     const q=$('fQ').value.trim().toLowerCase(), b=$('fBrand').value, f=$('fFuel').value, mx=+$('fMax').value||Infinity, mp=+$('fPay').value||Infinity, so=$('fSort').value;
@@ -695,6 +700,12 @@ dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-f
       </div>
     </button>`;
   list();
+  // autá z adminu, ktoré ešte čakajú na reklamy (needsAds) – na web hneď, plná verzia ich neskôr nahradí
+  if (LIVE) fetch('/api/ponuka').then(r => r.json()).then(j => { if (!j || !Array.isArray(j.cars)) return;
+    const have = new Set(CARS.map(c => String(bzId(c)))); let n = 0;
+    for (const c of j.cars) { const id = String(c.id); if (have.has(id) || HIDE.has(id) || Object.values(RL).includes(id)) continue; /* už je na webe, predané alebo znovu vložené */ CARS.push(c); have.add(id); n++; }
+    if (n) { fillSel(); list(); }
+  }).catch(() => {});
   const det = $('det'); let cur = null, pi = 1;
   function showPhoto(){ paint($('dGal'),cur,pi,'contain'); $('dWmk').hidden = pi <= 5; $('dCount').textContent = pi + ' / ' + cur.photos;
     [...$('dThumbs').children].forEach((t,i)=>t.setAttribute('aria-current', String(i+1===pi))); }
@@ -741,7 +752,7 @@ dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-f
     const pq = ext ? 'web' : (RL[bzId(c)] ? ((c.url||'').match(/inzerat\/\d+\/([^/?#]+)/)||[])[1] || bzSlug(c) : bzSlug(c));
     let d; try { const r = await fetch(`/api/inzerat/${apiId(c)}?p=${encodeURIComponent(pq)}`); d = await r.json(); } catch { return; }
     if (cur !== c || !d || !d.ok) return;
-    if (d.n > 5){ XN[bzId(c)] = Array.from({length: d.n}, (_, i) => i + 1).filter(n => !PN.includes(n)); c.photos = 5 + XN[bzId(c)].length;
+    if (d.n > 5){ XN[bzId(c)] = c.ap ? Array.from({length: d.n - 5}, (_, i) => i + 6) : Array.from({length: d.n}, (_, i) => i + 1).filter(n => !PN.includes(n)); c.photos = 5 + XN[bzId(c)].length;
       $('dThumbs').innerHTML = Array.from({length:c.photos},(_,i)=>`<button type="button" data-p="${i+1}" aria-label="Fotka ${i+1}"></button>`).join('');
       [...$('dThumbs').children].forEach((b,i)=>{ if (i < 5) paint(b,c,i+1,'cover'); else { b.style.backgroundImage = `url(/api/foto/${bzId(c)}/${XN[bzId(c)][i-5]}/t)`; b.style.backgroundSize='cover'; b.style.backgroundPosition='center'; } }); showPhoto(); }
     const {rows, groups} = parseInfo(c, d.popis || '');

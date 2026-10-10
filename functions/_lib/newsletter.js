@@ -31,7 +31,8 @@ function isoWeek(dt) {
 function card(d, extra) {
   const id = d.adId || d._id, title = d.carTitle || d.title || '';
   // hlavná fotka auta na webe (rovnaká ako v ponuke); pole photo v admine môže mať starú adresu z pôvodného úložiska
-  const img = `${SITE}/img/p/${d.relistedFrom || id}-1.jpg`; // znovu vložené auto má fotky pod pôvodným číslom
+  // spracované auto má fotky na webe (znovu vložené pod pôvodným číslom); čakajúce (needsAds) zo zálohy /api/foto
+  const img = d.needsAds === true ? `${SITE}/api/foto/${id}/1` : `${SITE}/img/p/${d.relistedFrom || id}-1.jpg`;
   const url = `${SITE}/?z=email#auto-${slug(title + ' ' + (d.year || ''))}-${id}`;
   const p = num(d);
   const meta = [d.yearText || d.year, d.km ? Number(d.km).toLocaleString('sk-SK').replace(/\s/g, ' ') + ' km' : '', d.fuel, d.gear].filter(Boolean).join(' · ');
@@ -56,7 +57,7 @@ export function buildNewsletter(docs, { days = 7, unsub = '*|UNSUB|*', now = new
   const since = now.getTime() - days * 864e5;
   const t = (x) => (x ? Date.parse(x) || 0 : 0);
   const all = docs.map((x) => ({ ...x.data, _id: x.id }));
-  const onWeb = all.filter((d) => d.status === 'aktivny' && d.needsAds !== true && num(d) > 0);
+  const onWeb = all.filter((d) => d.status === 'aktivny' && num(d) > 0); // aj čakajúce autá sú na webe (cez /api/ponuka)
   const fresh = onWeb.filter((d) => t(d.addedAt) >= since).sort((a, b) => t(b.addedAt) - t(a.addedAt)).slice(0, 8);
   const drops = onWeb.filter((d) => +d.priceOld > num(d) && t(d.priceChangedAt) >= since)
     .sort((a, b) => (b.priceOld - num(b)) - (a.priceOld - num(a))).slice(0, 6);
