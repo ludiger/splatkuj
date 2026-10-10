@@ -7,6 +7,7 @@ import {
 import { fotoKey, fetchBazos, bazosInzerat, isExt, fetchExt } from '../../_lib/foto.js';
 import { SITES } from '../../_lib/web.js';
 import { notify, notifyEnabled, telegramChats } from '../../_lib/notify.js';
+import { buildNewsletter } from '../../_lib/newsletter.js';
 
 const COLLS = new Set(['inzeraty', 'config', 'leady', 'reklamy']);
 const ID_RE = /^[A-Za-z0-9_.:@+-]{1,120}$/;
@@ -238,6 +239,16 @@ export async function onRequest(ctx) {
   if (path === 'telegram-setup' && method === 'POST') {
     if (!owner) return json({ ok: false, error: 'Len pre majiteľa.' }, 403);
     return json(await telegramChats(env));
+  }
+
+  // Týždenný newsletter: GET newsletter?days=7&unsub=*|UNSUB|* -> {subject, preheader, html, counts}
+  if (path === 'newsletter' && method === 'GET') {
+    const q = new URL(request.url).searchParams;
+    const days = Math.min(31, Math.max(1, +q.get('days') || 7));
+    const unsub = String(q.get('unsub') || '*|UNSUB|*').slice(0, 200);
+    const { results } = await env.DB.prepare('SELECT id, data FROM docs WHERE coll = ?').bind('inzeraty').all();
+    const docs = (results || []).map((r) => ({ id: r.id, data: JSON.parse(r.data) }));
+    return json({ ok: true, ...buildNewsletter(docs, { days, unsub }) });
   }
 
   // Autá z vlastných webov predajcov (napr. Cooldrive) – web sa číta na serveri, adresy fotiek ostávajú v databáze.

@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<title>Newsletter · Splatkuj Admin</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+:root{--ink:#0d0e11;--panel:#16181d;--panel2:#1d2027;--line:#2a2e37;--fg:#f3f4f6;--mut:#9ca2ad;--brand:#14B47E;--brand2:#45D99B;--on:#03140D;--red:#f0616d;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ink);color:var(--fg);font:15px/1.5 Figtree,system-ui,sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:24px clamp(16px,3vw,32px) 60px}
+h1{font:900 clamp(26px,3.4vw,34px)/1.1 Archivo,system-ui;font-stretch:115%;margin:0 0 6px}
+.lead{color:var(--mut);margin:0 0 18px;max-width:780px}
+.grid{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px}
+.card h2{font:800 16px/1.2 Archivo,system-ui;margin:0 0 10px}
+label{display:block;font-size:13px;color:var(--mut);margin:12px 0 4px}
+input,select{width:100%;background:var(--panel2);color:var(--fg);border:1px solid var(--line);border-radius:10px;padding:9px 10px;font:inherit}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+button{font:700 14px/1 Figtree,system-ui;padding:11px 14px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--fg);cursor:pointer}
+button.pri{background:linear-gradient(135deg,var(--brand),var(--brand2));color:var(--on);border-color:transparent}
+button:hover{border-color:var(--mut)}
+.subj{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px;font-weight:700;margin-top:4px;word-break:break-word}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}
+.stats div{background:var(--panel2);border-radius:10px;padding:8px 10px;font-size:13px;color:var(--mut)}
+.stats b{display:block;font-size:20px;color:var(--fg)}
+.hint{font-size:12.5px;color:var(--mut);margin-top:12px}
+.hint ol{margin:6px 0 0;padding-left:18px}
+.ok{color:var(--brand2);font-weight:700;min-height:20px;margin-top:8px}
+iframe{width:100%;height:1400px;border:0;border-radius:16px;background:#f3f5f8}
+</style>
+</head>
+<body>
+<script src="/admin/shim.js"></script>
+<div class="wrap">
+  <h1>Týždenný newsletter</h1>
+  <p class="lead">E-mail sa zostaví sám z áut v admine: nové autá za posledné dni, autá so zníženou cenou, výber týždňa (téma sa strieda) a počet predaných áut. Skopírujte ho do e-mailového nástroja a pošlite <b>len kontaktom so súhlasom</b> (Dopyty → Export pre e-mail marketing).</p>
+  <div class="grid">
+    <div class="card">
+      <h2>Nastavenie</h2>
+      <label for="days">Obdobie</label>
+      <select id="days"><option value="7" selected>Posledných 7 dní</option><option value="14">Posledných 14 dní</option><option value="30">Posledných 30 dní</option></select>
+      <label for="unsub">Značka odhlásenia vo vašom e-mailovom nástroji</label>
+      <input id="unsub" value="*|UNSUB|*" spellcheck="false">
+      <div class="hint">Mailchimp: <code>*|UNSUB|*</code>. Pri inom nástroji vložte jeho značku pre odkaz na odhlásenie (nájdete ju v jeho návode).</div>
+      <div class="btns"><button type="button" class="pri" id="copy">Kopírovať HTML</button><button type="button" id="dl">Stiahnuť .html</button><button type="button" id="reload">Obnoviť</button></div>
+      <div class="ok" id="ok" aria-live="polite"></div>
+      <label>Predmet e-mailu</label>
+      <div class="subj" id="subj">…</div>
+      <div class="btns"><button type="button" id="copyS">Kopírovať predmet</button></div>
+      <div class="stats" id="stats"></div>
+      <div class="hint"><b>Ako poslať:</b><ol><li>V e-mailovom nástroji vytvorte kampaň s vlastným HTML (kód).</li><li>Vložte skopírované HTML a predmet.</li><li>Ako príjemcov zvoľte zoznam importovaný z exportu so súhlasom.</li><li>Pošlite si najprv skúšobný e-mail.</li></ol></div>
+    </div>
+    <iframe id="pv" title="Náhľad newslettera" sandbox="allow-popups"></iframe>
+  </div>
+</div>
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  let cur = null;
+  const say = (t) => { $('ok').textContent = t; setTimeout(() => { if ($('ok').textContent === t) $('ok').textContent = ''; }, 3000); };
+  async function load() {
+    $('subj').textContent = 'Načítavam…';
+    try {
+      const q = new URLSearchParams({ days: $('days').value, unsub: $('unsub').value.trim() || '*|UNSUB|*' });
+      const r = await fetch('/api/admin/newsletter?' + q, { headers: { 'x-sk-admin': '1' } });
+      const j = await r.json();
+      if (!j.ok) throw new Error(j.error || 'chyba');
+      cur = j; $('subj').textContent = j.subject; $('pv').srcdoc = j.html;
+      const c = j.counts;
+      $('stats').innerHTML = [['Nové autá', c.nove], ['So zníženou cenou', c.zlavy], ['Výber: ' + c.tema, c.vyber], ['Predané', c.predane]].map(([l, n]) => `<div><b>${n}</b>${l}</div>`).join('');
+    } catch (e) { $('subj').textContent = 'Nepodarilo sa načítať: ' + e.message; }
+  }
+  const copy = async (t, msg) => { try { await navigator.clipboard.writeText(t); say(msg); } catch { say('Kopírovanie sa nepodarilo – použite Stiahnuť .html'); } };
+  $('copy').onclick = () => cur && copy(cur.html, 'HTML skopírované ✓');
+  $('copyS').onclick = () => cur && copy(cur.subject, 'Predmet skopírovaný ✓');
+  $('dl').onclick = () => { if (!cur) return; const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([cur.html], { type: 'text/html;charset=utf-8' })); a.download = 'splatkuj-newsletter-' + new Date().toISOString().slice(0, 10) + '.html'; document.body.append(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); };
+  $('reload').onclick = load; $('days').onchange = load; $('unsub').onchange = load;
+  load();
+})();
+</script>
+</body>
+</html>

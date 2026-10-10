@@ -49,6 +49,15 @@ Legenda: **VY** = robí majiteľ, **CLAUDE** = robí Claude, **SPOLU** = spoloč
 - [ ] SPOLU – Kalkulačka podľa ročníka auta: maximálna doba splácania podľa veku auta (napr. pri aute 2017 sa nedá zvoliť 8 rokov), akontácia predvolene 0 %. Treba presné pravidlo (max. vek auta na konci splácania alebo tabuľka ročník → max. doba) a súhlas majiteľa – dnes je na webe všade 96 mesiacov.
 - [ ] VY – Poslať PDF s postupom k API (bez kľúča); kľúč vložiť len v Cloudflare ako secret (pozri bod 2).
 
+## 2d. E-mail marketing a web (10. 10. 2026)
+- [x] CLAUDE – Laura sa po telefóne opýta na dobrovoľný súhlas so zasielaním ponúk e-mailom (nič nie je predvolené); uloží e-mail, znenie a čas súhlasu (polia email, marketing, marketingAt, marketingText).
+- [x] CLAUDE – Ochrana osobných údajov na webe doplnená o e-mailové ponuky so súhlasom a ich odvolanie.
+- [x] CLAUDE – Admin → Dopyty: export CSV pre e-mail marketing (len so súhlasom) a export všetkých dopytov (Excel), štítok „📧 súhlas“.
+- [x] CLAUDE – Admin → Newsletter: týždenný e-mail sa zostaví sám (nové autá, znížené ceny, výber týždňa, predané); kopírovanie HTML a predmetu; v pondelok pripomienka v rannej notifikácii.
+- [x] CLAUDE – Web: zelený počet áut pri „Aktuálna ponuka“ a filter „splátka do“.
+- [ ] VY – Vybrať e-mailový nástroj (Mailchimp, Ecomail, SmartEmailing…), importovať export so súhlasom a nastaviť značku odhlásenia v Newsletteri.
+- [ ] VY – Overiť s právnikom znenie súhlasu a text v Ochrane osobných údajov (marketing).
+
 ## 3. Sociálne siete – automatické zverejňovanie áut
 - [ ] VY – Prihlásiť Instagram (firemný) vo Windsor.ai.
 - [ ] VY – Prihlásiť TikTok v Higgsfield.

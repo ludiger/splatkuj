@@ -57,5 +57,6 @@ D) ZÁVER
    - Ak niečo pribudlo/predalo sa/zmenila sa cena: napr. "Pridané na web aj s reklamami: Škoda Enyaq iV 80 25 990 €. Predané: Škoda Superb 15 490 €. Zmena ceny: Kia Ceed 5 490 → 4 990 €. Čaká na spracovanie: 63 áut."
    - Ak nič: krátko, napr. "✅ Kontrola hotová: nič nové (83 áut skontrolovaných, 8 predajcov)."
    - Ak sa niečo pokazilo, napíš to do notifikácie.
+   - Ak je dnes pondelok, pridaj na koniec: "📰 Newsletter na tento týždeň je pripravený: www.splatkuj.sk/admin/newsletter".
 16. A('bulk',{docs:[{coll:'config',id:'main',mode:'merge',data:{lastRunAt: teraz, lastRunSummary:"…", lastScanAt: teraz, lastScanSummary:"…"}}]}). Polia sources ani triggerId nemeň. Zatvor svoje karty v Chrome.
 17. Na záver jedna veta so súhrnom.

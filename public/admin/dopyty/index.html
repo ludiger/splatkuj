@@ -45,16 +45,23 @@ textarea:focus,input:focus{outline:none;border-color:var(--brand)}
 .empty b{display:block;color:var(--fg);font-size:17px;margin-bottom:4px}
 .who{font-size:12px;color:var(--mut)}
 .acts .del{margin-left:8px;color:#d64545;border-color:#e8b4b4;background:transparent}.acts .del.sure{background:#d64545;color:#fff;border-color:#d64545}
+.exp{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 14px}.exp button,.exp a{font:600 13px/1 Figtree,system-ui;padding:9px 12px;border-radius:10px;border:1px solid rgba(127,127,127,.35);background:transparent;color:inherit;cursor:pointer;text-decoration:none}.exp button:hover,.exp a:hover{border-color:#16B57F}.exp .hint{font-size:12px;opacity:.65}.tag.mk{background:rgba(22,181,127,.15);color:#16B57F}
 </style>
 </head>
 <body>
 <script src="/admin/shim.js"></script>
 <div class="wrap">
   <h1>Dopyty od Laury</h1>
-  <p class="lead">Každý klient, ktorý v chate na splatkuj.sk vyplní meno a telefón, sa tu objaví sám. Obnovuje sa každých 15 sekúnd.</p>
+  <p class="lead">Každý klient, ktorý v chate na splatkuj.sk vyplní meno a telefón, sa tu objaví sám. Pri tých, ktorí dali súhlas s e-mailovými ponukami, je štítok 📧 súhlas. Obnovuje sa každých 15 sekúnd.</p>
   <div class="bar">
     <div class="seg" id="seg" role="group" aria-label="Filter podľa stavu"></div>
     <input type="search" id="q" placeholder="Hľadať meno, telefón, auto…" aria-label="Hľadať v dopytoch">
+  </div>
+  <div class="exp">
+    <button type="button" id="expMk" title="Len kontakty, ktoré dali súhlas so zasielaním ponúk e-mailom">📧 Export pre e-mail marketing (CSV)</button>
+    <button type="button" id="expAll" title="Všetky dopyty na internú evidenciu – nie na marketing">⬇ Export všetkých dopytov (Excel)</button>
+    <a href="/admin/newsletter/">📰 Týždenný newsletter</a>
+    <span class="hint">Na marketing používajte len export so súhlasom.</span>
   </div>
   <div class="list" id="list"><div class="empty"><b>Načítavam…</b></div></div>
 </div>
@@ -84,7 +91,7 @@ textarea:focus,input:focus{outline:none;border-color:var(--brand)}
       const st = r.stav || 'novy', u = udaje(r);
       const tel = String(r.tel || '').replace(/[^\d+]/g, '');
       return `<article class="ld s-${st}" data-id="${esc(r.leadId)}">
-        <div class="hd"><b>${esc(r.meno)}</b>${tel ? `<a href="tel:${esc(tel)}">${esc(r.tel)}</a>` : ''}<span class="tag${st === 'novy' ? ' new' : ''}">${STL[st] || st}</span><span class="tag">${esc(ZA[r.zaujem] || r.zaujem || '')}</span><span class="when">${fmt(r.prijate)}</span></div>
+        <div class="hd"><b>${esc(r.meno)}</b>${tel ? `<a href="tel:${esc(tel)}">${esc(r.tel)}</a>` : ''}${r.email ? `<a href="mailto:${esc(r.email)}">${esc(r.email)}</a>` : ''}${r.marketing === 'ano' ? `<span class="tag mk" title="Súhlas so zasielaním ponúk e-mailom: ${esc(fmt(r.marketingAt))}">📧 súhlas</span>` : ''}<span class="tag${st === 'novy' ? ' new' : ''}">${STL[st] || st}</span><span class="tag">${esc(ZA[r.zaujem] || r.zaujem || '')}</span><span class="when">${fmt(r.prijate)}</span></div>
         ${r.auto ? `<div class="car">🚗 ${esc(r.auto)}${r.odkaz ? `<a href="${esc(r.odkaz)}" target="_blank" rel="noopener">na webe ↗</a>` : ''}${r.inzerat ? `<a href="${esc(r.inzerat)}" target="_blank" rel="noopener">Bazoš ↗</a>` : ''}${r.autoId ? `<a href="/admin/reklamy/#${esc(r.autoId)}">reklama</a>` : ''}</div>` : ''}
         ${Object.keys(u).length || r.zdroj ? `<dl>${Object.entries(u).map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${link(v)}</dd></div>`).join('')}${r.zdroj ? `<div><dt>Zdroj</dt><dd>${esc(r.zdroj)}</dd></div>` : ''}</dl>` : ''}
         <textarea data-note placeholder="Poznámka k hovoru…" aria-label="Poznámka">${esc(r.poznamka || '')}</textarea>
@@ -93,6 +100,29 @@ textarea:focus,input:focus{outline:none;border-color:var(--brand)}
       </article>`;
     }).join('');
   }
+  // ---------- export do CSV ----------
+  // bezpečné bunky (bez vzorcov – ochrana pred CSV injection), UTF-8 s BOM, aby to Excel aj e-mailové nástroje čítali s diakritikou
+  const cell = (v, sep) => { let t = String(v ?? '').replace(/\r?\n/g, ' ').trim(); if (/^[=+\-@\t]/.test(t) && !/^\+?[\d\s]+$/.test(t)) t = "'" + t; return /["\n]/.test(t) || t.includes(sep) ? '"' + t.replace(/"/g, '""') + '"' : t; };
+  const download = (name, head, data, sep) => {
+    const csv = '\ufeff' + [head, ...data].map((r) => r.map((v) => cell(v, sep)).join(sep)).join('\r\n');
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })); a.download = name; document.body.append(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  };
+  const day = () => new Date().toISOString().slice(0, 10);
+  const split = (m) => { const p = String(m || '').trim().split(/\s+/); return [p[0] || '', p.slice(1).join(' ')]; };
+  // pre e-mail marketing: LEN kontakty so súhlasom a e-mailom (Mailchimp, Ecomail, SmartEmailing – stĺpce sa namapujú pri importe)
+  $('expMk').addEventListener('click', () => {
+    const ok = rows.filter((r) => r.marketing === 'ano' && r.email);
+    if (!ok.length) return alertBox('Zatiaľ žiadny kontakt so súhlasom a e-mailom.');
+    download(`splatkuj-marketing-${day()}.csv`, ['Email', 'Meno', 'Priezvisko', 'Telefon', 'Zaujem', 'Auto', 'Zdroj', 'Suhlas_cas', 'Suhlas_znenie'],
+      ok.map((r) => { const [f, l] = split(r.meno); return [r.email, f, l, r.tel, ZA[r.zaujem] || r.zaujem || '', r.auto, r.zdroj, r.marketingAt, r.marketingText]; }), ',');
+  });
+  // interná evidencia všetkých dopytov (Excel, oddeľovač ;) – nie na marketing
+  $('expAll').addEventListener('click', () => {
+    if (!rows.length) return alertBox('Zatiaľ žiadne dopyty.');
+    const list = [...rows].sort((a, b) => String(b.prijate).localeCompare(String(a.prijate)));
+    download(`splatkuj-dopyty-${day()}.csv`, ['Prijaté', 'Meno', 'Telefón', 'E-mail', 'Súhlas s marketingom', 'Záujem', 'Auto', 'Odkaz', 'Zdroj', 'Stav', 'Poznámka', 'Údaje'],
+      list.map((r) => [r.prijate, r.meno, r.tel, r.email, r.marketing === 'ano' ? 'áno (' + (r.marketingAt || '') + ')' : r.marketing === 'nie' ? 'nie' : '', ZA[r.zaujem] || r.zaujem || '', r.auto, r.odkaz, r.zdroj, STL[r.stav || 'novy'] || r.stav, r.poznamka, Object.entries(udaje(r)).map(([k, v]) => k + ': ' + v).join(' | ')]), ';');
+  });
   const save = async (id, data) => {
     try { await db.doc('leady/' + id).update({ ...data, upravil: me ? me.name : '', upravene: new Date().toISOString() }); }
     catch (e) { alertBox('Uloženie sa nepodarilo: ' + e.message); }

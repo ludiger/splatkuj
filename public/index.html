@@ -145,6 +145,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 @media (max-width:640px){.filters input{flex:1 1 100%}}
 .filters input:focus,.filters select:focus{border-color:var(--brand);outline:none}
 #fCount{margin-left:auto;font-size:14px}
+.pcount{display:inline-block;margin-left:10px;padding:4px 10px;border-radius:999px;background:linear-gradient(135deg,var(--brand),var(--brand2));color:var(--on-brand);font:700 12px/1.2 var(--body);letter-spacing:.04em;text-transform:none;vertical-align:1px}
 /* detail */
 dialog.det{border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:24px;padding:0;width:min(980px,calc(100vw - 24px));max-height:calc(100vh - 24px);overflow:auto}
 dialog.det::backdrop{background:rgb(0 0 0/.7);backdrop-filter:blur(4px)}
@@ -371,7 +372,7 @@ footer{border-top:1px solid var(--line);padding-block:40px;color:var(--mut);font
   <section id="ponuka" style="padding-top:0">
     <div class="wrap">
       <div class="head">
-        <div><span class="eyebrow">Aktuálna ponuka</span><h2>Preverené autá, pripravené na splátky</h2></div>
+        <div><span class="eyebrow">Aktuálna ponuka <span class="pcount" id="pCount" hidden></span></span><h2>Preverené autá, pripravené na splátky</h2></div>
         <p>Vyberte si z ponuky preverených áut. Financovanie pripravíme ku každému vozidlu.</p>
       </div>
       <div class="filters">
@@ -379,6 +380,7 @@ footer{border-top:1px solid var(--line);padding-block:40px;color:var(--mut);font
         <select id="fBrand" aria-label="Značka"></select>
         <select id="fFuel" aria-label="Palivo"></select>
         <select id="fMax" aria-label="Maximálna cena"><option value="">Akákoľvek cena</option><option value="10000">do 10 000 €</option><option value="15000">do 15 000 €</option><option value="20000">do 20 000 €</option><option value="25000">do 25 000 €</option><option value="30000">do 30 000 €</option></select>
+        <select id="fPay" aria-label="Maximálna mesačná splátka"><option value="">Akákoľvek splátka</option><option value="100">splátka do 100 €</option><option value="150">splátka do 150 €</option><option value="200">splátka do 200 €</option><option value="250">splátka do 250 €</option><option value="300">splátka do 300 €</option><option value="400">splátka do 400 €</option><option value="500">splátka do 500 €</option></select>
         <select id="fSort" aria-label="Zoradiť"><option value="">Odporúčané</option><option value="pa">Najlacnejšie</option><option value="pd">Najdrahšie</option><option value="y">Najnovšie</option></select>
         <span class="mut num" id="fCount"></span>
       </div>
@@ -577,8 +579,9 @@ dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-f
     privacy: () => `<h2>Ochrana osobných údajov</h2><p>Prevádzkovateľ: ${FIRMA()}. Kontakt: info@splatkuj.sk, 0903 427 088.</p>
       <h3>Aké údaje spracúvame</h3><p>Údaje, ktoré nám sami pošlete cez formulár, chat Laura, WhatsApp, SMS alebo telefonicky: meno, telefón, e-mail, vybrané vozidlo a údaje potrebné na posúdenie financovania (typ príjmu, IČO, informácie o úveroch a exekúciách).</p>
       <h3>Prečo</h3><p>Aby sme vás mohli kontaktovať a pripraviť ponuku financovania (opatrenia pred uzavretím zmluvy na vašu žiadosť), a na plnenie zákonných povinností sprostredkovateľa financovania.</p>
+      <h3>E-mailové ponuky (len so súhlasom)</h3><p>Ak nám v chate s Laurou dáte súhlas, budeme vám na zadaný e-mail posielať ponuky áut, zľavy a novinky, približne raz týždenne. Právnym základom je váš súhlas (čl. 6 ods. 1 písm. a) GDPR). Súhlas je dobrovoľný, nie je podmienkou financovania a môžete ho kedykoľvek odvolať odkazom na odhlásenie v každom e-maile alebo na info@splatkuj.sk. Uchovávame ho, kým ho neodvoláte; o súhlase evidujeme jeho znenie a čas udelenia. Na rozosielanie môžeme použiť e-mailovú službu tretej strany (spracovateľa).</p>
       <h3>Komu ich poskytujeme</h3><p>Len financujúcim spoločnostiam (banky, leasingové spoločnosti), ktorým ponuku na vašu žiadosť predkladáme, a dodávateľom technických služieb (hosting, e-mail, komunikačné aplikácie).</p>
-      <h3>Ako dlho</h3><p>Po dobu potrebnú na vybavenie žiadosti, najdlhšie 12 mesiacov od posledného kontaktu, ak zákon nevyžaduje dlhšiu dobu.</p>
+      <h3>Ako dlho</h3><p>Po dobu potrebnú na vybavenie žiadosti, najdlhšie 12 mesiacov od posledného kontaktu, ak zákon nevyžaduje dlhšiu dobu. E-mail a súhlas so zasielaním ponúk uchovávame do odvolania súhlasu.</p>
       <h3>Vaše práva</h3><p>Máte právo na prístup k údajom, opravu, vymazanie, obmedzenie spracúvania, prenosnosť a námietku, ako aj právo podať sťažnosť na Úrad na ochranu osobných údajov SR. Žiadosti posielajte na info@splatkuj.sk.</p>`
   };
   const lg = $('lg');
@@ -662,15 +665,17 @@ dialog.lg::backdrop{background:rgb(0 0 0/.7)}dialog.lg h2{margin:0 0 10px;font-f
   $('fFuel').innerHTML='<option value="">Každé palivo</option>'+[...new Set(CARS.map(c=>c.fuel).filter(f=>f&&f!=='—'))].sort().map(b=>`<option>${b}</option>`).join('');
   let shown=12;
   function list(){
-    const q=$('fQ').value.trim().toLowerCase(), b=$('fBrand').value, f=$('fFuel').value, mx=+$('fMax').value||Infinity, so=$('fSort').value;
-    let r=CARS.map((c,ix)=>({c,ix})).filter(({c})=>(!b||BR(c)===b)&&(!f||c.fuel===f)&&c.price<=mx&&(!q||(c.title+' '+c.sub+' '+(c.loc||'')).toLowerCase().includes(q)));
+    const q=$('fQ').value.trim().toLowerCase(), b=$('fBrand').value, f=$('fFuel').value, mx=+$('fMax').value||Infinity, mp=+$('fPay').value||Infinity, so=$('fSort').value;
+    let r=CARS.map((c,ix)=>({c,ix})).filter(({c})=>(!b||BR(c)===b)&&(!f||c.fuel===f)&&c.price<=mx&&(mp===Infinity||monthly(c.price,0,96,9.9).m<=mp)&&(!q||(c.title+' '+c.sub+' '+(c.loc||'')).toLowerCase().includes(q)));
     if(so==='pa')r.sort((a,b)=>a.c.price-b.c.price); if(so==='pd')r.sort((a,b)=>b.c.price-a.c.price);
     if(so==='y')r.sort((a,b)=>parseInt(String(b.c.year).slice(-4))-parseInt(String(a.c.year).slice(-4))||0);
     $('fCount').textContent=r.length+' '+(r.length===1?'auto':r.length<5&&r.length>1?'autá':'áut');
     $('cars').innerHTML = r.length? r.slice(0,shown).map(({c,ix})=>card(c,ix)).join('') : '<p class="mut" style="grid-column:1/-1">Žiadne auto nezodpovedá filtru. Skúste upraviť výber.</p>';
     $('more').hidden = r.length<=shown;
   }
-  ['fQ','fBrand','fFuel','fMax','fSort'].forEach(id=>$(id).addEventListener('input',()=>{shown=12;list();}));
+  // zelený odznak s počtom áut v aktuálnej ponuke
+  { const n=CARS.length, pc=$('pCount'); if (pc && n){ pc.textContent=n+' '+(n===1?'auto':n<5?'autá':'áut'); pc.hidden=false; } }
+  ['fQ','fBrand','fFuel','fMax','fPay','fSort'].forEach(id=>$(id).addEventListener('input',()=>{shown=12;list();}));
   $('more').addEventListener('click',()=>{shown+=12;list();});
   const card = (c,ix) => `
     <button class="car" type="button" data-ix="${ix}" aria-label="Detail: ${c.title}">
@@ -1074,12 +1079,17 @@ video.lau{transform:scale(1.6);transform-origin:50% 33%}
   async function askName(){ if (lead.car && !curCar && !/https?:\/\//.test(lead.car) && !lead.rok) return askYear(); if (lead.typ) return askName2(); return qualify(0); }
   async function askName2(){ step = 'name'; await bot(lead.name ? 'Potvrďte prosím vaše meno:' : 'Ďakujem! Ako sa voláte?'); input.focus(); }
   async function askPhone(){ step = 'phone'; await bot(`Teší ma, ${esc(lead.name.split(' ')[0])} 🙂 Na aké telefónne číslo vám môžeme zavolať?`); input.setAttribute('inputmode','tel'); input.focus(); }
+  // Súhlas s e-mail marketingom: dobrovoľný, nič nie je predvolene zvolené; uložíme znenie a čas súhlasu.
+  const MKT_CONSENT = 'Súhlasím so zasielaním ponúk áut a noviniek Splatkuj.sk (LPFinance s.r.o.) e-mailom, približne raz týždenne. Súhlas môžem kedykoľvek odvolať odkazom v e-maile alebo na info@splatkuj.sk.';
+  async function askMarketing(){ step = null; input.removeAttribute('inputmode');
+    await bot('Ešte jedna dobrovoľná otázka: chcete od nás raz týždenne dostávať <b>e-mailom nové autá a zľavy</b>? Odhlásiť sa dá kedykoľvek.<br><small>' + esc(MKT_CONSENT) + ' Viac v časti Ochrana osobných údajov.</small>');
+    chips([['✅ Áno, súhlasím', async () => { step = 'email'; await bot('Super! Na aký e-mail vám máme ponuky posielať?'); input.setAttribute('inputmode','email'); input.focus(); }], ['Nie, ďakujem', () => { lead.marketing = 'nie'; finish(); }]]); }
   async function finish(){ step = null; input.removeAttribute('inputmode');
     const extra = [['Ročník',lead.rok],['Typ',lead.typ],['Pobyt',lead.pobyt],['Príjem',lead.prijem],['Odkedy',lead.odkedy],['IČO',lead.ico],['Firma',lead.firma],['Firma v registri',/^\d{8}$/.test(lead.ico||'') ? 'https://www.finstat.sk/' + lead.ico : ''],['Poznámka',lead.pozn],['Exekúcie',lead.exekucie],['Registre',lead.registre],['Akontácia',lead.akontacia],['Doba',lead.doba]].filter(x=>x[1]).map(([a,b])=>`\n${a}: ${b}`).join('');
     const links = curCar ? `\nOdkaz: https://splatkuj.sk/#auto-${SK.slug(curCar)}` + (curCar.url ? `\nInzerát: ${curCar.url}` : '') : '';
     const src = lead.zdroj ? `\nZdroj: ${lead.zdroj}` : '';
     const intro = lead.zaujem === 'predaj' ? 'Dobrý deň, chcem predať vozidlo.' : lead.zaujem === 'poistenie' ? `Dobrý deň, mám záujem o poistenie vozidla (${lead.poistenie || ''}).` : 'Dobrý deň, mám záujem o financovanie auta.';
-    const txt = `${intro}\nMeno: ${lead.name}\nTelefón: ${lead.phone}${lead.car ? '\nAuto: ' + lead.car : ''}${links}${extra}${src}`;
+    const txt = `${intro}\nMeno: ${lead.name}\nTelefón: ${lead.phone}${lead.email ? '\nE-mail: ' + lead.email : ''}${lead.car ? '\nAuto: ' + lead.car : ''}${links}${extra}${src}`;
     try { $('f-msg').value = (lead.car||'') + links + extra + src; } catch {}
     try { $('f-name').value = lead.name; $('f-phone').value = lead.phone; } catch {}
     // uloženie dopytu do adminu (len na splatkuj.sk)
@@ -1088,16 +1098,18 @@ video.lau{transform:scale(1.6);transform-origin:50% 33%}
       fetch('/api/lead', {method:'POST', headers:{'content-type':'application/json'}, keepalive:true, body: JSON.stringify({
         meno: lead.name, tel: lead.phone, zaujem: lead.zaujem || 'financovanie', auto: lead.car || '', autoId: curCar ? String(curCar.id) : '',
         odkaz: curCar ? 'https://splatkuj.sk/#auto-' + SK.slug(curCar) : '', inzerat: curCar && curCar.url || '', zdroj: lead.zdroj || '',
-        poistenie: lead.poistenie || '', udaje: ex, text: txt })}).catch(() => {});
+        poistenie: lead.poistenie || '', udaje: ex, text: txt,
+        email: lead.email || '', marketing: lead.marketing || '', marketingAt: lead.marketingAt || '', marketingText: lead.marketing === 'ano' ? MKT_CONSENT : '' })}).catch(() => {});
     }
-    await bot(`Výborne, máme všetko 👍\n\n<b>${esc(lead.name)}</b> · ${esc(lead.phone)}${lead.car ? '\n' + esc(lead.car) : ''}\n\nPošlite nám to jedným klikom a ozveme sa vám čo najskôr – zvyčajne ešte v ten istý deň.`, 900);
+    await bot(`Výborne, máme všetko 👍\n\n<b>${esc(lead.name)}</b> · ${esc(lead.phone)}${lead.email ? ' · ' + esc(lead.email) : ''}${lead.car ? '\n' + esc(lead.car) : ''}\n\nPošlite nám to jedným klikom a ozveme sa vám čo najskôr – zvyčajne ešte v ten istý deň.`, 900);
     chips([['💬 Poslať cez WhatsApp', 'https://wa.me/' + PHONE_INT + '?text=' + encodeURIComponent(txt), 'main'], ['✉️ Poslať SMS', 'sms:+' + PHONE_INT + '?&body=' + encodeURIComponent(txt)], ['📞 Zavolať ' + PHONE, 'tel:+' + PHONE_INT]]); }
   const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
   // ---------- voľný text ----------
   async function free(t){
     if (step === 'name'){ if (t.trim().length < 2) return bot('Napíšte prosím aspoň krstné meno 🙂'); lead.name = t.trim().slice(0,60); return askPhone(); }
-    if (step === 'phone'){ const d = t.replace(/[^\d+]/g,''); if (d.replace(/\D/g,'').length < 9) return bot('Toto číslo sa mi nezdá úplné. Skúste ho napísať napr. v tvare 0905 123 456.'); lead.phone = t.trim().slice(0,20); return finish(); }
+    if (step === 'phone'){ const d = t.replace(/[^\d+]/g,''); if (d.replace(/\D/g,'').length < 9) return bot('Toto číslo sa mi nezdá úplné. Skúste ho napísať napr. v tvare 0905 123 456.'); lead.phone = t.trim().slice(0,20); return askMarketing(); }
+    if (step === 'email'){ const m = t.trim().toLowerCase(); if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/.test(m)) return bot('Tento e-mail sa mi nezdá správny. Skúste ho napísať napr. v tvare jan.novak@gmail.com.'); lead.email = m.slice(0,120); lead.marketing = 'ano'; lead.marketingAt = new Date().toISOString(); lead.marketingText = MKT_CONSENT; step = null; await bot('Ďakujem, ponuky vám budeme posielať raz týždenne. Odhlásiť sa môžete jedným klikom v každom e-maile.'); return finish(); }
     if (step === 'link') return gotLink(t);
     if (step === 'sellcar'){ lead.car = t.trim().slice(0,200); step = null; await bot('Ďakujem! Ozveme sa vám s odhadom ceny a návrhom, ako auto predať.'); return askName2(); }
     if (step === 'inscar'){ lead.car = t.trim().slice(0,200); step = null; return askName2(); }

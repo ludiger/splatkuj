@@ -84,7 +84,7 @@
   @media (max-width:640px){.skbar .who{display:none}.skbar .in{flex-wrap:nowrap;overflow-x:auto;gap:6px;padding:8px 12px;font-size:13px;scrollbar-width:none}.skbar .in::-webkit-scrollbar{display:none}.skbar a,.skbar button{padding:8px 12px;white-space:nowrap;flex:none}.skbar .sp{display:none}}`;
   document.head.append(Object.assign(document.createElement('style'), { textContent: css }));
   const here = location.pathname.replace(/\/+$/, '') || '/admin';
-  const links = [['/admin', 'Inzeráty'], ['/admin/reklamy', 'Reklamy'], ['/admin/dopyty', 'Dopyty'], ['/admin/ucet', 'Účet']];
+  const links = [['/admin', 'Inzeráty'], ['/admin/reklamy', 'Reklamy'], ['/admin/dopyty', 'Dopyty'], ['/admin/newsletter', 'Newsletter'], ['/admin/ucet', 'Účet']];
   const bar = document.createElement('div'); bar.className = 'skbar';
   bar.innerHTML = `<div class="in">${links.map(([h, t]) => `<a href="${h}/"${here === h ? ' aria-current="page"' : ''}>${t}</a>`).join('')}
     <a href="/" target="_blank" rel="noopener">Web ↗</a><span class="sp"></span><span class="who" id="skWho"></span><button type="button" id="skOut">Odhlásiť</button></div>`;
