@@ -49,13 +49,20 @@ export async function onRequestPost({ request, env }) {
     .map((m) => ({ role: m.role, content: String(m.content || '').slice(0, 1200) }));
   while (turns.length && turns[0].role !== 'user') turns.shift();
   if (!turns.length) return json({ ok: false }, 400);
-  const r = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json', 'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
-    body: JSON.stringify({ model: MODEL, max_tokens: 500, system: POLICY + '\n\nKONTEXT WEBU:\n' + ctx, messages: turns }),
-  });
-  const d = await r.json().catch(() => ({}));
-  if (!r.ok) return json({ ok: false, code: 'upstream', error: (d.error && d.error.type) || r.status }, 502);
+  // Pozor: odpoveď 502 Cloudflare prekryje vlastnou chybovou stránkou, preto chyby API vraciame so stavom 200 a ok:false.
+  let r, d;
+  try {
+    r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({ model: MODEL, max_tokens: 500, system: POLICY + '\n\nKONTEXT WEBU:\n' + ctx, messages: turns }),
+    });
+    d = await r.json().catch(() => ({}));
+  } catch (e) {
+    return json({ ok: false, code: 'upstream', detail: 'fetch: ' + String(e && e.message || e).slice(0, 100) });
+  }
+  // detail je len pre diagnostiku (typ a správa chyby API, nikdy nie kľúč); zákazníkovi sa nezobrazuje
+  if (!r.ok) return json({ ok: false, code: 'upstream', status: r.status, detail: ((d.error && (d.error.type + ': ' + (d.error.message || ''))) || '').slice(0, 160) });
   const text = (d.content || []).filter((c) => c.type === 'text').map((c) => c.text).join('').trim();
   return json({ ok: true, text });
 }
