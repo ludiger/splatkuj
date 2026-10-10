@@ -1,7 +1,13 @@
 // POST /api/lead – dopyt od Laury z webu sa uloží do adminu (kolekcia leady).
 import { json, noDb, schema, randomHex } from '../_lib/auth.js';
+import { notify, notifyEnabled, leadMessage } from '../_lib/notify.js';
 
-export async function onRequestPost({ request, env }) {
+// GET /api/lead – stav: či sú zapnuté upozornenia na nové dopyty (bez citlivých údajov).
+export async function onRequestGet({ env }) {
+  return json({ ok: true, notify: notifyEnabled(env) });
+}
+
+export async function onRequestPost({ request, env, waitUntil }) {
   if (!env.DB) return noDb();
   await schema(env.DB);
   const origin = request.headers.get('origin') || '';
@@ -25,5 +31,10 @@ export async function onRequestPost({ request, env }) {
   const id = new Date().toISOString().replace(/[-:T.Z]/g, '').slice(0, 14) + '-' + randomHex(3);
   const doc = { ...clean, leadId: id, stav: 'novy', prijate: new Date().toISOString() };
   await env.DB.prepare('INSERT INTO docs (coll, id, data, updated) VALUES (?, ?, ?, ?)').bind('leady', id, JSON.stringify(doc), now).run();
+  // push upozornenie majiteľovi – na pozadí, aby nezdržalo odpoveď zákazníkovi
+  if (notifyEnabled(env)) {
+    const p = notify(env, { title: 'Nový dopyt od Laury', message: leadMessage(doc), click: 'https://www.splatkuj.sk/admin/dopyty/', tags: ['bell'] });
+    if (typeof waitUntil === 'function') waitUntil(p); else await p;
+  }
   return json({ ok: true, id });
 }

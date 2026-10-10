@@ -25,7 +25,9 @@ Legenda: **VY** = robí majiteľ, **CLAUDE** = robí Claude, **SPOLU** = spoloč
 - [x] CLAUDE – Kód hotový (`functions/api/chat.js`, limity 40/IP/h, 600/deň, model claude-haiku-4-5).
 - [ ] VY – Na platform.claude.com vytvoriť API kľúč a v Cloudflare (Pages → splatkuj → Settings → Variables and Secrets) pridať secret `ANTHROPIC_API_KEY`. Kľúč nikdy neposielať do chatu.
 - [ ] CLAUDE – Po pridaní: prázdny commit (redeploy) a test /api/chat (GET → enabled: true).
-- [ ] CLAUDE – Notifikácia o novom dopyte (e-mail/push).
+- [x] CLAUDE – Notifikácia o novom dopyte: kód hotový (`functions/_lib/notify.js`, push cez ntfy; v upozornení nie sú osobné údaje zákazníka, len záujem, auto a odkaz na /admin/dopyty). Stav: GET /api/lead → `notify: true/false`.
+- [ ] VY – Zapnúť upozornenia: do telefónu nainštalovať aplikáciu ntfy, odoberať novú tému s dlhým náhodným názvom (napr. splatkuj- + 20 náhodných znakov) a ten istý názov pridať v Cloudflare (Pages → splatkuj → Settings → Variables and Secrets) ako secret `NTFY_TOPIC`. Názov témy neposielať do chatu.
+- [ ] CLAUDE – Po pridaní: redeploy a skúšobný dopyt.
 
 ## 3. Sociálne siete – automatické zverejňovanie áut
 - [ ] VY – Prihlásiť Instagram (firemný) vo Windsor.ai.
