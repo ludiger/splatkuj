@@ -19,7 +19,9 @@ export async function notify(env, { title, message, click, tags = [], priority =
       headers: { 'content-type': 'application/json', ...(env.NTFY_TOKEN ? { authorization: 'Bearer ' + env.NTFY_TOKEN } : {}) },
       body: JSON.stringify({ topic: env.NTFY_TOPIC, title, message, click, tags, priority }),
     });
-    return { sent: r.ok, status: r.status };
+    // pri chybe vrátime aj vysvetlenie od ntfy (napr. „limit reached…“) – neobsahuje tému ani token
+    const detail = r.ok ? undefined : (await r.text().catch(() => '')).slice(0, 200);
+    return { sent: r.ok, status: r.status, detail };
   } catch (e) {
     return { sent: false, error: String(e).slice(0, 100) };
   }
